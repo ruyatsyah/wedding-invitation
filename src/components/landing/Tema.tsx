@@ -1,49 +1,46 @@
+'use client';
+
 import React, { useState } from 'react';
 
-interface Theme {
-  id: number;
-  name: string;
-  category: 'Modern' | 'Rustic' | 'Floral' | 'Minimalist';
-  color: string;
-  imgUrl: string;
-}
-
-const THEMES: Theme[] = [
-  { id: 1, name: 'Adinda & Rahmat', category: 'Modern', color: 'bg-emerald-800', imgUrl: '🌿' },
-  { id: 2, name: 'Chandra & Melati', category: 'Floral', color: 'bg-[#8e1b42]', imgUrl: '🌸' },
-  { id: 3, name: 'Dewi & Surya', category: 'Rustic', color: 'bg-[#a3704c]', imgUrl: '🍂' },
-  { id: 4, name: 'Eka & Bagus', category: 'Minimalist', color: 'bg-slate-800', imgUrl: '⚪' },
-  { id: 5, name: 'Fitri & Hidayat', category: 'Modern', color: 'bg-indigo-950', imgUrl: '✨' },
-  { id: 6, name: 'Gita & Bayu', category: 'Floral', color: 'bg-rose-950', imgUrl: '🌹' },
+const THEMES = [
+  { id: 1, name: 'Adinda & Rahmat', category: 'Modern',     emoji: '🌿', bg: 'bg-emerald-900',  accent: 'emerald' },
+  { id: 2, name: 'Chandra & Melati', category: 'Floral',    emoji: '🌸', bg: 'bg-[#8e1b42]',    accent: 'rose' },
+  { id: 3, name: 'Dewi & Surya',     category: 'Rustic',    emoji: '🍂', bg: 'bg-[#7a4a2a]',    accent: 'amber' },
+  { id: 4, name: 'Eka & Bagus',      category: 'Minimalist',emoji: '◆',  bg: 'bg-slate-800',    accent: 'slate' },
+  { id: 5, name: 'Fitri & Hidayat',  category: 'Modern',    emoji: '✦',  bg: 'bg-indigo-900',   accent: 'indigo' },
+  { id: 6, name: 'Gita & Bayu',      category: 'Floral',    emoji: '🌹', bg: 'bg-rose-950',     accent: 'rose' },
 ];
 
-export default function Tema() {
-  const [activeCategory, setActiveCategory] = useState<'Semua' | 'Modern' | 'Rustic' | 'Floral' | 'Minimalist'>('Semua');
+const CATS = ['Semua', 'Modern', 'Rustic', 'Floral', 'Minimalist'] as const;
+type Cat = typeof CATS[number];
 
-  const filteredThemes = activeCategory === 'Semua' 
-    ? THEMES 
-    : THEMES.filter(t => t.category === activeCategory);
+export default function Tema() {
+  const [active, setActive] = useState<Cat>('Semua');
+
+  const filtered = active === 'Semua' ? THEMES : THEMES.filter(t => t.category === active);
 
   return (
-    <section id="tema" className="py-24 bg-white border-t border-slate-50">
-      <div className="max-w-7xl mx-auto px-6 text-center space-y-12">
-        <div className="space-y-4 max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800">Pilihan Tema Desain Premium</h2>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            Pilih dari puluhan desain tema undangan eksklusif yang dirancang oleh desainer profesional kami. Semua tema responsif dan dapat disesuaikan sesuka Anda.
+    <section id="tema" className="py-24 bg-slate-50/60">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Header */}
+        <div className="text-center mb-14 space-y-3 max-w-xl mx-auto">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">Koleksi Tema</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Pilihan Desain Premium</h2>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Dirancang oleh desainer profesional kami. Responsif, elegan, dan mudah dikustomisasi.
           </p>
         </div>
 
-        {/* Categories Tab Selector */}
-        <div className="flex flex-wrap justify-center gap-2">
-          {(['Semua', 'Modern', 'Rustic', 'Floral', 'Minimalist'] as const).map((cat) => (
+        {/* Category Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-10">
+          {CATS.map(cat => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-                activeCategory === cat
-                  ? 'bg-[#8e1b42] text-white shadow-md shadow-pink-900/10'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              onClick={() => setActive(cat)}
+              className={`px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                active === cat
+                  ? 'bg-[#8e1b42] text-white shadow-md'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-rose-200'
               }`}
             >
               {cat}
@@ -51,38 +48,32 @@ export default function Tema() {
           ))}
         </div>
 
-        {/* Grid layout of Themes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredThemes.map((theme) => (
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map(theme => (
             <div
               key={theme.id}
-              className="group bg-[#FCF8F9]/60 border border-rose-100/50 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transform transition-all duration-300 flex flex-col"
+              className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >
-              {/* Theme Preview Card Graphic */}
-              <div className={`h-64 ${theme.color} flex flex-col items-center justify-center relative overflow-hidden text-center text-white p-8 group-hover:scale-[1.01] transition-transform`}>
-                {/* Background decorative ring */}
-                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="w-48 h-48 rounded-full border border-white/20 animate-spin-slow"></div>
-                </div>
-                
-                <span className="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{theme.imgUrl}</span>
-                <p className="text-[9px] uppercase tracking-[0.25em] text-white/80 font-bold">Wedding Invitation</p>
-                <h4 className="text-2xl font-serif italic my-2">{theme.name}</h4>
-                <div className="w-10 h-[1px] bg-white/40 mx-auto"></div>
+              {/* Preview */}
+              <div className={`${theme.bg} h-52 flex flex-col items-center justify-center text-white text-center p-8 relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors" />
+                <span className="text-4xl mb-3 relative z-10">{theme.emoji}</span>
+                <p className="text-[9px] uppercase tracking-[0.25em] text-white/70 font-semibold relative z-10">Wedding Invitation</p>
+                <h4 className="text-xl font-serif italic mt-1 relative z-10">{theme.name}</h4>
               </div>
 
-              {/* Theme Bottom description details */}
-              <div className="p-6 bg-white border-t border-slate-100 flex items-center justify-between">
-                <div className="text-left">
-                  <h5 className="font-bold text-slate-800 text-sm">{theme.name}</h5>
-                  <span className="text-[10px] text-rose-600 font-semibold uppercase tracking-wider">{theme.category}</span>
+              {/* Card Footer */}
+              <div className="p-5 flex items-center justify-between bg-white border-t border-slate-50">
+                <div>
+                  <p className="font-semibold text-slate-800 text-sm">{theme.name}</p>
+                  <span className="text-[10px] text-[#8e1b42] font-semibold uppercase tracking-wider">{theme.category}</span>
                 </div>
-                
                 <a
                   href="/?to=tamu-kehormatan"
-                  className="px-4 py-2 bg-rose-50 text-rose-800 hover:bg-[#8e1b42] hover:text-white rounded-xl text-xs font-semibold transition-all"
+                  className="text-xs font-semibold px-4 py-2 rounded-lg bg-rose-50 text-[#8e1b42] hover:bg-[#8e1b42] hover:text-white transition-all"
                 >
-                  Lihat Demo
+                  Preview
                 </a>
               </div>
             </div>

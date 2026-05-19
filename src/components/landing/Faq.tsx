@@ -1,69 +1,59 @@
+'use client';
+
 import React, { useState } from 'react';
 
-interface FaqItem {
-  question: string;
-  answer: string;
-}
-
-const FAQS: FaqItem[] = [
+const FAQS = [
   {
-    question: 'Berapa lama masa aktif undangan digital saya?',
-    answer: 'Masa aktif undangan bervariasi bergantung paket yang Anda pilih. Mulai dari 3 hari pada paket Trial (Bronze), 1 bulan pada paket Silver, hingga 6 bulan penuh pada paket Gold. Jika masa aktif habis, data Anda tetap tersimpan dan dapat diperpanjang kembali kapan saja.',
+    q: 'Berapa lama masa aktif undangan digital saya?',
+    a: 'Masa aktif tergantung paket: 3 hari (Bronze Trial), 1 bulan (Silver), hingga 6 bulan (Gold). Data Anda tetap aman setelah masa aktif habis dan dapat diperpanjang kapan saja.',
   },
   {
-    question: 'Apakah saya bisa mengedit undangan setelah disebarkan?',
-    answer: 'Tentu saja bisa! Anda dapat melakukan perubahan informasi acara, mengunggah foto pre-wedding tambahan, mengganti lagu backsound, maupun memperbarui rute maps kapan pun secara instan dan tanpa biaya tambahan.',
+    q: 'Apakah saya bisa mengedit undangan setelah disebarkan?',
+    a: 'Ya! Anda bisa mengedit informasi acara, foto, lagu backsound, dan rute maps kapan saja tanpa biaya tambahan melalui Dashboard Admin.',
   },
   {
-    question: 'Bagaimana cara membagikan undangan via WhatsApp?',
-    answer: 'Wevitation menyediakan integrasi pengiriman WhatsApp API. Pada Dashboard Admin, Anda cukup memasukkan nama tamu beserta nomor WhatsApp mereka, lalu klik "Kirim WA". Aplikasi akan otomatis membuka WhatsApp dengan pesan khusus terformat rapi.',
+    q: 'Bagaimana cara kirim undangan via WhatsApp?',
+    a: 'Di Dashboard Admin, masukkan nama dan nomor WA tamu, lalu klik "Kirim WA". Aplikasi akan otomatis membuka WhatsApp dengan pesan undangan terformat beserta link personal tamu.',
   },
   {
-    question: 'Apakah ada batasan jumlah tamu undangan?',
-    answer: 'Tidak ada batasan jumlah nama tamu! Anda dapat mendaftarkan ribuan nama tamu VIP maupun rombongan secara gratis tanpa batasan kuota pada seluruh paket premium kami.',
+    q: 'Apakah ada batasan jumlah tamu?',
+    a: 'Tidak ada! Anda bisa mendaftarkan tamu sebanyak apapun tanpa batasan di semua paket premium kami.',
+  },
+  {
+    q: 'Apakah data tamu aman tersimpan?',
+    a: 'Ya. Seluruh data tersimpan di MongoDB Atlas dengan enkripsi tingkat enterprise. Kami tidak menjual atau membagikan data Anda kepada pihak ketiga.',
   },
 ];
 
 export default function Faq() {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-
-  const toggleFaq = (idx: number) => {
-    setOpenIdx(openIdx === idx ? null : idx);
-  };
+  const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-24 bg-[#FCF8F9]/50 border-t border-slate-100">
-      <div className="max-w-4xl mx-auto px-6 space-y-16">
-        <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800">Pertanyaan yang Sering Diajukan</h2>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            Menjawab rasa penasaran Anda seputar pendaftaran, fitur lengkap, masa aktif, maupun sistem pengiriman undangan digital Wevitation.
-          </p>
+    <section id="faq" className="py-24 bg-slate-50/60">
+      <div className="max-w-3xl mx-auto px-6 lg:px-12">
+        {/* Header */}
+        <div className="text-center mb-12 space-y-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">FAQ</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Pertanyaan yang Sering Ditanyakan</h2>
         </div>
 
-        {/* Accordions */}
-        <div className="space-y-4">
-          {FAQS.map((faq, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl border border-rose-100/50 shadow-sm overflow-hidden transition-all"
-            >
+        {/* Accordion */}
+        <div className="space-y-3">
+          {FAQS.map((faq, i) => (
+            <div key={i} className="bg-white rounded-xl border border-slate-100 overflow-hidden">
               <button
-                onClick={() => toggleFaq(idx)}
-                className="w-full px-6 py-5 text-left font-bold text-slate-800 text-sm sm:text-base flex justify-between items-center outline-none cursor-pointer"
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full flex items-center justify-between px-6 py-4 text-left text-sm font-semibold text-slate-800 hover:text-[#8e1b42] transition-colors cursor-pointer"
               >
-                <span>{faq.question}</span>
-                <span className="text-rose-600 font-extrabold text-lg">
-                  {openIdx === idx ? '−' : '+'}
+                <span>{faq.q}</span>
+                <span className={`ml-4 flex-shrink-0 text-[#8e1b42] text-lg font-light transition-transform duration-200 ${open === i ? 'rotate-45' : ''}`}>
+                  +
                 </span>
               </button>
-              
-              <div
-                className={`transition-all duration-300 ease-in-out ${
-                  openIdx === idx ? 'max-h-40 border-t border-slate-50 p-6' : 'max-h-0 overflow-hidden'
-                }`}
-              >
-                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">{faq.answer}</p>
+              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${open === i ? 'max-h-40' : 'max-h-0'}`}>
+                <p className="px-6 pb-5 text-sm text-slate-500 leading-relaxed border-t border-slate-50 pt-3">
+                  {faq.a}
+                </p>
               </div>
             </div>
           ))}

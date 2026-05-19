@@ -1,66 +1,67 @@
 import React from 'react';
 
-interface BlogPost {
-  title: string;
-  category: string;
-  date: string;
-  summary: string;
-}
-
-const POSTS: BlogPost[] = [
+const POSTS = [
   {
-    title: 'Tips Memilih Lagu Backsound Romantis Undangan Digital',
-    category: 'Inspirasi',
+    tag: 'Inspirasi',
     date: '15 Mei 2026',
-    summary: 'Temukan daftar rekomendasi lagu akustik terbaik yang membuat tamu terharu saat membuka undangan digital Anda.',
+    title: 'Tips Memilih Lagu Backsound Romantis untuk Undangan Digital',
+    excerpt: 'Rekomendasi lagu akustik terbaik yang membuat tamu terharu saat membuka undangan.',
   },
   {
-    title: 'Cara Membuat Rundown Acara Pernikahan Modern Terlengkap',
-    category: 'Tips Pernikahan',
+    tag: 'Tips',
     date: '10 Mei 2026',
-    summary: 'Persiapkan susunan acara pernikahan dari akad nikah hingga resepsi dengan panduan rundown yang rapi dan terorganisir.',
+    title: 'Cara Membuat Rundown Acara Pernikahan Modern yang Terstruktur',
+    excerpt: 'Panduan lengkap menyusun jadwal akad hingga resepsi agar berjalan lancar dan tepat waktu.',
   },
   {
-    title: 'Inspirasi Desain Tema Pernikahan Rustic Kekinian',
-    category: 'Tren Desain',
-    date: '05 Mei 2026',
-    summary: 'Mengenal estetika rustik dengan elemen daun kering, kayu hangat, dan bunga liar untuk pernikahan intim bernuansa alam.',
+    tag: 'Desain',
+    date: '5 Mei 2026',
+    title: 'Inspirasi Tema Pernikahan Rustic yang Hangat dan Alami',
+    excerpt: 'Elemen kayu, bunga liar, dan kain rami yang menyatu indah dalam konsep pernikahan di alam terbuka.',
   },
 ];
 
 export default function Blog() {
   return (
-    <section id="blog" className="py-24 bg-white border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-6 text-center space-y-16">
-        <div className="space-y-4 max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800">Artikel & Inspirasi Pernikahan</h2>
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
-            Dapatkan tips persiapan pernikahan, panduan adat, inspirasi gaun, dekorasi, hingga informasi terbaru seputar tren pernikahan.
-          </p>
+    <section id="blog" className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+          <div className="space-y-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">Artikel Blog</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Inspirasi Pernikahan</h2>
+          </div>
+          <a href="#" className="text-sm font-semibold text-[#8e1b42] hover:underline self-start sm:self-auto">
+            Lihat Semua Artikel →
+          </a>
         </div>
 
-        {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-          {POSTS.map((post, idx) => (
-            <div
-              key={idx}
-              className="bg-[#FCF8F9]/40 border border-rose-100/50 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+        {/* Articles Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {POSTS.map((post, i) => (
+            <article
+              key={i}
+              className="bg-slate-50/70 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col"
             >
-              <div className="p-6 space-y-4">
-                <span className="text-[10px] text-rose-600 font-semibold uppercase tracking-wider bg-rose-50 px-3 py-1 rounded-full">
-                  {post.category}
-                </span>
-                <h4 className="font-bold text-slate-800 text-base hover:text-[#8e1b42] transition-colors cursor-pointer">
-                  {post.title}
-                </h4>
-                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">{post.summary}</p>
+              {/* Placeholder image area */}
+              <div className="h-48 bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center">
+                <span className="text-4xl opacity-30">🌸</span>
               </div>
 
-              <div className="p-6 bg-white border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                <span>{post.date}</span>
-                <span className="font-semibold text-rose-800 cursor-pointer">Selengkapnya &rarr;</span>
+              <div className="p-6 flex flex-col flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#8e1b42] bg-rose-50 px-2.5 py-1 rounded-full">
+                    {post.tag}
+                  </span>
+                  <span className="text-[10px] text-slate-400">{post.date}</span>
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm leading-snug mb-2 flex-1">{post.title}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-4">{post.excerpt}</p>
+                <a href="#" className="text-xs font-semibold text-[#8e1b42] hover:underline">
+                  Baca Selengkapnya →
+                </a>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
