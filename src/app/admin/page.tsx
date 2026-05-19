@@ -79,8 +79,9 @@ export default function AdminPage() {
       } else {
         setError(data.error || 'Failed to add guest');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'An error occurred';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -125,7 +126,6 @@ Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir. Terima kasih.`
   const attendingGuests = guests.filter(g => g.rsvpStatus === 'ATTENDING').reduce((acc, curr) => acc + (curr.pax || 1), 0);
   const declinedGuests = guests.filter(g => g.rsvpStatus === 'DECLINED').length;
   const pendingGuests = guests.filter(g => g.rsvpStatus === 'PENDING').length;
-  const totalWishes = wishes.length;
 
   return (
     <main className="min-h-screen bg-slate-50/50 flex">
@@ -256,7 +256,7 @@ Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir. Terima kasih.`
                             wish.attendance === 'Tidak Hadir' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
                           }`}>{wish.attendance}</span>
                         </div>
-                        <p className="text-xs text-slate-500 italic">"{wish.message}"</p>
+                        <p className="text-xs text-slate-500 italic">&ldquo;{wish.message}&rdquo;</p>
                       </div>
                     ))}
                   </div>
@@ -439,7 +439,7 @@ Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir. Terima kasih.`
                           wish.attendance === 'Tidak Hadir' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
                         }`}>{wish.attendance}</span>
                       </div>
-                      <p className="text-sm text-slate-600 italic mb-4">"{wish.message}"</p>
+                      <p className="text-sm text-slate-600 italic mb-4">&ldquo;{wish.message}&rdquo;</p>
                     </div>
                     <span className="text-[10px] text-slate-400 self-end font-mono">
                       {new Date(wish.createdAt).toLocaleDateString('id-ID', {

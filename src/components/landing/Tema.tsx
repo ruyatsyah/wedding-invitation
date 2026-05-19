@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const THEMES = [
   { id: 1, name: 'Adinda & Rahmat', category: 'Modern',     emoji: '🌿', bg: 'bg-emerald-900',  accent: 'emerald' },
@@ -69,12 +70,12 @@ export default function Tema() {
                   <p className="font-semibold text-slate-800 text-sm">{theme.name}</p>
                   <span className="text-[10px] text-[#8e1b42] font-semibold uppercase tracking-wider">{theme.category}</span>
                 </div>
-                <a
+                <Link
                   href="/?to=tamu-kehormatan"
                   className="text-xs font-semibold px-4 py-2 rounded-lg bg-rose-50 text-[#8e1b42] hover:bg-[#8e1b42] hover:text-white transition-all"
                 >
                   Preview
-                </a>
+                </Link>
               </div>
             </div>
           ))}

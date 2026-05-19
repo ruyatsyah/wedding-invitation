@@ -8,8 +8,9 @@ export async function GET() {
     await connectToDatabase();
     const guests = await Guest.find({}).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: guests });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
 
@@ -39,7 +40,8 @@ export async function POST(request: Request) {
     });
     
     return NextResponse.json({ success: true, data: guest }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
   }
 }
