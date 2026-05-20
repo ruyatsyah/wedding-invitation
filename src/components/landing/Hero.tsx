@@ -34,14 +34,6 @@ export default function Hero() {
       <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
         {/* ── Left ── */}
         <div className="space-y-8">
-          <span className="inline-flex items-center gap-2 text-xs font-semibold text-[#8e1b42] bg-rose-50 border border-rose-100 px-4 py-2 rounded-full uppercase tracking-widest">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500" />
-            </span>
-            Platform Undangan Pernikahan Digital
-          </span>
-
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
               Undangan Pernikahan{' '}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export interface Guest {
   name: string;
@@ -113,6 +113,10 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
+  // Audio
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   // RSVP
   const [rsvpStatus, setRsvpStatus] = useState<'ATTENDING' | 'DECLINED'>('ATTENDING');
   const [rsvpPax, setRsvpPax] = useState(1);
@@ -143,6 +147,25 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
   const weddingDate = theme === 'jawa' ? '30 · 06 · 2025' : 
                       theme === 'manado' ? '20 · 09 · 2025' : 
                       theme === 'snapfoto' ? '15 · 02 · 2026' : '12 · 07 · 2026';
+
+  const bgmSrc = theme === 'snapfoto' ? '/assets/music/snapfoto-bgm.mp3' : undefined;
+
+  const handleOpenInvitation = () => {
+    setIsOpen(true);
+    if (audioRef.current) {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(console.error);
+    }
+  };
+
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(console.error);
+    }
+  };
 
   useEffect(() => {
     if (isDemo) {
@@ -243,12 +266,24 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
   return (
     <div className={`min-h-screen ${style.outerBg} transition-colors duration-300 relative overflow-x-hidden selection:bg-rose-200`}>
 
-      {/* Music indicator */}
-      {isOpen && (
-        <div className="fixed bottom-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-slate-100 z-50 flex items-center gap-2 animate-pulse">
-          <span className="text-pink-500">🎵</span>
-          <span className="text-xs font-medium text-slate-700">Music playing...</span>
-        </div>
+      {/* Audio Element */}
+      {bgmSrc && <audio ref={audioRef} src={bgmSrc} loop preload="auto" />}
+
+      {/* Floating Music Toggle */}
+      {isOpen && bgmSrc && (
+        <button
+          onClick={toggleAudio}
+          className={`fixed bottom-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full shadow-lg border backdrop-blur-md transition-all ${
+            isPlaying ? 'bg-white/90 border-slate-200 animate-[spin_4s_linear_infinite]' : 'bg-slate-800/90 border-slate-700'
+          }`}
+          aria-label="Toggle music"
+        >
+          {isPlaying ? (
+            <span className="text-pink-500 text-xl leading-none">🎵</span>
+          ) : (
+            <span className="text-slate-300 text-xl leading-none">🔇</span>
+          )}
+        </button>
       )}
 
       {/* ── COVER ─────────────────────────────────── */}
@@ -270,7 +305,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
               )}
             </div>
             <button
-              onClick={() => setIsOpen(true)}
+              onClick={handleOpenInvitation}
               className="w-full py-4 bg-pink-500 hover:bg-pink-600 text-white font-semibold text-sm rounded-full transition-all shadow-lg shadow-pink-500/10 hover:scale-[1.02] transform cursor-pointer"
             >
               ✉️ Buka Undangan
