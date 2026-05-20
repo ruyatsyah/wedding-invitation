@@ -3,7 +3,24 @@
 import React from 'react';
 import Link from 'next/link';
 
+const HERO_IMAGES = [
+  '/assets/landing/hero-1.png',
+  '/assets/landing/hero-2.png',
+  '/assets/landing/hero-3.png',
+  '/assets/landing/hero-4.png',
+  '/assets/landing/hero.png',
+];
+
 export default function Hero() {
+  const [currentIdx, setCurrentIdx] = React.useState(0);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIdx((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 4500); // changes every 4.5s
+    return () => clearInterval(interval);
+  }, []);
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -66,50 +83,62 @@ export default function Hero() {
         </div>
 
         {/* ── Right: Phone Mockup ── */}
-        <div className="relative flex justify-center lg:justify-end">
-          {/* Decorative ring */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-80 h-80 rounded-full border border-rose-100 opacity-60" />
-            <div className="absolute w-96 h-96 rounded-full border border-rose-50 opacity-40" />
-          </div>
+        <div className="relative flex justify-center w-full">
+          {/* Wrapper for phone and floating badges */}
+          <div className="relative w-[280px] h-[560px]">
+            {/* Decorative ring (Centered behind the phone mockup) */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+              <div className="absolute w-[380px] h-[380px] rounded-full border border-rose-200/80" />
+              <div className="absolute w-[480px] h-[480px] rounded-full border border-rose-100" />
+            </div>
 
-          {/* Phone */}
-          <div className="relative w-[280px] h-[560px] bg-slate-900 rounded-[40px] p-2.5 shadow-2xl border-4 border-slate-800/70">
-            {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-b-2xl z-20" />
-            {/* Screen */}
-            <div className="w-full h-full bg-[#FCF8F9] rounded-[32px] overflow-hidden flex flex-col">
-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-3">
-                <p className="text-[9px] uppercase tracking-[0.3em] text-rose-500 font-bold">The Wedding of</p>
-                <h2 className="text-4xl font-serif italic text-rose-800">Rian &amp; Rina</h2>
-                <div className="w-8 h-px bg-rose-200 mx-auto" />
-                <p className="text-[9px] text-slate-400 tracking-widest font-mono">25 · 07 · 2026</p>
-              </div>
-              <div className="p-4 space-y-3 bg-white border-t border-rose-50">
-                <div className="bg-rose-50 rounded-xl p-3.5">
-                  <p className="text-[9px] text-slate-400 mb-1">Kepada Yth:</p>
-                  <p className="text-sm font-bold text-rose-900">Bapak Budi Santoso</p>
-                </div>
-                <div className="w-full py-3 bg-[#8e1b42] rounded-xl text-center text-white text-xs font-semibold shadow-md">
-                  ✉️ Buka Undangan
+            {/* Phone */}
+            <div className="absolute inset-0 bg-slate-900 rounded-[40px] p-2.5 shadow-2xl border-4 border-slate-800/70">
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-b-2xl z-20" />
+              {/* Screen */}
+              <div className="relative w-full h-full rounded-[32px] overflow-hidden flex flex-col justify-end">
+                {/* Background image carousel with smooth cross-fade */}
+                {HERO_IMAGES.map((imgSrc, idx) => (
+                  <img
+                    key={imgSrc}
+                    src={imgSrc}
+                    alt={`Kabar Bahagia Preview ${idx + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                      idx === currentIdx ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                ))}
+                
+                {/* Soft overlay to ensure text readability */}
+                <div className="absolute inset-0 bg-slate-950/15" />
+                
+                {/* Bottom Section (Only Button) */}
+                <div className="p-4 z-10 relative">
+                  <div className="w-full py-2.5 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-lg transition-all">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Buka Undangan
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Floating badges */}
-          <div className="absolute -left-8 top-1/3 bg-white border border-slate-100 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
-            <span className="text-xl">💌</span>
-            <div>
-              <p className="text-[10px] font-bold text-slate-800">Auto WA Blast</p>
-              <p className="text-[9px] text-slate-400">Kirim ke semua tamu</p>
+            {/* Floating badges (Responsive positions: -left-10/top-24 on mobile, -left-32/top-1/3 on desktop) */}
+            <div className="absolute -left-10 top-24 lg:-left-32 lg:top-1/3 bg-white border border-slate-100 rounded-xl lg:rounded-2xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl flex items-center gap-2 lg:gap-3 z-30">
+              <span className="text-lg lg:text-xl">💌</span>
+              <div className="text-left">
+                <p className="text-[9px] lg:text-[10px] font-bold text-slate-800">Auto WA Blast</p>
+                <p className="text-[8px] lg:text-[9px] text-slate-400">Kirim ke semua tamu</p>
+              </div>
             </div>
-          </div>
-          <div className="absolute -right-6 bottom-1/3 bg-white border border-slate-100 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
-            <span className="text-xl">✅</span>
-            <div>
-              <p className="text-[10px] font-bold text-slate-800">RSVP Real-time</p>
-              <p className="text-[9px] text-slate-400">Pantau kehadiran</p>
+            <div className="absolute -right-10 bottom-24 lg:-right-32 lg:bottom-1/3 bg-white border border-slate-100 rounded-xl lg:rounded-2xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl flex items-center gap-2 lg:gap-3 z-30">
+              <span className="text-xl lg:text-xl">✅</span>
+              <div className="text-left">
+                <p className="text-[9px] lg:text-[10px] font-bold text-slate-800">RSVP Real-time</p>
+                <p className="text-[8px] lg:text-[9px] text-slate-400">Pantau kehadiran</p>
+              </div>
             </div>
           </div>
         </div>

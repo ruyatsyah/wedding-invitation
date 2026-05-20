@@ -14,7 +14,7 @@ const FEATURES = [
 
 export default function Fitur() {
   return (
-    <section id="fitur" className="py-24 bg-white">
+    <section id="fitur" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-14 space-y-3 max-w-xl mx-auto">

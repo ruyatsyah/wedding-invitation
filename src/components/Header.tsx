@@ -31,7 +31,8 @@ const Header = () => {
   return (
     <header className="w-full bg-[#FCF8F9]/95 backdrop-blur-sm px-6 md:px-12 py-4 flex items-center justify-between border-b border-rose-100/60 sticky top-0 z-50 shadow-sm">
       {/* Logo */}
-      <Link href="/landing" className="flex items-center gap-3">
+      <div className="flex-1 flex justify-start">
+        <Link href="/landing" className="flex items-center gap-3">
         <div className="relative flex items-center justify-center w-10 h-10">
           <svg className="absolute left-0 text-pink-400 opacity-80" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
@@ -41,10 +42,11 @@ const Header = () => {
           </svg>
         </div>
         <div className="flex flex-col">
-          <span className="text-xl font-bold text-slate-900 leading-tight">Wevitation</span>
+          <span className="text-xl font-bold text-slate-900 leading-tight">Kabar Bahagia</span>
           <span className="text-[9px] text-slate-400 tracking-wider">online wedding invitation</span>
         </div>
       </Link>
+      </div>
 
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex items-center gap-6">
@@ -70,7 +72,7 @@ const Header = () => {
       </nav>
 
       {/* Right Buttons */}
-      <div className="flex items-center gap-3">
+      <div className="flex-1 flex justify-end items-center gap-3">
         <Link
           href="/admin"
           className="bg-[#8e1b42] hover:bg-[#731433] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all shadow-sm hidden sm:block"

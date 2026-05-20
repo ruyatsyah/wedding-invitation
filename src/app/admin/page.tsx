@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 interface Guest {
   _id: string;
@@ -22,7 +23,21 @@ interface Wish {
   createdAt: string;
 }
 
-export default function AdminPage() {
+function AdminDashboardContent() {
+  const searchParams = useSearchParams();
+  const themeParam = searchParams.get('theme');
+  const [toastMessage, setToastMessage] = useState('');
+
+  useEffect(() => {
+    if (themeParam) {
+      const capitalized = themeParam.charAt(0).toUpperCase() + themeParam.slice(1);
+      setToastMessage(`Tema "${capitalized}" berhasil diaktifkan untuk undangan Anda!`);
+      const timer = setTimeout(() => {
+        setToastMessage('');
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [themeParam]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tamu' | 'wish'>('dashboard');
   const [guests, setGuests] = useState<Guest[]>([]);
   const [wishes, setWishes] = useState<Wish[]>([]);
@@ -133,7 +148,7 @@ Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir. Terima kasih.`
       <aside className="w-64 bg-slate-900 text-white p-6 hidden md:flex flex-col justify-between">
         <div>
           <h2 className="text-2xl font-bold mb-8 tracking-tight flex items-center gap-2">
-            <span className="text-pink-500">♥</span> Wevitation <span className="text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">Admin</span>
+            <span className="text-pink-500">♥</span> Kabar Bahagia <span className="text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">Admin</span>
           </h2>
           <nav className="space-y-2">
             <button
@@ -187,6 +202,20 @@ Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir. Terima kasih.`
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto max-h-screen">
+        {/* Theme Activation Toast Notification */}
+        {toastMessage && (
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center justify-between animate-fade-in-up">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">✨</span>
+              <div>
+                <p className="text-sm font-semibold">{toastMessage}</p>
+                <p className="text-xs text-emerald-700/80 mt-0.5">Anda dapat membagikan undangan ini menggunakan template baru sekarang.</p>
+              </div>
+            </div>
+            <button onClick={() => setToastMessage('')} className="p-1 hover:bg-emerald-100 rounded-full transition-colors text-emerald-600 hover:text-emerald-800 font-bold font-sans cursor-pointer text-sm leading-none">✕</button>
+          </div>
+        )}
+
         <header className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">
@@ -458,5 +487,17 @@ Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir. Terima kasih.`
         )}
       </div>
     </main>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <p className="text-slate-500 font-medium text-sm animate-pulse">Memuat Admin Dashboard...</p>
+      </div>
+    }>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

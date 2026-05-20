@@ -22,7 +22,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 text-white">
       {/* CTA Banner */}
-      <div className="bg-[#8e1b42] py-14">
+      <div className="bg-[#8e1b42] py-20">
         <div className="max-w-3xl mx-auto px-6 text-center space-y-5">
           <h3 className="text-2xl sm:text-3xl font-extrabold">Siap Membuat Undangan Pernikahan Digital?</h3>
           <p className="text-rose-100 text-sm leading-relaxed">
@@ -38,13 +38,13 @@ export default function Footer() {
       </div>
 
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+      <div className="max-w-7xl w-full mx-auto px-6 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-2">
               <span className="text-rose-400 text-xl">♥</span>
-              <span className="font-extrabold text-xl tracking-tight">Wevitation</span>
+              <span className="font-extrabold text-xl tracking-tight">Kabar Bahagia</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
               Platform undangan pernikahan digital terpercaya di Indonesia. Buat, bagikan, dan kelola undangan impian Anda dengan mudah.
@@ -79,7 +79,7 @@ export default function Footer() {
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500">Kontak</h4>
             <ul className="space-y-3 text-sm text-slate-400">
-              <li>📧 halo@wevitation.com</li>
+              <li>📧 halo@kabarbahagia.com</li>
               <li>📱 +62 812-3456-7890</li>
               <li>📍 Jakarta, Indonesia</li>
             </ul>
@@ -94,7 +94,7 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>© {year} Wevitation. Seluruh Hak Cipta Dilindungi.</p>
+          <p>© {year} Kabar Bahagia. Seluruh Hak Cipta Dilindungi.</p>
           <div className="flex gap-5">
             <a href="#" className="hover:text-slate-300 transition-colors">Kebijakan Privasi</a>
             <a href="#" className="hover:text-slate-300 transition-colors">Syarat & Ketentuan</a>

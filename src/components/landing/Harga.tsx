@@ -33,7 +33,7 @@ const PLANS = [
 
 export default function Harga() {
   return (
-    <section id="harga" className="py-24 bg-slate-50/60">
+    <section id="harga" className="py-24 bg-slate-50/60 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-14 space-y-3 max-w-xl mx-auto">
@@ -45,11 +45,11 @@ export default function Harga() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`rounded-2xl p-8 flex flex-col ${
+              className={`rounded-2xl p-8 flex flex-col h-full ${
                 plan.popular
                   ? 'bg-[#8e1b42] text-white shadow-xl shadow-rose-900/20 ring-2 ring-[#8e1b42]'
                   : 'bg-white border border-slate-100 shadow-sm'

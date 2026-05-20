@@ -23,7 +23,7 @@ const POSTS = [
 
 export default function Blog() {
   return (
-    <section id="blog" className="py-24 bg-white">
+    <section id="blog" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">

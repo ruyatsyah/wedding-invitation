@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function LayarTamu() {
   return (
-    <section id="layar-tamu" className="py-24 bg-white">
+    <section id="layar-tamu" className="py-24 bg-white scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
         {/* Text */}
@@ -39,7 +39,7 @@ export default function LayarTamu() {
             <div className="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-rose-400 text-xs">♥</span>
-                <span className="text-xs font-semibold text-slate-300">Wevitation Live Screen</span>
+                <span className="text-xs font-semibold text-slate-300">Kabar Bahagia Live Screen</span>
               </div>
               <span className="flex items-center gap-1.5 text-[9px] font-semibold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

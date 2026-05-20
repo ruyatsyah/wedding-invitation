@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Download() {
   return (
-    <section id="download" className="py-24 bg-slate-50/60">
+    <section id="download" className="py-24 bg-slate-50/60 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
         {/* App card mockup */}
@@ -14,7 +14,7 @@ export default function Download() {
                 ♥
               </div>
               <div>
-                <p className="font-bold text-slate-800">Wevitation App</p>
+                <p className="font-bold text-slate-800">Kabar Bahagia App</p>
                 <p className="text-xs text-slate-400">Wedding Invitation Platform</p>
               </div>
             </div>

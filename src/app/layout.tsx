@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wevitation – Platform Undangan Pernikahan Digital",
+  title: "Kabar Bahagia – Platform Undangan Pernikahan Digital",
   description: "Buat undangan pernikahan digital yang elegan, responsif, dan interaktif. Fitur RSVP instan, buku tamu digital, dan pengiriman via WhatsApp otomatis.",
-  keywords: "undangan pernikahan digital, wedding invitation online, RSVP online, wevitation",
+  keywords: "undangan pernikahan digital, wedding invitation online, RSVP online, kabar bahagia",
   openGraph: {
-    title: "Wevitation – Platform Undangan Pernikahan Digital",
+    title: "Kabar Bahagia – Platform Undangan Pernikahan Digital",
     description: "Buat undangan pernikahan digital yang elegan dan interaktif.",
     type: "website",
   },
