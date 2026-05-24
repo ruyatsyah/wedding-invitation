@@ -15,8 +15,8 @@ export default function AdminLayout({
       {/* Mobile Top Header */}
       <header className="md:hidden bg-white text-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm border-b border-slate-100">
         <h2 className="text-lg font-extrabold tracking-tight flex items-center gap-1.5" style={{ color: '#8D1A42' }}>
-          InvitoAdmin
-          <span className="text-[9px] bg-pink-50 px-2 py-0.5 rounded-full font-semibold ml-1" style={{ color: '#8D1A42' }}>Suite</span>
+          Kabar Bahagia
+          <span className="text-[9px] bg-pink-50 px-2 py-0.5 rounded-full font-semibold ml-1" style={{ color: '#8D1A42' }}>Admin</span>
         </h2>
         <button
           onClick={() => setIsSidebarOpen(true)}
@@ -32,7 +32,7 @@ export default function AdminLayout({
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-52px)] md:max-h-screen md:h-screen">
+      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-52px)] md:max-h-screen md:h-screen md:ml-60">
         {children}
       </div>
     </div>

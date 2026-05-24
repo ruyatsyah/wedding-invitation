@@ -1,8 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
+import { LogOut, User, Settings, ChevronDown } from 'lucide-react';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -11,6 +14,21 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const adminUser = session?.user;
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const menuItems = [
     {
@@ -71,16 +89,26 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   ];
 
   const sidebarContent = (
-    <div className="flex flex-col justify-between h-full" style={{ background: 'linear-gradient(180deg, #fefefe 0%, #faf7f8 100%)' }}>
+    <div className="flex flex-col justify-between min-h-full" style={{ background: 'linear-gradient(180deg, #fefefe 0%, #faf7f8 100%)' }}>
       {/* Brand */}
       <div>
         <div className="px-6 pt-7 pb-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-extrabold tracking-tight" style={{ color: '#8D1A42' }}>
-                InvitoAdmin
-              </h2>
-              <p className="text-[11px] text-slate-400 font-medium mt-0.5">Management Suite</p>
+            <div className="flex items-center gap-2">
+              <div className="relative flex items-center justify-center w-7 h-7">
+                <svg className="absolute left-0 text-pink-400 opacity-80" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                </svg>
+                <svg className="absolute right-0 text-[#8D1A42]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-base font-extrabold tracking-tight" style={{ color: '#8D1A42' }}>
+                  Kabar Bahagia
+                </h2>
+                <p className="text-[10px] text-slate-400 font-medium">Admin Panel</p>
+              </div>
             </div>
             {onClose && (
               <button onClick={onClose} className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100 cursor-pointer">
@@ -134,21 +162,57 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         </nav>
       </div>
 
-      {/* User Profile at Bottom */}
+      {/* Profile + Logout at Bottom */}
       <div className="px-4 pb-5">
-        <div className="border-t border-slate-100 pt-4">
-          <div className="flex items-center gap-3 px-2">
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm bg-slate-800"
+        <div className="border-t border-slate-100 pt-4 space-y-1">
+          {/* Profile dropdown trigger */}
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-slate-50 transition-colors"
             >
-              <svg className="w-5 h-5 text-teal-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-800">Alex Rivera</p>
-              <p className="text-[11px] text-slate-400">Super Admin</p>
-            </div>
+              <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center flex-shrink-0">
+                {adminUser?.image ? (
+                  <Image
+                    src={adminUser.image}
+                    alt={adminUser.name ?? 'Admin'}
+                    width={36}
+                    height={36}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-slate-500" />
+                )}
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-sm font-semibold text-slate-800 truncate">{adminUser?.name ?? 'Admin'}</p>
+                <p className="text-[11px] text-slate-400 truncate">{adminUser?.email ?? ''}</p>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 flex-shrink-0 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Dropdown */}
+            {profileOpen && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-xl shadow-lg border border-slate-100 py-1.5 z-50">
+                <button
+                  onClick={() => { setProfileOpen(false); router.push('/admin/setting'); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                >
+                  <Settings className="w-4 h-4 text-slate-400" />
+                  Pengaturan
+                </button>
+                <div className="border-t border-slate-100 mt-1 pt-1">
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Keluar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -158,7 +222,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop Sidebar (Persistent) */}
-      <aside className="w-60 hidden md:block shrink-0 h-screen sticky top-0 overflow-y-auto border-r border-slate-100">
+      <aside className="w-60 hidden md:block shrink-0 h-screen fixed top-0 left-0 bottom-0 z-40 overflow-y-auto border-r border-slate-100">
         {sidebarContent}
       </aside>
 

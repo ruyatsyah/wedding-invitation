@@ -74,10 +74,10 @@ const Header = () => {
       {/* Right Buttons */}
       <div className="flex-1 flex justify-end items-center gap-3">
         <Link
-          href="/admin"
+          href="/login"
           className="bg-[#8e1b42] hover:bg-[#731433] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all shadow-sm hidden sm:block"
         >
-          Dashboard
+          Login
         </Link>
 
         {/* Mobile hamburger */}
@@ -117,11 +117,11 @@ const Header = () => {
               )
             )}
             <Link
-              href="/admin"
+              href="/login"
               className="mt-2 bg-[#8e1b42] text-white text-sm font-semibold px-4 py-3 rounded-lg transition-all text-center"
               onClick={() => setMenuOpen(false)}
             >
-              Dashboard Admin
+              Login
             </Link>
           </nav>
         </div>

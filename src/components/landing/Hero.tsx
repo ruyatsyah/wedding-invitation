@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 
 const HERO_IMAGES = [
   '/assets/landing/hero-1.png',
@@ -11,13 +10,18 @@ const HERO_IMAGES = [
   '/assets/landing/hero.png',
 ];
 
-export default function Hero() {
+interface HeroProps {
+  onLoginOpen?: () => void;
+  loginCallbackUrl?: string;
+}
+
+export default function Hero({ onLoginOpen }: HeroProps) {
   const [currentIdx, setCurrentIdx] = React.useState(0);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIdx((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 4500); // changes every 4.5s
+    }, 4500);
     return () => clearInterval(interval);
   }, []);
 
@@ -26,7 +30,10 @@ export default function Hero() {
   };
 
   return (
-    <section id="beranda" className="relative min-h-screen flex items-center bg-white overflow-hidden pt-20">
+    <section
+      id="beranda"
+      className="relative min-h-screen flex items-center bg-white overflow-hidden pt-20"
+    >
       {/* Subtle background blobs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose-50 rounded-full filter blur-[120px] opacity-60 -translate-y-1/4 translate-x-1/4 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-pink-50 rounded-full filter blur-[100px] opacity-50 translate-y-1/4 -translate-x-1/4 pointer-events-none" />
@@ -39,22 +46,43 @@ export default function Hero() {
               Undangan Pernikahan{' '}
               <span className="relative text-[#8e1b42]">
                 Digital
-                <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 6C50 2 150 2 198 6" stroke="#f9a8bf" strokeWidth="3" strokeLinecap="round"/>
+                <svg
+                  className="absolute -bottom-1 left-0 w-full"
+                  viewBox="0 0 200 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 6C50 2 150 2 198 6"
+                    stroke="#f9a8bf"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </span>{' '}
               yang Elegan
             </h1>
             <p className="text-lg text-slate-500 leading-relaxed max-w-lg font-light">
-              Bagikan hari bahagia Anda dengan undangan online yang indah, interaktif, dan mudah disebarkan ke ribuan tamu melalui WhatsApp.
+              Bagikan hari bahagia Anda dengan undangan online yang indah,
+              interaktif, dan mudah disebarkan ke ribuan tamu melalui WhatsApp.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/admin" className="px-7 py-3.5 bg-[#8e1b42] hover:bg-[#731433] text-white text-sm font-semibold rounded-xl shadow-lg shadow-rose-900/15 hover:shadow-rose-900/25 transform hover:-translate-y-0.5 transition-all">
+            <button
+              onClick={() => {
+                if (onLoginOpen) onLoginOpen();
+              }}
+              className="px-7 py-3.5 bg-[#8e1b42] hover:bg-[#731433] text-white text-sm font-semibold rounded-xl shadow-lg shadow-rose-900/15 hover:shadow-rose-900/25 transform hover:-translate-y-0.5 transition-all cursor-pointer"
+              type="button"
+            >
               Buat Undangan Gratis →
-            </Link>
-            <button onClick={() => scrollTo('tema')} className="px-7 py-3.5 bg-white text-slate-700 text-sm font-semibold border border-slate-200 rounded-xl hover:border-rose-200 hover:bg-rose-50/50 transform hover:-translate-y-0.5 transition-all">
+            </button>
+            <button
+              onClick={() => scrollTo('tema')}
+              className="px-7 py-3.5 bg-white text-slate-700 text-sm font-semibold border border-slate-200 rounded-xl hover:border-rose-200 hover:bg-rose-50/50 transform hover:-translate-y-0.5 transition-all cursor-pointer"
+              type="button"
+            >
               Lihat Desain Tema
             </button>
           </div>
@@ -63,8 +91,8 @@ export default function Hero() {
           <div className="flex items-center gap-8 pt-4 border-t border-slate-100">
             {[
               { num: '100K+', label: 'Undangan Dibuat' },
-              { num: '2M+',   label: 'Tamu RSVP' },
-              { num: '4.9',   label: 'Rating Bintang' },
+              { num: '2M+', label: 'Tamu RSVP' },
+              { num: '4.9', label: 'Rating Bintang' },
             ].map(({ num, label }) => (
               <div key={label}>
                 <p className="text-2xl font-extrabold text-slate-800">{num}</p>
@@ -101,15 +129,25 @@ export default function Hero() {
                     }`}
                   />
                 ))}
-                
+
                 {/* Soft overlay to ensure text readability */}
                 <div className="absolute inset-0 bg-slate-950/15" />
-                
+
                 {/* Bottom Section (Only Button) */}
                 <div className="p-4 z-10 relative">
                   <div className="w-full py-2.5 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-lg transition-all">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
                     </svg>
                     Buka Undangan
                   </div>
@@ -121,15 +159,23 @@ export default function Hero() {
             <div className="absolute -left-10 top-24 lg:-left-32 lg:top-1/3 bg-white border border-slate-100 rounded-xl lg:rounded-2xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl flex items-center gap-2 lg:gap-3 z-30">
               <span className="text-lg lg:text-xl">💌</span>
               <div className="text-left">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-800">Auto WA Blast</p>
-                <p className="text-[8px] lg:text-[9px] text-slate-400">Kirim ke semua tamu</p>
+                <p className="text-[9px] lg:text-[10px] font-bold text-slate-800">
+                  Auto WA Blast
+                </p>
+                <p className="text-[8px] lg:text-[9px] text-slate-400">
+                  Kirim ke semua tamu
+                </p>
               </div>
             </div>
             <div className="absolute -right-10 bottom-24 lg:-right-32 lg:bottom-1/3 bg-white border border-slate-100 rounded-xl lg:rounded-2xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl flex items-center gap-2 lg:gap-3 z-30">
               <span className="text-xl lg:text-xl">✅</span>
               <div className="text-left">
-                <p className="text-[9px] lg:text-[10px] font-bold text-slate-800">RSVP Real-time</p>
-                <p className="text-[8px] lg:text-[9px] text-slate-400">Pantau kehadiran</p>
+                <p className="text-[9px] lg:text-[10px] font-bold text-slate-800">
+                  RSVP Real-time
+                </p>
+                <p className="text-[8px] lg:text-[9px] text-slate-400">
+                  Pantau kehadiran
+                </p>
               </div>
             </div>
           </div>

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 
 interface Guest {
   _id: string;
@@ -28,8 +29,27 @@ function AdminDashboardContent() {
   const themeParam = searchParams.get('theme');
   const [toastMessage, setToastMessage] = useState('');
 
-  const [guests, setGuests] = useState<Guest[]>([]);
-  const [wishes, setWishes] = useState<Wish[]>([]);
+  const { data: guests = [], isLoading: loadingGuests } = useQuery({
+    queryKey: ['guests', 'admin'],
+    queryFn: async () => {
+      const res = await fetch('/api/guests');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    }
+  });
+
+  const { data: wishes = [], isLoading: loadingWishes } = useQuery({
+    queryKey: ['wishes', 'admin'],
+    queryFn: async () => {
+      const res = await fetch('/api/wishes');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    }
+  });
+
+  const isLoading = loadingGuests || loadingWishes;
 
   useEffect(() => {
     if (themeParam) {
@@ -41,23 +61,6 @@ function AdminDashboardContent() {
       return () => clearTimeout(timer);
     }
   }, [themeParam]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const resGuests = await fetch('/api/guests');
-        const dataGuests = await resGuests.json();
-        if (dataGuests.success) setGuests(dataGuests.data);
-
-        const resWishes = await fetch('/api/wishes');
-        const dataWishes = await resWishes.json();
-        if (dataWishes.success) setWishes(dataWishes.data);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-      }
-    };
-    fetchData();
-  }, []);
 
   return (
     <div className="p-6 md:p-8 space-y-8 bg-[#fafafc] min-h-screen">
@@ -363,7 +366,7 @@ function AdminDashboardContent() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="h-44 overflow-hidden bg-slate-50 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-1.png" alt="Midnight Royale" className="w-full h-full object-cover" />
+              <img src="/assets/landing/hero-1.png" alt="Midnight Royale" className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div className="p-4 space-y-2">
               <div className="flex justify-between items-center">
@@ -381,7 +384,7 @@ function AdminDashboardContent() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="h-44 overflow-hidden bg-slate-50 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-2.png" alt="Summit Pro" className="w-full h-full object-cover" />
+              <img src="/assets/landing/hero-2.png" alt="Summit Pro" className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div className="p-4 space-y-2">
               <div className="flex justify-between items-center">
@@ -399,7 +402,7 @@ function AdminDashboardContent() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="h-44 overflow-hidden bg-slate-50 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-3.png" alt="Neon Party" className="w-full h-full object-cover" />
+              <img src="/assets/landing/hero-3.png" alt="Neon Party" className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div className="p-4 space-y-2">
               <div className="flex justify-between items-center">
@@ -417,7 +420,7 @@ function AdminDashboardContent() {
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="h-44 overflow-hidden bg-slate-50 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-4.png" alt="Elysian Night" className="w-full h-full object-cover" />
+              <img src="/assets/landing/hero-4.png" alt="Elysian Night" className="w-full h-full object-cover" loading="lazy" />
             </div>
             <div className="p-4 space-y-2">
               <div className="flex justify-between items-center">

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "./providers";
+import TopLoadingBarWrapper from "@/components/TopLoadingBarWrapper";
 
 export const metadata: Metadata = {
   title: "Kabar Bahagia – Platform Undangan Pernikahan Digital",
@@ -19,7 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="h-full">
-      <body className="min-h-full antialiased">{children}</body>
+      <body className="min-h-full antialiased">
+        <Providers>
+          <TopLoadingBarWrapper />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

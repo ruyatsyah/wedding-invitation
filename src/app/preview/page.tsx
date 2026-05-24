@@ -25,7 +25,9 @@ const THEMES = [
       primaryBtn: 'bg-[#5a7350] hover:bg-[#4b5e43] text-white',
       outlineBtn: 'border-[#5a7350] text-[#5a7350] hover:bg-[#eaf0e6]',
       emoji: '🌿',
-      badge: 'bg-[#eaf0e6] text-[#4b5e43]'
+      badge: 'bg-[#eaf0e6] text-[#4b5e43]',
+      rsvpBtnSelected: 'bg-[#5a7350] text-white border-[#5a7350]',
+      rsvpBtnUnselected: 'bg-white text-[#5a7350] border-[#cddfc6]'
     }
   },
   {
@@ -47,7 +49,9 @@ const THEMES = [
       primaryBtn: 'bg-[#5d3e2e] hover:bg-[#4a3124] text-white',
       outlineBtn: 'border-[#5d3e2e] text-[#5d3e2e] hover:bg-[#eae4db]',
       emoji: '🍂',
-      badge: 'bg-[#eae4db] text-[#5d3e2e]'
+      badge: 'bg-[#eae4db] text-[#5d3e2e]',
+      rsvpBtnSelected: 'bg-[#5d3e2e] text-white border-[#5d3e2e]',
+      rsvpBtnUnselected: 'bg-white text-[#5d3e2e] border-[#e2ddd5]'
     }
   },
   {
@@ -69,7 +73,9 @@ const THEMES = [
       primaryBtn: 'bg-[#0284c7] hover:bg-[#0369a1] text-white',
       outlineBtn: 'border-[#0284c7] text-[#0284c7] hover:bg-sky-50',
       emoji: '🌺',
-      badge: 'bg-sky-100 text-sky-850'
+      badge: 'bg-sky-100 text-sky-850',
+      rsvpBtnSelected: 'bg-[#0284c7] text-white border-[#0284c7]',
+      rsvpBtnUnselected: 'bg-white text-[#0284c7] border-sky-200'
     }
   },
   {
@@ -91,7 +97,9 @@ const THEMES = [
       primaryBtn: 'bg-slate-700 hover:bg-slate-600 text-white',
       outlineBtn: 'border-slate-500 text-white hover:bg-slate-800',
       emoji: '✨',
-      badge: 'bg-slate-800 text-slate-300'
+      badge: 'bg-slate-800 text-slate-300',
+      rsvpBtnSelected: 'bg-slate-700 text-white border-slate-600',
+      rsvpBtnUnselected: 'bg-slate-900 text-slate-400 border-slate-700'
     }
   }
 ];

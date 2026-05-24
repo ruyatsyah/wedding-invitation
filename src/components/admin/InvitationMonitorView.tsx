@@ -1,392 +1,483 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Search, Eye, Ban, RefreshCw, ExternalLink, ChevronLeft, ChevronRight, Trash2, AlertTriangle, X } from 'lucide-react';
+import Link from 'next/link';
 
-export default function InvitationMonitorPage() {
+interface Project {
+  _id: string;
+  coupleName: string;
+  customUrl: string;
+  clientName: string;
+  status: 'active' | 'pending' | 'expired';
+  priceSnapshot: number;
+  createdAt: string;
+  userId?: { _id: string; name: string; email: string; image?: string };
+  themeId?: { templateName: string; thumbnailUrl: string };
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: Project[];
+  pagination: { total: number; page: number; limit: number; totalPages: number };
+  stats: { totalAll: number; totalActive: number; totalExpired: number };
+}
+
+const STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'Semua Status' },
+  { value: 'active', label: 'Active' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'expired', label: 'Expired / Banned' },
+];
+
+function getInitials(name: string) {
+  return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  'bg-blue-100 text-blue-700', 'bg-rose-100 text-rose-700',
+  'bg-emerald-100 text-emerald-700', 'bg-amber-100 text-amber-700',
+  'bg-purple-100 text-purple-700', 'bg-sky-100 text-sky-700',
+];
+function avatarColor(name: string) {
+  return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+}
+
+// ── Confirm Delete Modal ──────────────────────────────────────────────────────
+function ConfirmDeleteModal({
+  project,
+  onConfirm,
+  onCancel,
+  isDeleting,
+}: {
+  project: Project;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}) {
   return (
-    <div className="p-6 md:p-8 space-y-8 bg-[#fafafc] min-h-screen">
-      {/* Top Header Search & Controls */}
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
-        {/* Search */}
-        <div className="relative w-full max-w-md">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            placeholder="Search invitation ID or subdomain..."
-            className="w-full bg-[#f1f3f6] text-[13px] text-slate-700 pl-10 pr-4 py-2 rounded-full outline-none focus:ring-1 focus:ring-[#8D1A42]/20 border border-transparent focus:border-[#8D1A42]/30 transition-all placeholder-slate-400"
-          />
-        </div>
-
-        {/* Buttons & Profile Actions */}
-        <div className="flex items-center justify-between sm:justify-end gap-5">
-          <button className="relative p-1.5 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-          </button>
-
-          <button className="p-1.5 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2 text-rose-600">
+            <AlertTriangle className="w-5 h-5" />
+            <h2 className="font-bold text-slate-800">Hapus Undangan</h2>
+          </div>
+          <button onClick={onCancel} disabled={isDeleting} className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 disabled:opacity-50">
+            <X className="w-5 h-5" />
           </button>
         </div>
-      </header>
 
-      {/* Title & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 -mt-2">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight" style={{ color: '#8D1A42' }}>Invitation Monitor</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Real-time content moderation and subdomain governance.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 transition-all shadow-sm hover:bg-slate-50">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            Filters
-          </button>
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-sm hover:shadow-md cursor-pointer" style={{ backgroundColor: '#8D1A42' }}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Export Report
-          </button>
-        </div>
-      </div>
-
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Total Active Links */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
+        <div className="px-6 py-5 space-y-4">
+          {/* Preview */}
+          <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            {project.themeId?.thumbnailUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={project.themeId.thumbnailUrl} alt="tema" className="w-12 h-16 object-cover rounded-lg border border-slate-200 flex-shrink-0" />
+            )}
+            <div className="min-w-0">
+              <p className="font-bold text-slate-800 truncate">{project.coupleName || '—'}</p>
+              <p className="text-xs text-[#8D1A42] font-mono mt-0.5">kabarbaik.co/{project.customUrl}</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Client: {project.userId?.name || project.clientName || 'Unknown'}
+              </p>
             </div>
-            <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5">
-              +4.2% ↑
-            </span>
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">TOTAL ACTIVE LINKS</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">12,842</p>
-          </div>
-        </div>
 
-        {/* Flagged Content */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <span className="text-[11px] font-bold text-rose-500 flex items-center gap-0.5">
-              +18% ~
-            </span>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">FLAGGED CONTENT</p>
-            <p className="text-2xl font-bold text-slate-800 mt-1">142</p>
-          </div>
-        </div>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            Apakah Anda yakin ingin menghapus undangan{' '}
+            <span className="font-semibold text-slate-800">"{project.coupleName}"</span>?
+            Tindakan ini <span className="text-rose-600 font-semibold">tidak dapat dibatalkan</span>.
+          </p>
 
-        {/* Moderation Performance */}
-        <div className="p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden" style={{ backgroundColor: '#8D1A42' }}>
-          <div className="absolute right-[-20px] bottom-[-20px] text-white/10 pointer-events-none">
-            <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-            </svg>
-          </div>
-          <div className="relative z-10 space-y-3">
-            <h3 className="font-bold text-[13px] text-rose-200">Moderation Performance</h3>
-            <p className="text-[11.5px] text-white leading-relaxed">
-              98% of flagged items are resolved within 15 minutes. Keep up the high standard.
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-700">
+              Semua data undangan termasuk informasi mempelai, tamu, dan ucapan akan dihapus permanen.
             </p>
           </div>
-          <div className="relative z-10 w-full h-1.5 bg-white/20 rounded-full mt-6">
-            <div className="h-full bg-white rounded-full w-[90%]"></div>
-          </div>
+        </div>
+
+        <div className="px-6 py-4 border-t border-slate-100 flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={isDeleting}
+            className="flex-1 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            Batal
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+          >
+            {isDeleting ? (
+              <>
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Menghapus...
+              </>
+            ) : (
+              <>
+                <Trash2 className="w-4 h-4" />
+                Ya, Hapus
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function InvitationMonitorView() {
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const LIMIT = 10;
+
+  const { data, isLoading, isFetching } = useQuery<ApiResponse>({
+    queryKey: ['admin-projects', search, statusFilter, page],
+    queryFn: async () => {
+      const params = new URLSearchParams({ search, status: statusFilter, page: String(page), limit: String(LIMIT) });
+      const res = await fetch(`/api/admin/projects?${params}`);
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      return json;
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const res = await fetch('/api/admin/projects', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      return json.data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-projects'] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/admin/projects?id=${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      return json;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
+      setProjectToDelete(null);
+    },
+  });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearch(searchInput);
+    setPage(1);
+  };
+
+  const projects = data?.data ?? [];
+  const stats = data?.stats;
+  const pagination = data?.pagination;
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+
+  return (
+    <div className="p-6 md:p-8 space-y-6 bg-[#fafafc] min-h-screen">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-[#8D1A42]">Invitation Monitor</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Kelola dan pantau semua undangan yang dibuat oleh client.</p>
+        </div>
+        <button
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['admin-projects'] })}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 shadow-sm transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-2">Total Undangan</p>
+          <p className="text-3xl font-bold text-slate-800">{isLoading ? '—' : stats?.totalAll ?? 0}</p>
+          <p className="text-xs text-slate-400 mt-1">Semua project terdaftar</p>
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-2">Undangan Aktif</p>
+          <p className="text-3xl font-bold text-emerald-600">{isLoading ? '—' : stats?.totalActive ?? 0}</p>
+          <p className="text-xs text-slate-400 mt-1">Sedang live & dapat diakses</p>
+        </div>
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-2">Expired / Banned</p>
+          <p className="text-3xl font-bold text-rose-500">{isLoading ? '—' : stats?.totalExpired ?? 0}</p>
+          <p className="text-xs text-slate-400 mt-1">Tidak aktif atau dinonaktifkan</p>
         </div>
       </div>
 
-      {/* Live Invitation Stream Table */}
+      {/* Table Card */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h3 className="font-bold text-slate-800 text-[14px]">Live Invitation Stream</h3>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Show:</span>
-            <select className="bg-transparent text-sm text-slate-700 font-medium outline-none cursor-pointer pr-4">
-              <option>All Status</option>
-              <option>Flagged</option>
-              <option>Active</option>
-              <option>High Risk</option>
-            </select>
-          </div>
+
+        {/* Toolbar */}
+        <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          <form onSubmit={handleSearch} className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Cari nama, URL, atau client..."
+              className="w-full bg-slate-50 text-sm text-slate-700 pl-10 pr-4 py-2 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-[#8D1A42]/20 focus:border-[#8D1A42] transition-all"
+            />
+          </form>
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="border border-slate-200 bg-white rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-[#8D1A42]/20 cursor-pointer"
+          >
+            {STATUS_FILTER_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </div>
 
+        {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100 text-[11px] font-bold text-slate-700 capitalize">
-                <th className="py-4 px-6">Invitation ID</th>
-                <th className="py-4 px-6">Owner Name</th>
-                <th className="py-4 px-6">Subdomain URL</th>
-                <th className="py-4 px-6">Date Created</th>
-                <th className="py-4 px-6">Status</th>
-                <th className="py-4 px-6 text-right">Actions</th>
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/60 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <tr>
+                <th className="px-6 py-3">Mempelai / URL</th>
+                <th className="px-6 py-3">Client</th>
+                <th className="px-6 py-3">Tema</th>
+                <th className="px-6 py-3">Tanggal Buat</th>
+                <th className="px-6 py-3">Harga</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-              {/* Row 1 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-2 text-rose-600 font-bold">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    INV-9842
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold">JM</div>
-                    <span className="font-medium text-slate-800">John Maverick</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <span className="text-[12px] font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded">maverick-bash.invito.co</span>
-                </td>
-                <td className="py-4 px-6 text-[13px]">
-                  Oct 24, 2023
-                </td>
-                <td className="py-4 px-6">
-                  <span className="px-2.5 py-1 bg-red-100 text-red-600 text-[11px] font-semibold rounded-full">
-                    Flagged
-                  </span>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex justify-end items-center gap-3">
-                    <button className="text-slate-400 hover:text-slate-700">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button className="px-3 py-1.5 bg-red-700 text-white text-[11px] font-semibold rounded-md border border-red-700">
-                      Banned/Cancel
-                    </button>
-                  </div>
-                </td>
-              </tr>
+            <tbody className="divide-y divide-slate-100">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    {Array.from({ length: 7 }).map((_, j) => (
+                      <td key={j} className="px-6 py-4">
+                        <div className="h-4 bg-slate-100 rounded w-3/4" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : projects.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-16 text-center text-slate-400 text-sm">
+                    {search ? `Tidak ada hasil untuk "${search}"` : 'Belum ada undangan.'}
+                  </td>
+                </tr>
+              ) : (
+                projects.map((project) => {
+                  const ownerName = project.userId?.name || project.clientName || 'Unknown';
+                  const ownerEmail = project.userId?.email || '';
+                  const isExpired = project.status === 'expired';
 
-              {/* Row 2 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-4 px-6 font-medium text-slate-800">
-                  INV-9841
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-[10px] font-bold">SW</div>
-                    <span className="font-medium text-slate-800">Sarah Williams</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <span className="text-[12px] font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded">wedding-sw.invito.co</span>
-                </td>
-                <td className="py-4 px-6 text-[13px]">
-                  Oct 24, 2023
-                </td>
-                <td className="py-4 px-6">
-                  <span className="px-2.5 py-1 bg-blue-100 text-blue-600 text-[11px] font-semibold rounded-full">
-                    Active
-                  </span>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex justify-end items-center gap-3">
-                    <button className="text-slate-400 hover:text-slate-700">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button className="px-3 py-1.5 bg-white text-red-600 text-[11px] font-semibold rounded-md border border-red-200 hover:bg-red-50">
-                      Banned/Cancel
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                  return (
+                    <tr key={project._id} className="hover:bg-slate-50/50 transition-colors">
+                      {/* Mempelai / URL */}
+                      <td className="px-6 py-4">
+                        <p className="font-semibold text-slate-800">{project.coupleName || '—'}</p>
+                        <a
+                          href={`/${project.customUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] font-mono text-[#8D1A42] hover:underline flex items-center gap-1 mt-0.5"
+                        >
+                          kabarbaik.co/{project.customUrl}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </td>
 
-              {/* Row 3 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-4 px-6 font-medium text-slate-800">
-                  INV-9840
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">RK</div>
-                    <span className="font-medium text-slate-800">Robert King</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <span className="text-[12px] font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded">king-corp-24.invito.co</span>
-                </td>
-                <td className="py-4 px-6 text-[13px]">
-                  Oct 23, 2023
-                </td>
-                <td className="py-4 px-6">
-                  <span className="px-2.5 py-1 bg-blue-100 text-blue-600 text-[11px] font-semibold rounded-full">
-                    Active
-                  </span>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex justify-end items-center gap-3">
-                    <button className="text-slate-400 hover:text-slate-700">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button className="px-3 py-1.5 bg-white text-red-600 text-[11px] font-semibold rounded-md border border-red-200 hover:bg-red-50">
-                      Banned/Cancel
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      {/* Client */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2.5">
+                          {project.userId?.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={project.userId.image}
+                              alt={ownerName}
+                              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${avatarColor(ownerName)}`}>
+                              {getInitials(ownerName)}
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-slate-800 truncate">{ownerName}</p>
+                            <p className="text-[11px] text-slate-400 truncate">{ownerEmail}</p>
+                          </div>
+                        </div>
+                      </td>
+                      {/* Tema */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          {project.themeId?.thumbnailUrl && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={project.themeId.thumbnailUrl}
+                              alt={project.themeId.templateName}
+                              className="w-8 h-10 rounded object-cover border border-slate-200 flex-shrink-0"
+                            />
+                          )}
+                          <span className="text-xs text-slate-600 truncate max-w-[100px]">
+                            {project.themeId?.templateName || '—'}
+                          </span>
+                        </div>
+                      </td>
 
-              {/* Row 4 */}
-              <tr className="hover:bg-slate-50/50 transition-colors">
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-2 text-rose-600 font-bold">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    INV-9839
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] font-bold">AL</div>
-                    <span className="font-medium text-slate-800">Anonymous User</span>
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <span className="text-[12px] font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded">crypto-win-free.invito.co</span>
-                </td>
-                <td className="py-4 px-6 text-[13px]">
-                  Oct 23, 2023
-                </td>
-                <td className="py-4 px-6">
-                  <span className="px-2.5 py-1 bg-red-100 text-red-700 text-[11px] font-semibold rounded-full whitespace-nowrap">
-                    High Risk
-                  </span>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex justify-end items-center gap-3">
-                    <button className="text-slate-400 hover:text-slate-700">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button className="px-3 py-1.5 bg-red-700 text-white text-[11px] font-semibold rounded-md border border-red-700">
-                      Banned/Cancel
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      {/* Tanggal */}
+                      <td className="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">
+                        {formatDate(project.createdAt)}
+                      </td>
+
+                      {/* Harga */}
+                      <td className="px-6 py-4 text-slate-700 text-xs font-medium whitespace-nowrap">
+                        {formatPrice(project.priceSnapshot)}
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
+                          project.status === 'active'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : project.status === 'pending'
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-rose-100 text-rose-600'
+                        }`}>
+                          {project.status === 'expired' ? 'Banned/Expired' : project.status}
+                        </span>
+                      </td>
+
+                      {/* Aksi */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/${project.customUrl}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1.5 text-slate-400 hover:text-[#8D1A42] transition-colors"
+                            title="Lihat Undangan"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Link>
+
+                          {isExpired ? (
+                            <button
+                              onClick={() => updateStatusMutation.mutate({ id: project._id, status: 'active' })}
+                              disabled={updateStatusMutation.isPending}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded-lg transition-colors disabled:opacity-50"
+                              title="Aktifkan kembali"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                              Aktifkan
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => updateStatusMutation.mutate({ id: project._id, status: 'expired' })}
+                              disabled={updateStatusMutation.isPending}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-semibold rounded-lg transition-colors disabled:opacity-50"
+                              title="Ban / Nonaktifkan"
+                            >
+                              <Ban className="w-3 h-3" />
+                              Ban
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() => setProjectToDelete(project)}
+                            disabled={deleteMutation.isPending}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50"
+                            title="Hapus Undangan"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-[13px] text-slate-500">Showing 1 to 4 of 12,842 entries</p>
-          <div className="flex gap-1">
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-slate-200 text-slate-500 hover:bg-slate-50 text-sm">‹</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-[#8D1A42] bg-[#8D1A42] text-white text-sm">1</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-slate-200 text-slate-500 hover:bg-slate-50 text-sm">2</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-slate-200 text-slate-500 hover:bg-slate-50 text-sm">3</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-slate-200 text-slate-500 hover:bg-slate-50 text-sm">›</button>
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 0 && (
+          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-xs text-slate-500">
+              Menampilkan {((page - 1) * LIMIT) + 1}–{Math.min(page * LIMIT, pagination.total)} dari {pagination.total} undangan
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="w-8 h-8 flex items-center justify-center rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                const p = i + 1;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`w-8 h-8 flex items-center justify-center rounded border text-sm font-medium transition-colors ${
+                      page === p
+                        ? 'bg-[#8D1A42] border-[#8D1A42] text-white'
+                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                disabled={page === pagination.totalPages}
+                className="w-8 h-8 flex items-center justify-center rounded border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Global Subdomain Traffic */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h3 className="font-bold text-slate-800 text-[14px] mb-4">Global Subdomain Traffic</h3>
-          <div className="bg-[#f0f0f4] rounded-xl h-64 relative flex items-end justify-center pb-8 pt-10 px-4 gap-2">
-            {/* Mock Chart Bars */}
-            <div className="w-[8%] h-[20%] bg-[#d9c9d0] rounded-t-sm"></div>
-            <div className="w-[8%] h-[35%] bg-[#d9c9d0] rounded-t-sm"></div>
-            <div className="w-[8%] h-[15%] bg-[#d9c9d0] rounded-t-sm"></div>
-            <div className="w-[8%] h-[50%] bg-[#a5526e] rounded-t-sm"></div>
-            <div className="w-[8%] h-[75%] bg-[#8D1A42] rounded-t-sm"></div>
-            <div className="w-[8%] h-[40%] bg-[#d9c9d0] rounded-t-sm"></div>
-            <div className="w-[8%] h-[25%] bg-[#d9c9d0] rounded-t-sm"></div>
-            <div className="w-[8%] h-[30%] bg-[#d9c9d0] rounded-t-sm"></div>
-            
-            <p className="absolute bottom-3 text-[12px] text-slate-500">Hourly Monitoring Intensity</p>
-          </div>
-        </div>
-
-        {/* Recent Moderation */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <h3 className="font-bold text-slate-800 text-[14px] mb-6">Recent Moderation</h3>
-          <div className="space-y-6">
-            {/* Item 1 */}
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-slate-800">INV-9822 Banned</p>
-                <p className="text-[12px] text-slate-500 mt-0.5">Policy violation: Phishing</p>
-                <p className="text-[11px] text-slate-400 mt-1">2 mins ago</p>
-              </div>
-            </div>
-
-            {/* Item 2 */}
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-slate-800">INV-9821 Verified</p>
-                <p className="text-[12px] text-slate-500 mt-0.5 text-blue-600">Manual review completed</p>
-                <p className="text-[11px] text-slate-400 mt-1">15 mins ago</p>
-              </div>
-            </div>
-
-            {/* Item 3 */}
-            <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[13px] font-semibold text-slate-800">Settings Changed</p>
-                <p className="text-[12px] text-slate-500 mt-0.5">Threshold lowered by 5%</p>
-                <p className="text-[11px] text-slate-400 mt-1">1 hour ago</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Confirm Delete Modal */}
+      {projectToDelete && (
+        <ConfirmDeleteModal
+          project={projectToDelete}
+          onConfirm={() => deleteMutation.mutate(projectToDelete._id)}
+          onCancel={() => setProjectToDelete(null)}
+          isDeleting={deleteMutation.isPending}
+        />
+      )}
     </div>
   );
 }

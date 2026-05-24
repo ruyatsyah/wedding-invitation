@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export interface Guest {
   name: string;
@@ -9,6 +10,7 @@ export interface Guest {
   group?: string;
   rsvpStatus: 'PENDING' | 'ATTENDING' | 'DECLINED';
   pax: number;
+  isOpened?: boolean;
 }
 
 export interface Wish {
@@ -102,16 +104,42 @@ export const THEME_STYLES = {
   },
 };
 
+export interface ProjectData {
+  _id?: string;
+  coupleName?: string;
+  groomFullName?: string;
+  groomParents?: string;
+  groomInstagram?: string;
+  groomPhoto?: string;
+  brideFullName?: string;
+  brideParents?: string;
+  brideInstagram?: string;
+  bridePhoto?: string;
+  gallery?: string[];
+  eventDate?: string;
+  eventTime?: string;
+  eventTimezone?: string;
+  venue?: string;
+  mapsUrl?: string;
+  youtubeUrl?: string;
+  enableRsvp?: boolean;
+  enableGuestbook?: boolean;
+  bankName?: string;
+  bankAccount?: string;
+  bankHolder?: string;
+}
+
 interface WeddingInvitationProps {
   guestSlug?: string;
   theme?: string;
   isDemo?: boolean;
+  projectData?: ProjectData | null;
 }
 
-export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo = false }: WeddingInvitationProps) {
-  const [guest, setGuest] = useState<Guest | null>(null);
-  const [wishes, setWishes] = useState<Wish[]>([]);
+export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo = false, projectData = null }: WeddingInvitationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const queryClient = useQueryClient();
 
   // Audio
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -120,33 +148,110 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
   // RSVP
   const [rsvpStatus, setRsvpStatus] = useState<'ATTENDING' | 'DECLINED'>('ATTENDING');
   const [rsvpPax, setRsvpPax] = useState(1);
-  const [isSubmittingRsvp, setIsSubmittingRsvp] = useState(false);
   const [rsvpSuccess, setRsvpSuccess] = useState(false);
 
   // Wish
   const [wishName, setWishName] = useState('');
   const [wishMsg, setWishMsg] = useState('');
   const [wishAttend, setWishAttend] = useState<'Hadir' | 'Tidak Hadir' | 'Masih Ragu'>('Hadir');
-  const [isSubmittingWish, setIsSubmittingWish] = useState(false);
+
+  const { data: guestData } = useQuery({
+    queryKey: ['guest', guestSlug],
+    queryFn: async () => {
+      const res = await fetch(`/api/guests/${guestSlug}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+    enabled: !!guestSlug && !isDemo,
+  });
+
+  const updateGuestMutation = useMutation({
+    mutationFn: async (payload: { isOpened?: boolean, rsvpStatus?: string, pax?: number }) => {
+      const res = await fetch(`/api/guests/${guestSlug}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['guest', guestSlug], data);
+    }
+  });
+
+  const { data: wishesData = [] } = useQuery({
+    queryKey: ['wishes'],
+    queryFn: async () => {
+      const res = await fetch('/api/wishes');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+    enabled: !isDemo && (projectData?.enableGuestbook !== false),
+  });
+
+  const submitWishMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await fetch('/api/wishes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wishes'] });
+    }
+  });
+
+  useEffect(() => {
+    if (isDemo) {
+      setGuestName('Tamu Kehormatan');
+      return;
+    }
+    if (guestData) {
+      setGuestName(guestData.name);
+      setWishName(guestData.name);
+      if (!guestData.isOpened) {
+        updateGuestMutation.mutate({ isOpened: true });
+      }
+    }
+  }, [guestData, isDemo]);
 
   // Load appropriate theme styles
   const style = THEME_STYLES[theme as keyof typeof THEME_STYLES] || THEME_STYLES.sunda;
 
-  // Determine dummy names for the demo based on the theme
   const getDemoNames = () => {
     switch (theme) {
       case 'jawa': return { groom: 'Bagus', bride: 'Ninda' };
       case 'manado': return { groom: 'Billy', bride: 'Stevani' };
       case 'snapfoto': return { groom: 'Putra', bride: 'Risa' };
-      default: return { groom: 'Hendra', bride: 'Alisha' }; // sunda
+      default: return { groom: 'Hendra', bride: 'Alisha' };
     }
   };
   const demoNames = getDemoNames();
-  const groomName = isDemo ? demoNames.groom : 'Bayu';
-  const brideName = isDemo ? demoNames.bride : 'Rara';
-  const weddingDate = theme === 'jawa' ? '30 · 06 · 2025' : 
-                      theme === 'manado' ? '20 · 09 · 2025' : 
-                      theme === 'snapfoto' ? '15 · 02 · 2026' : '12 · 07 · 2026';
+  
+  const groomName = (!isDemo && projectData?.groomFullName) ? projectData.groomFullName : (isDemo ? demoNames.groom : 'Bayu');
+  const brideName = (!isDemo && projectData?.brideFullName) ? projectData.brideFullName : (isDemo ? demoNames.bride : 'Rara');
+  const groomParents = (!isDemo && projectData?.groomParents) ? projectData.groomParents : 'Putra dari Bpk. Bambang & Ibu Wati';
+  const brideParents = (!isDemo && projectData?.brideParents) ? projectData.brideParents : 'Putri dari Bpk. Harun & Ibu Aminah';
+
+  const defaultWeddingDate = theme === 'jawa' ? '30 · 06 · 2025' : 
+                             theme === 'manado' ? '20 · 09 · 2025' : 
+                             theme === 'snapfoto' ? '15 · 02 · 2026' : '12 · 07 · 2026';
+                      
+  const formattedEventDate = (!isDemo && projectData?.eventDate) 
+    ? projectData.eventDate.split('-').reverse().join(' · ')
+    : defaultWeddingDate;
+    
+  const venueAddress = (!isDemo && projectData?.venue) ? projectData.venue : 'Jl. Bahagia No. 1, Jakarta';
+  const eventTime = (!isDemo && projectData?.eventTime) ? projectData.eventTime : '09.00';
+  const eventTimezone = (!isDemo && projectData?.eventTimezone) ? projectData.eventTimezone.split(' ')[0] : 'WIB';
 
   const bgmSrc = theme === 'snapfoto' ? '/assets/music/snapfoto-bgm.mp3' : undefined;
 
@@ -167,70 +272,16 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
     }
   };
 
-  useEffect(() => {
-    if (isDemo) {
-      // Set dummy data for the demo view
-      setGuest({
-        name: 'Tamu Kehormatan',
-        slug: 'tamu-kehormatan',
-        rsvpStatus: 'PENDING',
-        pax: 1,
-        group: 'VIP'
-      });
-      setWishName('Tamu Kehormatan');
-      setWishes([
-        {
-          _id: '1',
-          name: 'Sarah',
-          message: 'Selamat menempuh hidup baru! Semoga samawa selalu.',
-          attendance: 'Hadir',
-          createdAt: new Date().toISOString(),
-        }
-      ]);
-      return;
-    }
-
-    if (!guestSlug) return;
-
-    fetch(`/api/guests/${guestSlug}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setGuest(data.data);
-          setWishName(data.data.name);
-          fetch(`/api/guests/${guestSlug}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isOpened: true }),
-          });
-        }
-      })
-      .catch(console.error);
-
-    fetch('/api/wishes')
-      .then(res => res.json())
-      .then(data => { if (data.success) setWishes(data.data); })
-      .catch(console.error);
-  }, [guestSlug, isDemo]);
-
   const handleRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isDemo) {
       setRsvpSuccess(true);
       return;
     }
-
-    setIsSubmittingRsvp(true);
-    try {
-      const res = await fetch(`/api/guests/${guestSlug}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rsvpStatus, pax: rsvpStatus === 'ATTENDING' ? rsvpPax : 0 }),
-      });
-      const data = await res.json();
-      if (data.success) { setGuest(data.data); setRsvpSuccess(true); }
-    } catch (err) { console.error(err); }
-    finally { setIsSubmittingRsvp(false); }
+    updateGuestMutation.mutate(
+      { rsvpStatus, pax: rsvpStatus === 'ATTENDING' ? rsvpPax : 0 },
+      { onSuccess: () => setRsvpSuccess(true) }
+    );
   };
 
   const handleWish = async (e: React.FormEvent) => {
@@ -238,29 +289,14 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
     if (!wishName || !wishMsg) return;
     
     if (isDemo) {
-      const newWish: Wish = {
-        _id: Date.now().toString(),
-        name: wishName,
-        message: wishMsg,
-        attendance: wishAttend,
-        createdAt: new Date().toISOString(),
-      };
-      setWishes([newWish, ...wishes]);
       setWishMsg('');
       return;
     }
 
-    setIsSubmittingWish(true);
-    try {
-      const res = await fetch('/api/wishes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: wishName, message: wishMsg, attendance: wishAttend }),
-      });
-      const data = await res.json();
-      if (data.success) { setWishes([data.data, ...wishes]); setWishMsg(''); }
-    } catch (err) { console.error(err); }
-    finally { setIsSubmittingWish(false); }
+    submitWishMutation.mutate(
+      { name: wishName, message: wishMsg, attendance: wishAttend },
+      { onSuccess: () => setWishMsg('') }
+    );
   };
 
   return (
@@ -297,10 +333,10 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
             </div>
             <div className="py-6 border-y border-slate-100">
               <p className="text-xs text-slate-400 mb-2">Kepada Yth. Bapak/Ibu/Saudara/i:</p>
-              <p className="text-xl font-bold text-slate-950">{guest?.name || 'Tamu Undangan'}</p>
-              {guest?.group && (
+              <p className="text-xl font-bold text-slate-950">{guestData?.name || guestName || 'Tamu Undangan'}</p>
+              {guestData?.group && (
                 <p className="text-[10px] text-pink-500 font-semibold mt-1 uppercase tracking-wider">
-                  {guest.group}
+                  {guestData.group}
                 </p>
               )}
             </div>
@@ -322,7 +358,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
           <section className={`h-96 ${style.headerBg} flex flex-col items-center justify-center text-center p-8 space-y-4`}>
             <p className="text-xs uppercase tracking-[0.3em] font-sans font-bold opacity-70">The Wedding of</p>
             <h1 className={`text-5xl font-serif italic font-semibold ${style.textTitle}`}>{groomName} &amp; {brideName}</h1>
-            <p className="text-xs font-mono tracking-widest opacity-60">{weddingDate}</p>
+            <p className="text-xs font-mono tracking-widest opacity-60">{formattedEventDate}</p>
           </section>
 
           {/* Bride & Groom */}
@@ -330,18 +366,93 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
             <p className="text-xs leading-relaxed italic max-w-xs mx-auto opacity-70">
               &ldquo;Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri.&rdquo; — Ar-Rum: 21
             </p>
-            <div className="space-y-6">
-              <div>
-                <h3 className={`text-2xl font-serif italic font-bold ${style.textTitle}`}>{groomName} Saputra</h3>
-                <p className="text-xs opacity-60 mt-1">Putra dari Bpk. Bambang &amp; Ibu Wati</p>
+            <div className="space-y-8">
+              {/* Groom */}
+              <div className="flex flex-col items-center gap-3">
+                {(projectData?.groomPhoto || isDemo) && (
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={projectData?.groomPhoto || 'https://ui-avatars.com/api/?name=Groom&background=e5ede0&color=4b5e43&size=128'}
+                      alt={groomName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h3 className={`text-2xl font-serif italic font-bold ${style.textTitle}`}>{groomName}</h3>
+                  <p className="text-xs opacity-60 mt-1">{groomParents}</p>
+                  {(projectData?.groomInstagram || isDemo) && (
+                    <a
+                      href={`https://instagram.com/${(projectData?.groomInstagram || 'instagram').replace('@', '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`text-[11px] mt-1 inline-block ${style.textSub} opacity-70 hover:opacity-100`}
+                    >
+                      @{(projectData?.groomInstagram || 'groom').replace('@', '')}
+                    </a>
+                  )}
+                </div>
               </div>
+
               <span className="text-2xl font-serif text-pink-300 block">&amp;</span>
-              <div>
-                <h3 className={`text-2xl font-serif italic font-bold ${style.textTitle}`}>{brideName} Amalia</h3>
-                <p className="text-xs opacity-60 mt-1">Putri dari Bpk. Harun &amp; Ibu Aminah</p>
+
+              {/* Bride */}
+              <div className="flex flex-col items-center gap-3">
+                {(projectData?.bridePhoto || isDemo) && (
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={projectData?.bridePhoto || 'https://ui-avatars.com/api/?name=Bride&background=f4f7f1&color=5a7350&size=128'}
+                      alt={brideName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h3 className={`text-2xl font-serif italic font-bold ${style.textTitle}`}>{brideName}</h3>
+                  <p className="text-xs opacity-60 mt-1">{brideParents}</p>
+                  {(projectData?.brideInstagram || isDemo) && (
+                    <a
+                      href={`https://instagram.com/${(projectData?.brideInstagram || 'instagram').replace('@', '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`text-[11px] mt-1 inline-block ${style.textSub} opacity-70 hover:opacity-100`}
+                    >
+                      @{(projectData?.brideInstagram || 'bride').replace('@', '')}
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </section>
+
+          {/* Gallery */}
+          {((!isDemo && projectData?.gallery && projectData.gallery.filter(Boolean).length > 0) || isDemo) && (
+            <section className="px-8 py-16 text-center space-y-8">
+              <h2 className={`text-3xl font-serif italic font-bold ${style.textTitle}`}>Galeri Foto</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {(isDemo
+                  ? ['', '', '', '']
+                  : (projectData?.gallery || []).filter(Boolean)
+                ).map((url, idx) => (
+                  <div
+                    key={idx}
+                    className={`overflow-hidden rounded-2xl shadow-sm ${idx === 0 ? 'col-span-2 h-56' : 'h-36'}`}
+                  >
+                    {url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={url} alt={`Galeri ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className={`w-full h-full ${style.sectionBg} flex items-center justify-center opacity-40`}>
+                        <span className="text-3xl">📷</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Event Schedule */}
           <section className={`px-8 py-16 ${style.sectionBg} text-center space-y-8`}>
@@ -349,25 +460,26 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
             <div className="grid grid-cols-1 gap-6 max-w-sm mx-auto">
               <div className={`${style.cardBg} p-6 rounded-2xl border shadow-sm space-y-3`}>
                 <span className="text-2xl">💍</span>
-                <h4 className={`font-bold text-sm uppercase tracking-wider ${style.textTitle}`}>Akad Nikah</h4>
-                <p className="text-xs opacity-70">Pukul 09.00 – 10.30 WIB</p>
-                <p className={`text-xs font-semibold ${style.textSub}`}>Gedung Pernikahan Indah</p>
-                <p className="text-[10px] opacity-55">Jl. Bahagia No. 1, Jakarta</p>
-              </div>
-              <div className={`${style.cardBg} p-6 rounded-2xl border shadow-sm space-y-3`}>
-                <span className="text-2xl">🎉</span>
-                <h4 className={`font-bold text-sm uppercase tracking-wider ${style.textTitle}`}>Resepsi</h4>
-                <p className="text-xs opacity-70">Pukul 11.00 – 14.00 WIB</p>
-                <p className={`text-xs font-semibold ${style.textSub}`}>Gedung Pernikahan Indah</p>
-                <p className="text-[10px] opacity-55">Jl. Bahagia No. 1, Jakarta</p>
+                <h4 className={`font-bold text-sm uppercase tracking-wider ${style.textTitle}`}>Akad Nikah & Resepsi</h4>
+                <p className="text-xs opacity-70">Pukul {eventTime} {eventTimezone} - Selesai</p>
+                <p className={`text-xs font-semibold ${style.textSub}`}>Lokasi Acara</p>
+                <p className="text-[10px] opacity-55 whitespace-pre-wrap">{venueAddress}</p>
               </div>
             </div>
-            <button className={`${style.outlineBtn} text-xs font-semibold px-6 py-2.5 rounded-full transition-all shadow-sm cursor-pointer`}>
-              📍 Buka Google Maps
-            </button>
+            {((!isDemo && projectData?.mapsUrl) || isDemo) && (
+              <a 
+                href={(!isDemo && projectData?.mapsUrl) ? projectData.mapsUrl : '#'} 
+                target="_blank" 
+                rel="noreferrer"
+                className={`inline-block ${style.outlineBtn} text-xs font-semibold px-6 py-2.5 rounded-full transition-all shadow-sm cursor-pointer`}
+              >
+                📍 Buka Google Maps
+              </a>
+            )}
           </section>
 
           {/* RSVP */}
+          {((isDemo) || (!isDemo && projectData?.enableRsvp !== false)) && (
           <section className="px-8 py-16 text-center space-y-8">
             <h2 className={`text-3xl font-serif italic font-bold ${style.textTitle}`}>Konfirmasi Kehadiran</h2>
             {rsvpSuccess ? (
@@ -375,7 +487,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
                 <p className="font-bold">Terima kasih atas konfirmasi Anda! {style.emoji}</p>
                 <p className="text-xs">
                   Status: <span className="font-semibold">
-                    {guest?.rsvpStatus === 'ATTENDING' || (isDemo && rsvpStatus === 'ATTENDING') ? `Hadir (${rsvpPax} orang)` : 'Tidak Hadir'}
+                    {guestData?.rsvpStatus === 'ATTENDING' || (isDemo && rsvpStatus === 'ATTENDING') ? `Hadir (${rsvpPax} orang)` : 'Tidak Hadir'}
                   </span>
                 </p>
               </div>
@@ -406,7 +518,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
                     <select
                       value={rsvpPax}
                       onChange={(e) => setRsvpPax(Number(e.target.value))}
-                      className={`w-full text-xs border rounded-xl px-3 py-2.5 bg-transparent outline-none ${style.border}`}
+                      className={`w-full text-xs border rounded-xl px-3 py-2.5 bg-transparent outline-none border-slate-200`}
                     >
                       {[1, 2, 3, 4].map(n => (
                         <option key={n} value={n} className="text-slate-800">{n} Orang</option>
@@ -416,16 +528,36 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
                 )}
                 <button
                   type="submit"
-                  disabled={isSubmittingRsvp}
+                  disabled={updateGuestMutation.isPending}
                   className={`w-full py-3 rounded-xl transition-all shadow-md cursor-pointer ${style.primaryBtn}`}
                 >
-                  {isSubmittingRsvp ? 'Mengirim...' : 'Kirim Konfirmasi'}
+                  {updateGuestMutation.isPending ? 'Mengirim...' : 'Kirim Konfirmasi'}
                 </button>
               </form>
             )}
           </section>
+          )}
+
+          {/* Gift / Angpao */}
+          {((!isDemo && projectData?.bankName && projectData?.bankAccount) || isDemo) && (
+            <section className={`px-8 py-16 text-center space-y-6`}>
+              <h2 className={`text-3xl font-serif italic font-bold ${style.textTitle}`}>Wedding Gift</h2>
+              <p className={`text-xs ${style.textBody} opacity-80 max-w-xs mx-auto`}>
+                Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Dan jika memberi adalah ungkapan tanda kasih Anda, Anda dapat memberi kado secara cashless.
+              </p>
+              <div className={`${style.cardBg} p-6 rounded-2xl border shadow-sm max-w-xs mx-auto space-y-4`}>
+                <span className="text-3xl block">💌</span>
+                <div>
+                  <h4 className={`font-bold text-lg ${style.textTitle}`}>{!isDemo && projectData?.bankName ? projectData.bankName : 'Bank BCA'}</h4>
+                  <p className={`font-mono text-xl tracking-wider ${style.textSub} my-2 select-all`}>{!isDemo && projectData?.bankAccount ? projectData.bankAccount : '1234567890'}</p>
+                  <p className={`text-xs ${style.textBody} uppercase tracking-wider`}>a.n. {!isDemo && projectData?.bankHolder ? projectData.bankHolder : groomName}</p>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Wishes */}
+          {((isDemo) || (!isDemo && projectData?.enableGuestbook !== false)) && (
           <section className={`px-8 py-16 ${style.sectionBg} text-center space-y-8`}>
             <h2 className={`text-3xl font-serif italic font-bold ${style.textTitle}`}>Buku Tamu &amp; Ucapan</h2>
 
@@ -465,19 +597,19 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
               </div>
               <button
                 type="submit"
-                disabled={isSubmittingWish}
+                disabled={submitWishMutation.isPending}
                 className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-pink-350 text-white font-semibold text-xs py-3 rounded-xl transition-all shadow-md cursor-pointer"
               >
-                {isSubmittingWish ? 'Mengirim...' : 'Kirim Ucapan 💌'}
+                {submitWishMutation.isPending ? 'Mengirim...' : 'Kirim Ucapan 💌'}
               </button>
             </form>
 
             {/* Wish feed */}
             <div className="max-w-sm mx-auto space-y-3 max-h-96 overflow-y-auto pr-1">
-              {wishes.length === 0 ? (
+              {wishesData.length === 0 ? (
                 <p className="text-slate-400 text-xs py-6">Belum ada ucapan. Jadilah yang pertama!</p>
               ) : (
-                wishes.map((w) => (
+                wishesData.map((w: Wish) => (
                   <div key={w._id} className="bg-white p-4 rounded-xl border border-slate-100 text-slate-800 text-left shadow-sm">
                     <div className="flex justify-between items-center mb-1.5">
                       <span className="font-bold text-xs text-slate-900">{w.name}</span>
@@ -493,6 +625,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
               )}
             </div>
           </section>
+          )}
         </div>
       )}
     </div>
