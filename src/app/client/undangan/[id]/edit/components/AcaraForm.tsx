@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, CalendarDays, MapPin, Youtube } from 'lucide-react';
+import { ArrowLeft, Save, CalendarDays, MapPin, Video } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface AcaraFormProps {
@@ -140,7 +140,7 @@ export default function AcaraForm({ projectId, initialData, onBack }: AcaraFormP
 
       <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-5">
         <h3 className="text-sm font-bold text-neutral-700 flex items-center gap-2">
-          <Youtube className="w-4 h-4" /> Video / Livestream
+          <Video className="w-4 h-4" /> Video / Livestream
         </h3>
         <div>
           <label className={labelCls}>Link YouTube / Livestream</label>
