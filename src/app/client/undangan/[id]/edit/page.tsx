@@ -168,7 +168,7 @@ export default function EditUndanganDashboard() {
 
   const getContainerWidth = () => {
     if (activeSection === 'kirim' || activeSection === 'buku_tamu') return 'max-w-5xl';
-    if (activeSection === 'tema' || activeSection === 'galeri') return 'max-w-3xl';
+    if (activeSection === 'tema' || activeSection === 'galeri' || activeSection === 'pengantin') return 'max-w-3xl';
     return 'max-w-lg';
   };
 

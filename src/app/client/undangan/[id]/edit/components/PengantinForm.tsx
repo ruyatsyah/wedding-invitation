@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ArrowLeft, Camera, X, Save, AtSign, Users } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -21,27 +21,17 @@ interface PengantinFormProps {
 }
 
 function PhotoSlot({
-  label,
-  slot,
-  currentUrl,
-  uploading,
-  onUpload,
-  onRemove,
+  label, slot, currentUrl, uploading, onUpload, onRemove,
 }: {
-  label: string;
-  slot: string;
-  currentUrl: string;
-  uploading: boolean;
-  onUpload: (slot: string, file: File) => void;
-  onRemove: () => void;
+  label: string; slot: string; currentUrl: string;
+  uploading: boolean; onUpload: (slot: string, file: File) => void; onRemove: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-
   return (
     <div className="flex flex-col items-center gap-2">
       <div
         onClick={() => !uploading && inputRef.current?.click()}
-        className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-dashed border-neutral-300 bg-neutral-50 cursor-pointer hover:border-neutral-600 transition-colors group flex items-center justify-center"
+        className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 border-dashed border-neutral-300 bg-neutral-50 cursor-pointer hover:border-neutral-600 transition-colors group flex items-center justify-center"
       >
         {currentUrl ? (
           <>
@@ -70,19 +60,13 @@ function PhotoSlot({
           </div>
         )}
         <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
+          ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp"
           className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) onUpload(slot, file);
-            e.target.value = '';
-          }}
+          onChange={(e) => { const file = e.target.files?.[0]; if (file) onUpload(slot, file); e.target.value = ''; }}
           disabled={uploading}
         />
       </div>
-      <span className="text-xs font-medium text-neutral-500">{label}</span>
+      <span className="text-xs font-semibold text-neutral-600">{label}</span>
     </div>
   );
 }
@@ -95,6 +79,8 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
   const [form, setForm] = useState(initialData);
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
   const [saveMsg, setSaveMsg] = useState('');
+
+  useEffect(() => { setForm(initialData); }, [initialData]);
 
   const set = (key: keyof typeof form, value: string) =>
     setForm(prev => ({ ...prev, [key]: value }));
@@ -152,25 +138,19 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
     <div className="space-y-6 pb-10">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Kembali
+        <button onClick={onBack} className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm">
+          <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
         <div className="flex items-center gap-3">
           {saveMsg && (
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-              saveMsg === 'Tersimpan!' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
-            }`}>
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg === 'Tersimpan!' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
               {saveMsg}
             </span>
           )}
           <button
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isPending}
-            className="flex items-center gap-2 bg-[#000000] hover:bg-[#171717] disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm cursor-pointer"
+            className="flex items-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
           >
             <Save className="w-4 h-4" />
             {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
@@ -189,9 +169,9 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
         </div>
       </div>
 
-      {/* Nama Panggilan Pasangan */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-neutral-700">Nama Panggilan Pasangan</h3>
+      {/* Nama Panggilan — full width */}
+      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm">
+        <h3 className="text-sm font-bold text-neutral-700 mb-4">Nama Pasangan</h3>
         <div>
           <label className={labelCls}>Nama Singkat (Tampil di Undangan)</label>
           <input
@@ -204,113 +184,94 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
         </div>
       </div>
 
-      {/* Foto Mempelai */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm">
-        <h3 className="text-sm font-bold text-neutral-700 mb-5">Foto Mempelai</h3>
-        <div className="flex justify-around items-start">
-          <PhotoSlot
-            label="Mempelai Pria"
-            slot="groomPhoto"
-            currentUrl={form.groomPhoto}
-            uploading={uploadingSlot === 'groomPhoto'}
-            onUpload={handleUpload}
-            onRemove={() => set('groomPhoto', '')}
-          />
-          <PhotoSlot
-            label="Mempelai Wanita"
-            slot="bridePhoto"
-            currentUrl={form.bridePhoto}
-            uploading={uploadingSlot === 'bridePhoto'}
-            onUpload={handleUpload}
-            onRemove={() => set('bridePhoto', '')}
-          />
-        </div>
-        <p className="text-center text-[11px] text-neutral-400 mt-4">Format JPG/PNG/WEBP · Maksimal 5MB</p>
-      </div>
+      {/* 2-Column: Pria | Wanita */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-      {/* Mempelai Pria */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-neutral-700">Mempelai Pria</h3>
-        <div>
-          <label className={labelCls}>Nama Lengkap</label>
-          <input
-            className={inputCls}
-            value={form.groomFullName}
-            onChange={(e) => set('groomFullName', e.target.value)}
-            placeholder="Ahmad Romi Hidayat"
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Nama Orang Tua</label>
-          <input
-            className={inputCls}
-            value={form.groomParents}
-            onChange={(e) => set('groomParents', e.target.value)}
-            placeholder="Putra ke-1 dari Bapak Hasan & Ibu Sari"
-          />
-        </div>
-        <div>
-          <label className={labelCls}>
-            Instagram <span className="normal-case font-normal text-neutral-400">(Opsional)</span>
-          </label>
-          <div className="flex">
-            <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-50 text-neutral-500 text-sm">
-              <AtSign className="w-4 h-4 mr-1" />
-            </span>
-            <input
-              className="flex-1 border border-neutral-200 rounded-r-xl px-4 py-3 outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-100 text-sm bg-white"
-              value={form.groomInstagram}
-              onChange={(e) => set('groomInstagram', e.target.value)}
-              placeholder="username"
+        {/* Mempelai Pria */}
+        <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-5">
+          {/* Photo */}
+          <div className="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100">
+            <PhotoSlot
+              label="Mempelai Pria"
+              slot="groomPhoto"
+              currentUrl={form.groomPhoto}
+              uploading={uploadingSlot === 'groomPhoto'}
+              onUpload={handleUpload}
+              onRemove={() => set('groomPhoto', '')}
             />
+            <p className="text-[10px] text-neutral-400">JPG/PNG/WEBP · Maks 5MB</p>
+          </div>
+          {/* Fields */}
+          <div>
+            <label className={labelCls}>Nama Lengkap</label>
+            <input className={inputCls} value={form.groomFullName} onChange={e => set('groomFullName', e.target.value)} placeholder="Ahmad Romi Hidayat" />
+          </div>
+          <div>
+            <label className={labelCls}>Nama Orang Tua</label>
+            <input className={inputCls} value={form.groomParents} onChange={e => set('groomParents', e.target.value)} placeholder="Putra ke-1 dari Bapak Hasan & Ibu Sari" />
+          </div>
+          <div>
+            <label className={labelCls}>Instagram <span className="normal-case font-normal text-neutral-400">(Opsional)</span></label>
+            <div className="flex">
+              <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-50 text-neutral-500 text-sm">
+                <AtSign className="w-4 h-4" />
+              </span>
+              <input
+                className="flex-1 border border-neutral-200 rounded-r-xl px-4 py-3 outline-none focus:border-neutral-900 text-sm bg-white"
+                value={form.groomInstagram}
+                onChange={e => set('groomInstagram', e.target.value)}
+                placeholder="username"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Mempelai Wanita */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-neutral-700">Mempelai Wanita</h3>
-        <div>
-          <label className={labelCls}>Nama Lengkap</label>
-          <input
-            className={inputCls}
-            value={form.brideFullName}
-            onChange={(e) => set('brideFullName', e.target.value)}
-            placeholder="Dewi Shinta Permata"
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Nama Orang Tua</label>
-          <input
-            className={inputCls}
-            value={form.brideParents}
-            onChange={(e) => set('brideParents', e.target.value)}
-            placeholder="Putri ke-2 dari Bapak Budi & Ibu Rina"
-          />
-        </div>
-        <div>
-          <label className={labelCls}>
-            Instagram <span className="normal-case font-normal text-neutral-400">(Opsional)</span>
-          </label>
-          <div className="flex">
-            <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-50 text-neutral-500 text-sm">
-              <AtSign className="w-4 h-4 mr-1" />
-            </span>
-            <input
-              className="flex-1 border border-neutral-200 rounded-r-xl px-4 py-3 outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-100 text-sm bg-white"
-              value={form.brideInstagram}
-              onChange={(e) => set('brideInstagram', e.target.value)}
-              placeholder="username"
+        {/* Mempelai Wanita */}
+        <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-5">
+          {/* Photo */}
+          <div className="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100">
+            <PhotoSlot
+              label="Mempelai Wanita"
+              slot="bridePhoto"
+              currentUrl={form.bridePhoto}
+              uploading={uploadingSlot === 'bridePhoto'}
+              onUpload={handleUpload}
+              onRemove={() => set('bridePhoto', '')}
             />
+            <p className="text-[10px] text-neutral-400">JPG/PNG/WEBP · Maks 5MB</p>
+          </div>
+          {/* Fields */}
+          <div>
+            <label className={labelCls}>Nama Lengkap</label>
+            <input className={inputCls} value={form.brideFullName} onChange={e => set('brideFullName', e.target.value)} placeholder="Dewi Shinta Permata" />
+          </div>
+          <div>
+            <label className={labelCls}>Nama Orang Tua</label>
+            <input className={inputCls} value={form.brideParents} onChange={e => set('brideParents', e.target.value)} placeholder="Putri ke-2 dari Bapak Budi & Ibu Rina" />
+          </div>
+          <div>
+            <label className={labelCls}>Instagram <span className="normal-case font-normal text-neutral-400">(Opsional)</span></label>
+            <div className="flex">
+              <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-50 text-neutral-500 text-sm">
+                <AtSign className="w-4 h-4" />
+              </span>
+              <input
+                className="flex-1 border border-neutral-200 rounded-r-xl px-4 py-3 outline-none focus:border-neutral-900 text-sm bg-white"
+                value={form.brideInstagram}
+                onChange={e => set('brideInstagram', e.target.value)}
+                placeholder="username"
+              />
+            </div>
           </div>
         </div>
+
       </div>
 
       {/* Save Footer */}
       <button
         onClick={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
-        className="w-full flex items-center justify-center gap-2 bg-[#000000] hover:bg-[#171717] disabled:bg-neutral-300 text-white py-4 rounded-2xl font-bold text-sm transition-colors shadow-sm cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white py-4 rounded-2xl font-bold text-sm transition-colors cursor-pointer"
       >
         <Save className="w-4 h-4" />
         {saveMutation.isPending ? 'Menyimpan...' : 'Simpan Data Pengantin'}
