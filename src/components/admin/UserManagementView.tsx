@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search, RefreshCw, ChevronLeft, ChevronRight,
-  UserPlus, Ban, ShieldCheck, Trash2, Eye, X, Users
+  UserPlus, Ban, ShieldCheck, Trash2, Eye, X, Users, MoreVertical
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -181,7 +181,18 @@ export default function UserManagementView() {
   const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [detailUser, setDetailUser] = useState<User | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const LIMIT = 10;
+
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as Element).closest('.action-dropdown-wrapper')) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { data, isLoading, isFetching } = useQuery<ApiResponse>({
     queryKey: ['admin-users', search, roleFilter, statusFilter, page],
@@ -389,51 +400,72 @@ export default function UserManagementView() {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="px-6 py-4 relative action-dropdown-wrapper">
+                      <div className="flex justify-end">
                         <button
-                          onClick={() => setDetailUser(user)}
-                          className="p-1.5 text-slate-400 hover:text-[#8D1A42] hover:bg-rose-50 rounded-lg transition-colors"
-                          title="Detail"
+                          onClick={() => setOpenDropdownId(openDropdownId === user._id ? null : user._id)}
+                          className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                         >
-                          <Eye className="w-4 h-4" />
-                        </button>
-
-                        {user.banned ? (
-                          <button
-                            onClick={() => mutate.mutate({ id: user._id, action: 'unban' })}
-                            disabled={mutate.isPending}
-                            className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded-lg transition-colors disabled:opacity-50"
-                            title="Aktifkan"
-                          >
-                            <ShieldCheck className="w-3 h-3" />
-                            Aktifkan
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => mutate.mutate({ id: user._id, action: 'ban' })}
-                            disabled={mutate.isPending}
-                            className="flex items-center gap-1 px-2.5 py-1.5 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-semibold rounded-lg transition-colors disabled:opacity-50"
-                            title="Ban"
-                          >
-                            <Ban className="w-3 h-3" />
-                            Ban
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() => {
-                            if (confirm(`Hapus user "${user.name}"? Tindakan ini tidak bisa dibatalkan.`)) {
-                              deleteMutate.mutate(user._id);
-                            }
-                          }}
-                          disabled={deleteMutate.isPending}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50"
-                          title="Hapus"
-                        >
-                          <Trash2 className="w-4 h-4" />
+                          <MoreVertical className="w-5 h-5" />
                         </button>
                       </div>
+
+                      {openDropdownId === user._id && (
+                        <div className="absolute right-6 top-12 z-10 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 animate-fade-in-up">
+                          <button
+                            onClick={() => {
+                              setDetailUser(user);
+                              setOpenDropdownId(null);
+                            }}
+                            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
+                          >
+                            <Eye className="w-4 h-4 text-[#8D1A42]" />
+                            Detail User
+                          </button>
+
+                          {user.banned ? (
+                            <button
+                              onClick={() => {
+                                mutate.mutate({ id: user._id, action: 'unban' });
+                                setOpenDropdownId(null);
+                              }}
+                              disabled={mutate.isPending}
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 transition-colors text-left disabled:opacity-50"
+                            >
+                              <ShieldCheck className="w-4 h-4" />
+                              Aktifkan
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                mutate.mutate({ id: user._id, action: 'ban' });
+                                setOpenDropdownId(null);
+                              }}
+                              disabled={mutate.isPending}
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors text-left disabled:opacity-50"
+                            >
+                              <Ban className="w-4 h-4" />
+                              Ban User
+                            </button>
+                          )}
+
+                          <div className="h-px bg-slate-100 my-1 mx-2"></div>
+
+                          <button
+                            onClick={() => {
+                              if (confirm(`Hapus user "${user.name}"? Tindakan ini tidak bisa dibatalkan.`)) {
+                                deleteMutate.mutate(user._id);
+                              }
+                              setOpenDropdownId(null);
+                            }}
+                            disabled={deleteMutate.isPending}
+                            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left disabled:opacity-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Hapus
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))

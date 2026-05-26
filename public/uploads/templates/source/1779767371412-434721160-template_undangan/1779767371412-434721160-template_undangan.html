@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pernikahan {{GROOM_NAME}} & {{BRIDE_NAME}}</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Sacramento&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- CSS STYLING --- */
+        :root {
+            --primary: #2c3e35;      /* Deep Sage Green kekinian */
+            --secondary: #d4af37;    /* Gold accent */
+            --bg-light: #f9f8f6;     /* Off-white murni */
+            --text-dark: #333333;
+            --text-muted: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            overflow: hidden; /* Dikunci selama cover aktif */
+        }
+
+        /* --- COVER / SCREEN OPENING --- */
+        #wedding-cover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(rgba(44, 62, 53, 0.85), rgba(44, 62, 53, 0.95)), 
+                        url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1920') no-repeat center center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            z-index: 9999;
+            transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+            text-align: center;
+            padding: 20px;
+        }
+
+        #wedding-cover.slide-up {
+            transform: translateY(-100vh);
+        }
+
+        .cover-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .cover-names {
+            font-family: 'Sacramento', cursive;
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .cover-button {
+            padding: 12px 30px;
+            background-color: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: 0.3s transform, 0.3s background-color;
+        }
+
+        .cover-button:hover {
+            transform: scale(1.05);
+            background-color: #bfa030;
+        }
+
+        /* --- MAIN CONTENT --- */
+        #main-undangan {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease;
+            height: 100vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        #main-undangan.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        section {
+            padding: 80px 20px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: linear-gradient(to bottom, rgba(249,248,246,0.1), var(--bg-light)),
+                        url('https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1920') no-repeat center center/cover;
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '♦';
+            display: block;
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-top: 5px;
+        }
+
+        /* --- MEMPELAI SECTION --- */
+        .couple-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .couple-container { flex-direction: row; justify-content: space-around; }
+        }
+
+        .profile-card {
+            padding: 20px;
+        }
+
+        .profile-card h3 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            font-family: 'Sacramento', cursive;
+        }
+
+        /* --- COUNTDOWN --- */
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .countdown-box {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 70px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .countdown-box span {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        /* --- BUTTONS & UTILITIES --- */
+        .btn-action {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin-top: 15px;
+            transition: 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .btn-action:hover {
+            background-color: var(--secondary);
+        }
+
+        /* --- MUSIC PLAYER FLOAT --- */
+        #music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            animation: rotate Music 3s linear infinite paused;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. COVER / OPENING SECTION -->
+    <div id="wedding-cover">
+        <p class="cover-title">The Wedding of</p>
+        <h1 class="cover-names"><span data-field="groom_name">{{GROOM_NAME}}</span> & <span data-field="bride_name">{{BRIDE_NAME}}</span></h1>
+        <p style="letter-spacing: 2px; margin-bottom: 30px;" data-field="event_date">{{EVENT_DATE}}</p>
+        <button class="cover-button" onclick="bukaUndangan()">
+            <i class="fa-solid fa-envelope-open-text" style="margin-right: 8px;"></i> Buka Undangan
+        </button>
+    </div>
+
+    <!-- 2. MAIN UNDANGAN CONTENT -->
+    <div id="main-undangan">
+        
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <h2 style="font-size: 3rem; color: var(--primary);" class="cover-names">{{GROOM_NAME}} & {{BRIDE_NAME}}</h2>
+            <p>Kami mengundang Anda untuk merayakan kebahagiaan kami.</p>
+            
+            <!-- COUNTDOWN -->
+            <div class="countdown-container">
+                <div class="countdown-box"><span id="days">00</span>Hari</div>
+                <div class="countdown-box"><span id="hours">00</span>Jam</div>
+                <div class="countdown-box"><span id="minutes">00</span>Menit</div>
+                <div class="countdown-box"><span id="seconds">00</span>Detik</div>
+            </div>
+        </section>
+
+        <hr style="border: 0; border-top: 1px solid #e0e0e0; max-width: 50%; margin: 0 auto;">
+
+        <!-- MEMPELAI SECTION -->
+        <section id="mempelai">
+            <h2 class="section-title">Mempelai</h2>
+            <p style="font-style: italic; color: var(--text-muted); margin-bottom: 30px;">
+                "Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri..."
+            </p>
+            
+            <div class="couple-container">
+                <div class="profile-card">
+                    <h3 data-field="groom_name">{{GROOM_NAME}}</h3>
+                    <p style="font-weight: 500; margin-top: 10px;">Putra dari Bapak & Ibu Lorem Ipsum</p>
+                </div>
+                <div style="font-family: 'Sacramento', cursive; font-size: 2.5rem; color: var(--secondary); align-self: center;">&</div>
+                <div class="profile-card">
+                    <h3 data-field="bride_name">{{BRIDE_NAME}}</h3>
+                    <p style="font-weight: 500; margin-top: 10px;">Putri dari Bapak & Ibu Dolor Sit Amet</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ACARA SECTION -->
+        <section id="acara" style="background-color: #f1f0ec;">
+            <h2 class="section-title">Waktu & Tempat</h2>
+            <p style="margin-bottom: 20px;"><i class="fa-solid fa-calendar-days"></i> <strong data-field="event_date">{{EVENT_DATE}}</strong></p>
+            <p style="margin-bottom: 40px;"><i class="fa-solid fa-clock"></i> <span data-field="event_time">{{EVENT_TIME}}</span></p>
+
+            <h3 style="font-size: 1.8rem; color: var(--primary);" data-field="venue_name">{{VENUE_NAME}}</h3>
+            <p style="color: var(--text-muted); margin: 10px auto 20px; max-width: 500px;" data-field="venue_address">
+                {{VENUE_ADDRESS}}
+            </p>
+            
+            <a href="{{MAPS_URL}}" target="_blank" class="btn-action">
+                <i class="fa-solid fa-map-location-dot"></i> Lihat Google Maps
+            </a>
+        </section>
+
+    </div>
+
+    <!-- AUDIO ELEMENT & FLOATING BUTTON -->
+    <audio id="wedding-audio" loop>
+        <source src="{{MUSIC_URL}}" type="audio/mpeg">
+    </audio>
+    <div id="music-control" onclick="toggleMusic()">
+        <i id="music-icon" class="fa-solid fa-disc"></i>
+    </div>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // 1. Fungsi Buka Undangan (Slide Up Cover)
+        function bukaUndangan() {
+            // Hilangkan cover dengan animasi slide up
+            const cover = document.getElementById('wedding-cover');
+            cover.classList.add('slide-up');
+            
+            // Tampilkan main content & aktifkan scroll body
+            const mainContent = document.getElementById('main-undangan');
+            mainContent.classList.add('show');
+            document.body.style.overflow = 'auto';
+
+            // Play Music secara otomatis saat undangan dibuka (mengakomodasi kebijakan autoplay browser)
+            playMusic();
+        }
+
+        // 2. Music Player Control
+        const audio = document.getElementById('wedding-audio');
+        const musicIcon = document.getElementById('music-icon');
+        let isPlaying = false;
+
+        function playMusic() {
+            audio.play().then(() => {
+                isPlaying = true;
+                musicIcon.classList.add('fa-spin'); // Bikin icon berputar seperti piringan hitam
+            }).catch(error => {
+                console.log("Autoplay dicegah oleh browser, audio akan berputar setelah interaksi user.");
+            });
+        }
+
+        function toggleMusic() {
+            if (isPlaying) {
+                audio.pause();
+                musicIcon.classList.remove('fa-spin');
+            } else {
+                audio.play();
+                musicIcon.classList.add('fa-spin');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // 3. Countdown Timer System
+        // Menggunakan placeholder {{COUNTDOWN_TARGET}} dengan format standar ISO (YYYY-MM-DDTHH:MM:SS)
+        const targetDateStr = "{{COUNTDOWN_TARGET}}"; 
+        
+        function initCountdown() {
+            // Proteksi jika string template belum di-replace oleh backend agar tidak error script
+            if(targetDateStr.includes("{{") || targetDateStr === "") return;
+
+            const countDownDate = new Date(targetDateStr).getTime();
+
+            const x = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Inject ke DOM
+                document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+                document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+                document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+                document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+
+                // Jika hitungan mundur selesai
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.querySelector(".countdown-container").innerHTML = "<h3>Acara Telah Dimulai!</h3>";
+                }
+            }, 1000);
+        }
+
+        // Jalankan countdown setelah window loaded
+        window.onload = function() {
+            initCountdown();
+        };
+    </script>
+</body>
+</html>

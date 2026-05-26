@@ -11,6 +11,14 @@ interface Project {
   customUrl: string;
   status: string;
   createdAt: string;
+  expiresAt?: string;
+  activatedAt?: string;
+  priceSnapshot?: number;
+  themeId: {
+    _id: string;
+    templateName: string;
+    thumbnailUrl: string;
+  };
 }
 
 export default function UndanganSayaPage() {

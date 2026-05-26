@@ -41,10 +41,18 @@ export async function GET(req: NextRequest) {
       .limit(limit)
       .lean();
 
+
+    // Auto-expire: tandai project yang sudah melewati expiresAt
+    await Project.updateMany(
+      { status: 'active', expiresAt: { $lte: new Date() } },
+      { $set: { status: 'expired' } }
+    );
+
     // Stats
     const totalActive = await Project.countDocuments({ status: 'active' });
     const totalExpired = await Project.countDocuments({ status: 'expired' });
     const totalAll = await Project.countDocuments();
+
 
     return NextResponse.json({
       success: true,
@@ -71,9 +79,38 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'id and status required' }, { status: 400 });
     }
 
+    // Hitung expiresAt berdasarkan priceSnapshot (tier paket)
+    const updateFields: Record<string, any> = { status };
+
+    if (status === 'active') {
+      const project = await Project.findById(id).select('priceSnapshot activatedAt');
+      if (project && !project.activatedAt) {
+        // Hanya set jika belum pernah diaktifkan sebelumnya
+        const now = new Date();
+        const price = project.priceSnapshot ?? 0;
+
+        let expiresAt: Date;
+        if (price <= 150000) {
+          // Bronze: 2 hari
+          expiresAt = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+        } else if (price <= 350000) {
+          // Silver: 3 bulan
+          expiresAt = new Date(now);
+          expiresAt.setMonth(expiresAt.getMonth() + 3);
+        } else {
+          // Gold: 6 bulan
+          expiresAt = new Date(now);
+          expiresAt.setMonth(expiresAt.getMonth() + 6);
+        }
+
+        updateFields.activatedAt = now;
+        updateFields.expiresAt   = expiresAt;
+      }
+    }
+
     const updated = await Project.findByIdAndUpdate(
       id,
-      { $set: { status } },
+      { $set: updateFields },
       { new: true }
     ).populate('userId', 'name email');
 

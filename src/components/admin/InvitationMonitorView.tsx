@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Eye, Ban, RefreshCw, ExternalLink, ChevronLeft, ChevronRight, Trash2, AlertTriangle, X } from 'lucide-react';
+import { Search, Eye, Ban, RefreshCw, ExternalLink, ChevronLeft, ChevronRight, Trash2, AlertTriangle, X, MoreVertical, Edit3 } from 'lucide-react';
 import Link from 'next/link';
 
 interface Project {
@@ -13,6 +13,8 @@ interface Project {
   status: 'active' | 'pending' | 'expired';
   priceSnapshot: number;
   createdAt: string;
+  activatedAt?: string;
+  expiresAt?: string;
   userId?: { _id: string; name: string; email: string; image?: string };
   themeId?: { templateName: string; thumbnailUrl: string };
 }
@@ -43,6 +45,14 @@ const AVATAR_COLORS = [
 function avatarColor(name: string) {
   return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 }
+
+function getDuration(price: number): string {
+  if (price <= 150000) return '2 Hari';
+  if (price <= 350000) return '3 Bulan';
+  return '6 Bulan';
+}
+
+
 
 // ── Confirm Delete Modal ──────────────────────────────────────────────────────
 function ConfirmDeleteModal({
@@ -140,7 +150,18 @@ export default function InvitationMonitorView() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const LIMIT = 10;
+
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as Element).closest('.action-dropdown-wrapper')) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { data, isLoading, isFetching } = useQuery<ApiResponse>({
     queryKey: ['admin-projects', search, statusFilter, page],
@@ -268,6 +289,7 @@ export default function InvitationMonitorView() {
                 <th className="px-6 py-3">Client</th>
                 <th className="px-6 py-3">Tema</th>
                 <th className="px-6 py-3">Tanggal Buat</th>
+                <th className="px-6 py-3">Tanggal Kedaluwarsa</th>
                 <th className="px-6 py-3">Harga</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3 text-right">Aksi</th>
@@ -275,9 +297,9 @@ export default function InvitationMonitorView() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
+                  Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="px-6 py-4">
                         <div className="h-4 bg-slate-100 rounded w-3/4" />
                       </td>
@@ -286,7 +308,7 @@ export default function InvitationMonitorView() {
                 ))
               ) : projects.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center text-slate-400 text-sm">
+                  <td colSpan={8} className="px-6 py-16 text-center text-slate-400 text-sm">
                     {search ? `Tidak ada hasil untuk "${search}"` : 'Belum ada undangan.'}
                   </td>
                 </tr>
@@ -294,7 +316,20 @@ export default function InvitationMonitorView() {
                 projects.map((project) => {
                   const ownerName = project.userId?.name || project.clientName || 'Unknown';
                   const ownerEmail = project.userId?.email || '';
-                  const isExpired = project.status === 'expired';
+                  
+                  let expDate = project.expiresAt ? new Date(project.expiresAt) : null;
+                  if (!expDate && project.status !== 'pending') {
+                    const baseDate = new Date(project.activatedAt || project.createdAt);
+                    const price = project.priceSnapshot || 0;
+                    expDate = new Date(baseDate);
+                    if (price <= 150000) expDate.setDate(expDate.getDate() + 2);
+                    else if (price <= 350000) expDate.setMonth(expDate.getMonth() + 3);
+                    else expDate.setMonth(expDate.getMonth() + 6);
+                  }
+
+                  const isPastExpired = expDate ? (expDate.getTime() < Date.now()) : false;
+                  const effectiveStatus = (isPastExpired && project.status === 'active') ? 'expired' : project.status;
+                  const isExpired = effectiveStatus === 'expired';
 
                   return (
                     <tr key={project._id} className="hover:bg-slate-50/50 transition-colors">
@@ -356,6 +391,20 @@ export default function InvitationMonitorView() {
                         {formatDate(project.createdAt)}
                       </td>
 
+                      {/* Tanggal Kedaluwarsa */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {project.status === 'pending' ? (
+                          <span className="text-[11px] text-amber-600 font-medium">Belum publish</span>
+                        ) : expDate ? (
+                          <div>
+                            <p className="text-slate-700 text-xs font-medium">{formatDate(expDate.toISOString())}</p>
+                            <p className={`text-[10px] mt-0.5 ${isPastExpired ? 'text-rose-500 font-semibold' : 'text-slate-400'}`}>
+                              {isPastExpired ? 'Telah Kedaluwarsa' : `Masa aktif: ${getDuration(project.priceSnapshot)}`}
+                            </p>
+                          </div>
+                        ) : null}
+                      </td>
+
                       {/* Harga */}
                       <td className="px-6 py-4 text-slate-700 text-xs font-medium whitespace-nowrap">
                         {formatPrice(project.priceSnapshot)}
@@ -364,60 +413,92 @@ export default function InvitationMonitorView() {
                       {/* Status */}
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
-                          project.status === 'active'
+                          effectiveStatus === 'active'
                             ? 'bg-emerald-100 text-emerald-700'
-                            : project.status === 'pending'
+                            : effectiveStatus === 'pending'
                             ? 'bg-amber-100 text-amber-700'
                             : 'bg-rose-100 text-rose-600'
                         }`}>
-                          {project.status === 'expired' ? 'Banned/Expired' : project.status}
+                          {effectiveStatus === 'expired' ? (isPastExpired ? 'Expired' : 'Banned') : effectiveStatus}
                         </span>
                       </td>
 
                       {/* Aksi */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/${project.customUrl}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1.5 text-slate-400 hover:text-[#8D1A42] transition-colors"
-                            title="Lihat Undangan"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Link>
-
-                          {isExpired ? (
-                            <button
-                              onClick={() => updateStatusMutation.mutate({ id: project._id, status: 'active' })}
-                              disabled={updateStatusMutation.isPending}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded-lg transition-colors disabled:opacity-50"
-                              title="Aktifkan kembali"
-                            >
-                              <RefreshCw className="w-3 h-3" />
-                              Aktifkan
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => updateStatusMutation.mutate({ id: project._id, status: 'expired' })}
-                              disabled={updateStatusMutation.isPending}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-semibold rounded-lg transition-colors disabled:opacity-50"
-                              title="Ban / Nonaktifkan"
-                            >
-                              <Ban className="w-3 h-3" />
-                              Ban
-                            </button>
-                          )}
-
+                      <td className="px-6 py-4 relative action-dropdown-wrapper">
+                        <div className="flex justify-end">
                           <button
-                            onClick={() => setProjectToDelete(project)}
-                            disabled={deleteMutation.isPending}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50"
-                            title="Hapus Undangan"
+                            onClick={() => setOpenDropdownId(openDropdownId === project._id ? null : project._id)}
+                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <MoreVertical className="w-5 h-5" />
                           </button>
                         </div>
+
+                        {openDropdownId === project._id && (
+                          <div className="absolute right-6 top-12 z-10 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 animate-fade-in-up">
+                            {/* Edit */}
+                            <Link
+                              href={`/client/undangan/${project._id}/edit`}
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
+                            >
+                              <Edit3 className="w-4 h-4 text-blue-500" />
+                              Edit Undangan
+                            </Link>
+
+                            {/* Lihat */}
+                            <Link
+                              href={`/${project.customUrl}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
+                            >
+                              <Eye className="w-4 h-4 text-emerald-500" />
+                              Lihat Publik
+                            </Link>
+
+                            {/* Ban / Aktifkan */}
+                            {isExpired ? (
+                              <button
+                                onClick={() => {
+                                  updateStatusMutation.mutate({ id: project._id, status: 'active' });
+                                  setOpenDropdownId(null);
+                                }}
+                                disabled={updateStatusMutation.isPending}
+                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 transition-colors text-left disabled:opacity-50"
+                              >
+                                <RefreshCw className="w-4 h-4" />
+                                Aktifkan
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  updateStatusMutation.mutate({ id: project._id, status: 'expired' });
+                                  setOpenDropdownId(null);
+                                }}
+                                disabled={updateStatusMutation.isPending}
+                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors text-left disabled:opacity-50"
+                              >
+                                <Ban className="w-4 h-4" />
+                                Ban / Nonaktifkan
+                              </button>
+                            )}
+
+                            <div className="h-px bg-slate-100 my-1 mx-2"></div>
+
+                            {/* Hapus */}
+                            <button
+                              onClick={() => {
+                                setProjectToDelete(project);
+                                setOpenDropdownId(null);
+                              }}
+                              disabled={deleteMutation.isPending}
+                              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left disabled:opacity-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Hapus
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );

@@ -8,6 +8,8 @@ export interface IProject extends Document {
   themeId?: mongoose.Types.ObjectId;
   plan?: string;
   status: 'pending' | 'active' | 'expired';
+  activatedAt?: Date;
+  expiresAt?: Date;
   priceSnapshot: number;
   // Content fields
   groomFullName: string;
@@ -31,6 +33,7 @@ export interface IProject extends Document {
   bankAccount: string;
   bankHolder: string;
   bgMusic: string;
+  guests: { name: string; noWa: string; isSent?: boolean }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +47,8 @@ const ProjectSchema = new Schema<IProject>(
     themeId: { type: Schema.Types.ObjectId, ref: 'Template', required: false },
     plan: { type: String, default: 'bronze' },
     status: { type: String, enum: ['pending', 'active', 'expired'], default: 'active' },
+    activatedAt: { type: Date, default: null },
+    expiresAt:   { type: Date, default: null },
     priceSnapshot: { type: Number, required: true, default: 0 },
     // Content
     groomFullName: { type: String, default: '' },
@@ -67,9 +72,17 @@ const ProjectSchema = new Schema<IProject>(
     bankAccount: { type: String, default: '' },
     bankHolder: { type: String, default: '' },
     bgMusic: { type: String, default: '' },
+    guests: [{
+      name: { type: String },
+      noWa: { type: String },
+      isSent: { type: Boolean, default: false },
+    }],
   },
   { timestamps: true }
 );
 
-export const Project: Model<IProject> =
-  mongoose.models.Project || mongoose.model<IProject>('Project', ProjectSchema);
+if (mongoose.models.Project) {
+  delete mongoose.models.Project;
+}
+
+export const Project: Model<IProject> = mongoose.model<IProject>('Project', ProjectSchema);

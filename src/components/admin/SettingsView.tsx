@@ -45,182 +45,67 @@ export default function SystemSettingsPage() {
       </div>
 
       {/* Settings Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-2xl space-y-6">
         
-        {/* LEFT COLUMN */}
-        <div className="space-y-6">
-          {/* General Settings Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex items-center gap-2 mb-6 text-slate-800">
-              <svg className="w-5 h-5 text-[#8D1A42]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 className="font-bold text-[15px]">General Settings</h3>
+        {/* General Settings Card */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-6 text-slate-800">
+            <svg className="w-5 h-5 text-[#8D1A42]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="font-bold text-[15px]">General Settings</h3>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-[12px] font-semibold text-slate-800 mb-2">Invitation Active Period</label>
+              <div className="relative">
+                <select className="w-full bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg focus:ring-[#8D1A42] focus:border-[#8D1A42] block p-2.5 appearance-none cursor-pointer outline-none">
+                  <option>1 Year Auto-lock</option>
+                  <option>6 Months Auto-lock</option>
+                  <option>Never Expire</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+              <p className="text-[11.5px] text-slate-500 mt-2 leading-relaxed">After this period, invitations will be archived and access restricted.</p>
             </div>
 
-            <div className="space-y-6">
+            <div className="flex items-center justify-between pt-2">
               <div>
-                <label className="block text-[12px] font-semibold text-slate-800 mb-2">Invitation Active Period</label>
-                <div className="relative">
-                  <select className="w-full bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg focus:ring-[#8D1A42] focus:border-[#8D1A42] block p-2.5 appearance-none cursor-pointer outline-none">
-                    <option>1 Year Auto-lock</option>
-                    <option>6 Months Auto-lock</option>
-                    <option>Never Expire</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                  </div>
-                </div>
-                <p className="text-[11.5px] text-slate-500 mt-2 leading-relaxed">After this period, invitations will be archived and access restricted.</p>
+                <p className="text-[13px] font-bold text-slate-800">Maintenance Mode</p>
+                <p className="text-[11.5px] text-slate-500 mt-0.5">Temporarily disable front-end access</p>
               </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <div>
-                  <p className="text-[13px] font-bold text-slate-800">Maintenance Mode</p>
-                  <p className="text-[11.5px] text-slate-500 mt-0.5">Temporarily disable front-end access</p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" value="" className="sr-only peer" />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8D1A42]"></div>
-                </label>
-              </div>
-            </div>
-
-            <button className="w-full mt-8 py-3 text-white text-[14px] font-semibold rounded-lg shadow-sm hover:opacity-90 transition-opacity" style={{ backgroundColor: '#6a1230' }}>
-              Save Changes
-            </button>
-          </div>
-
-          {/* System Health Card */}
-          <div className="p-6 rounded-2xl flex items-center justify-between relative overflow-hidden text-white shadow-md" style={{ backgroundColor: '#6a1230' }}>
-            <div className="absolute -right-8 -top-8 w-40 h-40 border-[20px] border-white/5 rounded-full"></div>
-            <div className="absolute -right-16 -top-16 w-56 h-56 border-[20px] border-white/5 rounded-full"></div>
-            
-            <div className="relative z-10 space-y-1">
-              <h3 className="font-bold text-[14px] mb-2">System Health</h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold tracking-tight">99.8%</span>
-              </div>
-              <p className="text-[10px] font-bold tracking-widest text-white/70 uppercase">SERVER UPTIME</p>
-            </div>
-            <div className="relative z-10 w-12 h-12 flex items-center justify-center">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13l2 2 4-4" />
-              </svg>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" value="" className="sr-only peer" />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8D1A42]"></div>
+              </label>
             </div>
           </div>
+
+          <button className="w-full mt-8 py-3 text-white text-[14px] font-semibold rounded-lg shadow-sm hover:opacity-90 transition-opacity" style={{ backgroundColor: '#6a1230' }}>
+            Save Changes
+          </button>
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* System Health Card */}
+        <div className="p-6 rounded-2xl flex items-center justify-between relative overflow-hidden text-white shadow-md" style={{ backgroundColor: '#6a1230' }}>
+          <div className="absolute -right-8 -top-8 w-40 h-40 border-[20px] border-white/5 rounded-full"></div>
+          <div className="absolute -right-16 -top-16 w-56 h-56 border-[20px] border-white/5 rounded-full"></div>
           
-          {/* Payment Gateway API Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-2 text-slate-800">
-                <svg className="w-5 h-5 text-[#8D1A42]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <h3 className="font-bold text-[15px]">Payment Gateway API</h3>
-              </div>
-              <span className="px-3 py-1 bg-[#e0effc] text-[#377bb5] text-[11px] font-bold rounded-full">Secure Sync</span>
+          <div className="relative z-10 space-y-1">
+            <h3 className="font-bold text-[14px] mb-2">System Health</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold tracking-tight">99.8%</span>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Tripay */}
-              <div className="space-y-4">
-                <h4 className="text-[13px] font-bold text-[#8D1A42]">Tripay Settings</h4>
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Merchant Code</label>
-                  <input type="text" defaultValue="T102934-MCH" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800" />
-                </div>
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">API Key</label>
-                  <input type="password" defaultValue="secretapikeyhere" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800 tracking-[0.2em]" />
-                </div>
-              </div>
-
-              {/* Midtrans */}
-              <div className="space-y-4">
-                <h4 className="text-[13px] font-bold text-[#8D1A42]">Midtrans Settings</h4>
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Client Key</label>
-                  <input type="text" defaultValue="SB-Mid-client-8821" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800" />
-                </div>
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Server Key</label>
-                  <input type="password" defaultValue="secretserverkey" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800 tracking-[0.2em]" />
-                </div>
-              </div>
-            </div>
+            <p className="text-[10px] font-bold tracking-widest text-white/70 uppercase">SERVER UPTIME</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* SMTP Settings */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-6 text-slate-800">
-                <svg className="w-5 h-5 text-[#8D1A42]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <h3 className="font-bold text-[15px]">SMTP Settings</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Host</label>
-                  <input type="text" defaultValue="smtp.gmail.com" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Port</label>
-                    <input type="text" defaultValue="587" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800" />
-                  </div>
-                  <div>
-                    <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Encryption</label>
-                    <div className="relative">
-                      <select className="w-full bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg focus:ring-[#8D1A42] focus:border-[#8D1A42] block px-3 py-2.5 appearance-none cursor-pointer outline-none">
-                        <option>TLS</option>
-                        <option>SSL</option>
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* WA Gateway */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-6 text-slate-800">
-                <svg className="w-5 h-5 text-[#8D1A42]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <h3 className="font-bold text-[15px]">WA Gateway</h3>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">Server Provider</label>
-                  <div className="relative">
-                    <select className="w-full bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg focus:ring-[#8D1A42] focus:border-[#8D1A42] block px-3 py-2.5 appearance-none cursor-pointer outline-none">
-                      <option>Fonnte</option>
-                      <option>Wablas</option>
-                      <option>Watzap</option>
-                    </select>
-                    <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[11.5px] font-bold text-slate-700 mb-1.5">API Key / Token</label>
-                  <input type="password" defaultValue="secrettokenhere" className="w-full text-[13px] border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:border-[#8D1A42] bg-white text-slate-800 tracking-[0.2em]" />
-                </div>
-              </div>
-            </div>
+          <div className="relative z-10 w-12 h-12 flex items-center justify-center">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13l2 2 4-4" />
+            </svg>
           </div>
         </div>
       </div>
