@@ -9,6 +9,10 @@ import MenuGrid from './components/MenuGrid';
 import PengantinForm from './components/PengantinForm';
 import BukuTamuForm from './components/BukuTamuForm';
 import KirimForm from './components/KirimForm';
+import TemaForm from './components/TemaForm';
+import AcaraForm from './components/AcaraForm';
+import GaleriForm from './components/GaleriForm';
+import PengaturanForm from './components/PengaturanForm';
 
 export default function EditUndanganDashboard() {
   const { id } = useParams();
@@ -104,28 +108,67 @@ export default function EditUndanganDashboard() {
       );
     }
 
-    // Placeholder for other sections
-    return (
-      <div className="bg-white rounded-2xl border border-neutral-200 p-10 text-center min-h-[300px] flex flex-col items-center justify-center gap-3">
-        <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mb-2">
-          <span className="text-2xl">🛠️</span>
-        </div>
-        <p className="text-base font-bold text-neutral-700">
-          {activeSection.replace('_', ' ').replace(/^\w/, c => c.toUpperCase())}
-        </p>
-        <p className="text-neutral-400 text-sm">Bagian ini segera hadir.</p>
-        <button 
-          onClick={() => setActiveSection(null)}
-          className="mt-4 bg-[#000000] text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#171717] transition-colors"
-        >
-          Kembali ke Menu
-        </button>
-      </div>
-    );
+    if (activeSection === 'tema') {
+      return (
+        <TemaForm
+          projectId={id as string}
+          initialThemeId={projectData?.themeId?._id || projectData?.themeId}
+          onBack={() => setActiveSection(null)}
+        />
+      );
+    }
+
+    if (activeSection === 'acara') {
+      return (
+        <AcaraForm
+          projectId={id as string}
+          initialData={{
+            eventDate: projectData?.eventDate || '',
+            eventTime: projectData?.eventTime || '',
+            eventTimezone: projectData?.eventTimezone || 'WIB (GMT+7)',
+            venue: projectData?.venue || '',
+            mapsUrl: projectData?.mapsUrl || '',
+            youtubeUrl: projectData?.youtubeUrl || '',
+          }}
+          onBack={() => setActiveSection(null)}
+        />
+      );
+    }
+
+    if (activeSection === 'galeri') {
+      return (
+        <GaleriForm
+          projectId={id as string}
+          initialGallery={projectData?.gallery || []}
+          onBack={() => setActiveSection(null)}
+        />
+      );
+    }
+
+    if (activeSection === 'pengaturan') {
+      return (
+        <PengaturanForm
+          projectId={id as string}
+          initialData={{
+            customUrl: projectData?.customUrl || '',
+            enableRsvp: projectData?.enableRsvp ?? true,
+            enableGuestbook: projectData?.enableGuestbook ?? true,
+            bankName: projectData?.bankName || '',
+            bankAccount: projectData?.bankAccount || '',
+            bankHolder: projectData?.bankHolder || '',
+            bgMusic: projectData?.bgMusic || '',
+          }}
+          onBack={() => setActiveSection(null)}
+        />
+      );
+    }
+
+    return null;
   };
 
   const getContainerWidth = () => {
     if (activeSection === 'kirim' || activeSection === 'buku_tamu') return 'max-w-5xl';
+    if (activeSection === 'tema' || activeSection === 'galeri') return 'max-w-3xl';
     return 'max-w-lg';
   };
 

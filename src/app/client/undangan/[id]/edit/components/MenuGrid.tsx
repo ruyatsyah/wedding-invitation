@@ -17,7 +17,7 @@ const menuItems = [
   { id: 'tema', label: 'Tema', icon: <Palette className={iconClasses} /> },
   { id: 'acara', label: 'Acara', icon: <Calendar className={iconClasses} /> },
   { id: 'galeri', label: 'Galeri', icon: <ImageIcon className={iconClasses} /> },
-  { id: 'musik', label: 'Musik', icon: <Music className={iconClasses} /> },
+  { id: 'pengaturan', label: 'Musik', icon: <Music className={iconClasses} /> },
   { id: 'ucapan', label: 'Ucapan', icon: <MessageSquare className={iconClasses} /> },
   { id: 'kado', label: 'Kado', icon: <Gift className={iconClasses} /> },
   { id: 'rsvp', label: 'RSVP', icon: <MailCheck className={iconClasses} /> },
@@ -25,7 +25,7 @@ const menuItems = [
   { id: 'kisah_cinta', label: 'Kisah Cinta', icon: <Heart className={iconClasses} /> },
   { id: 'story_ig', label: 'Story IG', icon: <Camera className={iconClasses} /> },
   { id: 'quote', label: 'Quote', icon: <Quote className={iconClasses} /> },
-  { id: 'setting', label: 'Setting', icon: <Settings className={iconClasses} /> },
+  { id: 'pengaturan', label: 'Setting', icon: <Settings className={iconClasses} /> },
   { id: 'buku_tamu', label: 'Buku Tamu', icon: <BookOpen className={iconClasses} /> },
   { id: 'kirim', label: 'Kirim', icon: <Send className={`${iconClasses} text-amber-400`} /> },
   { 
