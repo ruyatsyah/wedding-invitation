@@ -7,6 +7,8 @@ import { ArrowLeft, Monitor } from 'lucide-react';
 import EditHeader from './components/EditHeader';
 import MenuGrid from './components/MenuGrid';
 import PengantinForm from './components/PengantinForm';
+import BukuTamuForm from './components/BukuTamuForm';
+import KirimForm from './components/KirimForm';
 
 export default function EditUndanganDashboard() {
   const { id } = useParams();
@@ -81,6 +83,27 @@ export default function EditUndanganDashboard() {
       );
     }
 
+    if (activeSection === 'buku_tamu') {
+      return (
+        <BukuTamuForm
+          projectId={id as string}
+          initialGuests={projectData?.guests || []}
+          onBack={() => setActiveSection(null)}
+        />
+      );
+    }
+
+    if (activeSection === 'kirim') {
+      return (
+        <KirimForm
+          projectId={id as string}
+          customUrl={projectData?.customUrl || ''}
+          initialGuests={projectData?.guests || []}
+          onBack={() => setActiveSection(null)}
+        />
+      );
+    }
+
     // Placeholder for other sections
     return (
       <div className="bg-white rounded-2xl border border-neutral-200 p-10 text-center min-h-[300px] flex flex-col items-center justify-center gap-3">
@@ -101,6 +124,11 @@ export default function EditUndanganDashboard() {
     );
   };
 
+  const getContainerWidth = () => {
+    if (activeSection === 'kirim' || activeSection === 'buku_tamu') return 'max-w-5xl';
+    return 'max-w-lg';
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-neutral-900 pb-20">
       
@@ -117,10 +145,10 @@ export default function EditUndanganDashboard() {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 mt-6 md:mt-8">
+      <main className={`${getContainerWidth()} mx-auto px-4 mt-6 md:mt-8 transition-all duration-300`}>
         
-        {/* Top bar: back button + badge — hidden when in PengantinForm (it has its own back button) */}
-        {activeSection !== 'pengantin' && (
+        {/* Top bar: back button + badge — hidden when in any form (they have their own back button) */}
+        {!activeSection && (
           <div className="flex items-center justify-between mb-4">
             <button 
               onClick={() => activeSection ? setActiveSection(null) : router.push('/client/undangan')}
