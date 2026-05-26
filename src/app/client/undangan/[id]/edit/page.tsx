@@ -21,8 +21,15 @@ import {
   BookOpen,
   Wallet,
   ArrowLeft,
+  Users,
+  Send,
+  Download,
+  Upload,
+  PlusCircle,
+  Trash,
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import * as XLSX from "xlsx";
 
 interface FormData {
   coupleName: string;
@@ -48,6 +55,7 @@ interface FormData {
   bankAccount: string;
   bankHolder: string;
   bgMusic: string;
+  guests: { name: string; noWa: string; isSent?: boolean }[];
 }
 
 const defaultForm: FormData = {
@@ -74,6 +82,7 @@ const defaultForm: FormData = {
   bankAccount: "",
   bankHolder: "",
   bgMusic: "",
+  guests: [],
 };
 
 // ── Photo Upload Slot Component ─────────────────────────────────────────────
@@ -165,6 +174,14 @@ export default function EditorPage() {
   const [form, setForm] = useState<FormData>(defaultForm);
   const [saveMsg, setSaveMsg] = useState("");
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
+  const [projectStatus, setProjectStatus] = useState<'pending'|'active'|'expired'>('pending');
+  const [expiresAt, setExpiresAt]         = useState<string | null>(null);
+  const [activatedAt, setActivatedAt]     = useState<string | null>(null);
+  
+  // Guest list manual input state
+  const [newGuestName, setNewGuestName] = useState("");
+  const [newGuestWa, setNewGuestWa] = useState("");
+
   // Track whether form has been loaded from server at least once
   const formLoadedRef = React.useRef(false);
 
@@ -184,6 +201,9 @@ export default function EditorPage() {
     if (projectData && !formLoadedRef.current) {
       formLoadedRef.current = true;
       const p = projectData as any;
+      setProjectStatus(p.status ?? 'pending');
+      setExpiresAt(p.expiresAt ?? null);
+      setActivatedAt(p.activatedAt ?? null);
       setForm({
         coupleName: p.coupleName || "",
         customUrl: p.customUrl || "",
@@ -208,6 +228,7 @@ export default function EditorPage() {
         bankAccount: p.bankAccount || "",
         bankHolder: p.bankHolder || "",
         bgMusic: p.bgMusic || "",
+        guests: p.guests || [],
       });
     }
   }, [projectData]);
@@ -350,11 +371,12 @@ export default function EditorPage() {
           <div className="flex items-center gap-3">
             {saveMsg && (
               <span
-                className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg === "Tersimpan!" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}
+                className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg.includes('✓') || saveMsg === "Tersimpan!" ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}
               >
                 {saveMsg}
               </span>
             )}
+
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -402,6 +424,18 @@ export default function EditorPage() {
                 icon: ListChecks,
                 title: "Fitur Tambahan",
                 desc: "RSVP & Ucapan",
+              },
+              {
+                id: "guest",
+                icon: Users,
+                title: "Guest List",
+                desc: "Daftar Tamu & Excel",
+              },
+              {
+                id: "wablast",
+                icon: Send,
+                title: "WA Blast",
+                desc: "Kirim Undangan WA",
               },
             ].map((tab) => (
               <button
@@ -896,6 +930,221 @@ export default function EditorPage() {
                           onChange={(e) => set("bankHolder", e.target.value)}
                           placeholder="Nama pemilik rekening"
                         />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab: Guest List */}
+              {activeTab === "guest" && (
+                <div className="space-y-6">
+                  <div className="border-b border-[#ddbfc4] pb-4 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold text-[#6b002c]">Guest List</h3>
+                      <p className="text-sm text-slate-500 mt-1">Kelola daftar tamu undangan Anda.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          const ws = XLSX.utils.aoa_to_sheet([
+                            ["Tamplate Tamu Undangan", null, null],
+                            ["No", "Nama", "HP/Whatsapp"],
+                            [1, "Budi", "0891234567"],
+                            [2, "Siti", "0821345678"]
+                          ]);
+                          ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+                          const wb = XLSX.utils.book_new();
+                          XLSX.utils.book_append_sheet(wb, ws, "Guest List");
+                          XLSX.writeFile(wb, "Template_Guest_List.xlsx");
+                        }}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#ddbfc4] text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50"
+                      >
+                        <Download className="w-4 h-4" /> Template Excel
+                      </button>
+                      <label className="flex items-center gap-2 px-3 py-1.5 bg-[#8D1A42] text-white rounded-lg text-xs font-semibold hover:bg-[#721535] cursor-pointer">
+                        <Upload className="w-4 h-4" /> Upload Excel
+                        <input
+                          type="file"
+                          accept=".xlsx,.xls"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const data = new Uint8Array(event.target?.result as ArrayBuffer);
+                              const workbook = XLSX.read(data, { type: 'array' });
+                              const sheetName = workbook.SheetNames[0];
+                              const sheet = workbook.Sheets[sheetName];
+                              // Skip the first row (the merged title) by reading from row 2 as header
+                              const json = XLSX.utils.sheet_to_json<any>(sheet, { range: 1 });
+                              const newGuests = json.map(r => {
+                                const name = r["Nama"] || r["nama"];
+                                const wa = r["HP/Whatsapp"] || r["hp"] || r["whatsapp"] || r["wa"];
+                                return { name: String(name || '').trim(), noWa: String(wa || '').trim(), isSent: false };
+                              }).filter(g => g.name);
+                              const newForm = { ...form, guests: [...form.guests, ...newGuests] };
+                              setForm(newForm);
+                              updateProjectMutation.mutate(newForm);
+                            };
+                            reader.readAsArrayBuffer(file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <input
+                      className={inputCls}
+                      placeholder="Nama Tamu"
+                      value={newGuestName}
+                      onChange={(e) => setNewGuestName(e.target.value)}
+                    />
+                    <input
+                      className={inputCls}
+                      placeholder="No. WhatsApp (ex: 0812...)"
+                      value={newGuestWa}
+                      onChange={(e) => setNewGuestWa(e.target.value)}
+                    />
+                    <button
+                      onClick={() => {
+                        if (newGuestName.trim()) {
+                          const newForm = {
+                            ...form,
+                            guests: [...form.guests, { name: newGuestName.trim(), noWa: newGuestWa.trim(), isSent: false }]
+                          };
+                          setForm(newForm);
+                          updateProjectMutation.mutate(newForm);
+                          setNewGuestName("");
+                          setNewGuestWa("");
+                        }
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#8D1A42] text-white rounded-lg text-sm font-semibold hover:bg-[#721535]"
+                    >
+                      <PlusCircle className="w-4 h-4" /> Tambah
+                    </button>
+                  </div>
+
+                  <div className="border border-[#ddbfc4] rounded-xl overflow-hidden bg-white">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-[#f9f9fc] border-b border-[#ddbfc4]">
+                        <tr>
+                          <th className="px-4 py-3 font-semibold text-slate-600 w-16 text-center">No</th>
+                          <th className="px-4 py-3 font-semibold text-slate-600">Nama</th>
+                          <th className="px-4 py-3 font-semibold text-slate-600">HP/Whatsapp</th>
+                          <th className="px-4 py-3 font-semibold text-slate-600 text-center">Status</th>
+                          <th className="px-4 py-3 font-semibold text-slate-600 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {form.guests?.length === 0 ? (
+                          <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">Belum ada tamu</td></tr>
+                        ) : (
+                          form.guests?.map((guest, idx) => (
+                            <tr key={idx} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 text-slate-500 font-medium text-center">{idx + 1}</td>
+                              <td className="px-4 py-3 text-slate-800 font-medium">{guest.name}</td>
+                              <td className="px-4 py-3 text-slate-500">{guest.noWa || '-'}</td>
+                              <td className="px-4 py-3 text-center">
+                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                  guest.isSent ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                  {guest.isSent ? 'Terkirim' : 'Belum'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                <button
+                                  onClick={() => {
+                                    const newForm = {
+                                      ...form,
+                                      guests: form.guests.filter((_, i) => i !== idx)
+                                    };
+                                    setForm(newForm);
+                                    updateProjectMutation.mutate(newForm);
+                                  }}
+                                  className="p-1.5 text-rose-500 hover:bg-rose-50 rounded"
+                                >
+                                  <Trash className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab: WA Blast */}
+              {activeTab === "wablast" && (
+                <div className="space-y-6">
+                  <div className="border-b border-[#ddbfc4] pb-4">
+                    <h3 className="text-xl font-semibold text-[#6b002c]">WhatsApp Blast</h3>
+                    <p className="text-sm text-slate-500 mt-1">Kirim pesan undangan ke daftar tamu Anda secara instan.</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className={labelCls}>Template Pesan</label>
+                        <textarea
+                          className={`${inputCls} min-h-[250px] resize-y`}
+                          defaultValue={`Halo [Nama Tamu],\n\nTanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan memberikan doa restu pada acara pernikahan kami.\n\nBerikut link undangan kami:\n[Link Undangan]\n\nMerupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di acara pernikahan kami.\n\nTerima kasih.`}
+                          id="waTemplate"
+                        />
+                        <p className="text-[11px] text-slate-500 mt-2">
+                          Variabel yang tersedia: <br/>
+                          <code className="bg-slate-100 px-1 py-0.5 rounded text-[#8D1A42] font-mono">[Nama Tamu]</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-[#8D1A42] font-mono">[Link Undangan]</code>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border border-[#ddbfc4] rounded-xl overflow-hidden bg-white flex flex-col">
+                      <div className="bg-[#f9f9fc] border-b border-[#ddbfc4] p-3">
+                        <p className="font-semibold text-slate-700 text-sm">Status Pengiriman ({form.guests?.length || 0} Tamu)</p>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[300px]">
+                        {form.guests?.length === 0 ? (
+                          <p className="text-sm text-slate-400 text-center py-4">Guest List masih kosong.</p>
+                        ) : (
+                          form.guests?.map((guest, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:border-[#ddbfc4] transition-colors">
+                              <div>
+                                <p className="font-semibold text-sm text-slate-800">{guest.name}</p>
+                                <p className="text-xs text-slate-500">{guest.noWa || 'No WA belum diisi'}</p>
+                              </div>
+                              <button
+                                disabled={!guest.noWa}
+                                onClick={() => {
+                                  const tpl = (document.getElementById("waTemplate") as HTMLTextAreaElement).value;
+                                  const text = tpl
+                                    .replace(/\[Nama Tamu\]/g, guest.name)
+                                    .replace(/\[Link Undangan\]/g, `https://kabarbaik.co/${form.customUrl}?to=${encodeURIComponent(guest.name)}`);
+                                  
+                                  const waUrl = `https://wa.me/${guest.noWa.replace(/^0/, '62').replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
+                                  window.open(waUrl, '_blank');
+
+                                  // Mark as sent
+                                  const g = [...form.guests];
+                                  g[idx].isSent = true;
+                                  const newForm = { ...form, guests: g };
+                                  setForm(newForm);
+                                  updateProjectMutation.mutate(newForm);
+                                }}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                                  !guest.noWa ? 'bg-slate-100 text-slate-400 cursor-not-allowed' :
+                                  guest.isSent ? 'bg-emerald-100 text-emerald-700' : 'bg-[#8D1A42] text-white hover:bg-[#721535]'
+                                }`}
+                              >
+                                <Send className="w-3 h-3" /> {guest.isSent ? 'Kirim Ulang' : 'Kirim WA'}
+                              </button>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>

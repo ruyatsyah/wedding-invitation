@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       customUrl,
       themeId,
       priceSnapshot: finalPrice,
-      status: 'active',
+      status: 'pending',
     });
 
     return NextResponse.json({ success: true, data: newProject }, { status: 201 });

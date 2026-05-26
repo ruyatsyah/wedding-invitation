@@ -11,6 +11,9 @@ interface Project {
   customUrl: string;
   status: string;
   createdAt: string;
+  expiresAt?: string;
+  activatedAt?: string;
+  priceSnapshot?: number;
   themeId: {
     _id: string;
     templateName: string;
@@ -97,6 +100,7 @@ export default function UndanganSayaPage() {
                     <div className="h-3 bg-slate-100 rounded w-1/4" />
                   </div>
                   <div className="h-3 bg-slate-100 rounded w-20 hidden md:block" />
+                  <div className="h-3 bg-slate-100 rounded w-20 hidden md:block" />
                   <div className="h-6 bg-slate-100 rounded-full w-16 hidden md:block" />
                   <div className="flex gap-2 ml-auto">
                     <div className="h-8 bg-slate-100 rounded-lg w-20" />
@@ -120,10 +124,11 @@ export default function UndanganSayaPage() {
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-slate-50/50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
                 <tr className="border-b border-slate-200">
-                  <th className="px-6 py-4 w-1/3">Detail Undangan</th>
-                  <th className="px-6 py-4 w-1/5">Tanggal Dibuat</th>
-                  <th className="px-6 py-4 w-1/5">Status</th>
-                  <th className="px-6 py-4 w-auto text-right">Aksi</th>
+                  <th className="px-6 py-4">Detail Undangan</th>
+                  <th className="px-6 py-4">Tanggal Dibuat</th>
+                  <th className="px-6 py-4">Kedaluwarsa</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -154,6 +159,30 @@ export default function UndanganSayaPage() {
                       {new Date(project.createdAt).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'short', year: 'numeric'
                       })}
+                    </td>
+                    <td className="px-6 py-4 text-slate-500 font-medium">
+                      {(() => {
+                        if (project.status !== 'active') return '-';
+                        if (project.expiresAt) {
+                          return new Date(project.expiresAt).toLocaleDateString('id-ID', {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                          });
+                        }
+                        if (!project.activatedAt) return '-';
+                        const date = new Date(project.activatedAt);
+                        const price = project.priceSnapshot || 0;
+                        let pkgLabel = 'Bronze';
+                        if (price > 150000 && price <= 350000) pkgLabel = 'Silver';
+                        else if (price > 350000) pkgLabel = 'Gold';
+
+                        if (pkgLabel === 'Bronze') date.setDate(date.getDate() + 3);
+                        else if (pkgLabel === 'Silver') date.setMonth(date.getMonth() + 1);
+                        else if (pkgLabel === 'Gold') date.setMonth(date.getMonth() + 6);
+                        
+                        return date.toLocaleDateString('id-ID', {
+                          day: 'numeric', month: 'short', year: 'numeric'
+                        });
+                      })()}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${

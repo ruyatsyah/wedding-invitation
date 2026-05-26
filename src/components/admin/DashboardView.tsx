@@ -29,27 +29,29 @@ function AdminDashboardContent() {
   const themeParam = searchParams.get('theme');
   const [toastMessage, setToastMessage] = useState('');
 
-  const { data: guests = [], isLoading: loadingGuests } = useQuery({
-    queryKey: ['guests', 'admin'],
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ['admin-dashboard-stats'],
     queryFn: async () => {
-      const res = await fetch('/api/guests');
+      const res = await fetch('/api/admin/dashboard');
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       return data.data;
     }
   });
 
-  const { data: wishes = [], isLoading: loadingWishes } = useQuery({
-    queryKey: ['wishes', 'admin'],
-    queryFn: async () => {
-      const res = await fetch('/api/wishes');
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-      return data.data;
-    }
-  });
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+  };
 
-  const isLoading = loadingGuests || loadingWishes;
+  const stats = dashboardData || {
+    todayRevenue: 0,
+    monthlyRevenue: 0,
+    annualRevenue: 0,
+    activeUsers: 0,
+    liveInvitations: 0,
+    recentActivity: [],
+    trendingTemplates: []
+  };
 
   useEffect(() => {
     if (themeParam) {
@@ -137,7 +139,7 @@ function AdminDashboardContent() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 tracking-wider">TODAY&apos;S REVENUE</p>
-            <p className="text-lg font-extrabold text-slate-800 mt-0.5">Rp 12.450.000</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-0.5">{isLoading ? '...' : formatPrice(stats.todayRevenue)}</p>
           </div>
           <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
             <div className="h-full bg-[#8D1A42] w-[35%] rounded-full"></div>
@@ -158,7 +160,7 @@ function AdminDashboardContent() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 tracking-wider">MONTHLY REVENUE</p>
-            <p className="text-lg font-extrabold text-slate-800 mt-0.5">Rp 348.120.000</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-0.5">{isLoading ? '...' : formatPrice(stats.monthlyRevenue)}</p>
           </div>
           <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
             <div className="h-full bg-[#8D1A42] w-[65%] rounded-full"></div>
@@ -179,7 +181,7 @@ function AdminDashboardContent() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 tracking-wider">ANNUAL REVENUE</p>
-            <p className="text-lg font-extrabold text-slate-800 mt-0.5">Rp 4.250.000k</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-0.5">{isLoading ? '...' : formatPrice(stats.annualRevenue)}</p>
           </div>
           <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
             <div className="h-full bg-[#8D1A42] w-[45%] rounded-full"></div>
@@ -195,7 +197,7 @@ function AdminDashboardContent() {
           </div>
           <div>
             <p className="text-[9px] font-bold text-rose-200 tracking-widest uppercase">ACTIVE USERS</p>
-            <p className="text-2xl font-extrabold mt-1">1,240,482</p>
+            <p className="text-2xl font-extrabold mt-1">{isLoading ? '...' : stats.activeUsers.toLocaleString('id-ID')}</p>
           </div>
           <div className="text-[10px] text-rose-100 font-medium">Active sessions globally</div>
         </div>
@@ -209,7 +211,7 @@ function AdminDashboardContent() {
           </div>
           <div>
             <p className="text-[9px] font-bold text-[#5c7a9c] tracking-widest uppercase">LIVE INVITATIONS</p>
-            <p className="text-2xl font-extrabold mt-1">45,829</p>
+            <p className="text-2xl font-extrabold mt-1">{isLoading ? '...' : stats.liveInvitations.toLocaleString('id-ID')}</p>
           </div>
           <div className="text-[10px] text-[#5c7a9c] font-medium">Currently online templates</div>
         </div>
@@ -296,47 +298,34 @@ function AdminDashboardContent() {
 
             {/* List */}
             <div className="space-y-4">
-              {/* Item 1 */}
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-50 text-blue-500 shrink-0">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
+              {isLoading ? (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 shrink-0"></div>
+                      <div className="flex-1 space-y-2 py-1">
+                        <div className="h-3 bg-slate-100 rounded w-1/2"></div>
+                        <div className="h-2 bg-slate-100 rounded w-3/4"></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-bold text-slate-800">New Premium User</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">Ahmad Subagyo just upgraded to Elite plan.</p>
-                  <span className="text-[9px] text-slate-400 block mt-0.5">2 minutes ago</span>
+              ) : stats.recentActivity.length === 0 ? (
+                <p className="text-xs text-slate-400">Tidak ada aktivitas terbaru.</p>
+              ) : stats.recentActivity.map((activity: any, idx: number) => (
+                <div key={idx} className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-rose-50 text-[#8D1A42] shrink-0">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-slate-800">{activity.title}</p>
+                    <p className="text-[10px] text-slate-500 leading-relaxed">{activity.desc}</p>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">{activity.time}</span>
+                  </div>
                 </div>
-              </div>
-
-              {/* Item 2 */}
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-red-50 text-red-500 shrink-0">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-bold text-slate-800">System Alert</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">Payment gateway delay in West Jakarta region.</p>
-                  <span className="text-[9px] text-slate-400 block mt-0.5">15 minutes ago</span>
-                </div>
-              </div>
-
-              {/* Item 3 */}
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-rose-50 text-[#8D1A42] shrink-0">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-bold text-slate-800">New Template Sale</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">&apos;Midnight Royale&apos; template purchased 14 times today.</p>
-                  <span className="text-[9px] text-slate-400 block mt-0.5">1 hour ago</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -362,77 +351,36 @@ function AdminDashboardContent() {
       <div className="space-y-4">
         <h2 className="text-sm font-bold text-slate-800 tracking-tight">Trending Premium Templates</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Midnight Royale */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="h-44 overflow-hidden bg-slate-50 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-1.png" alt="Midnight Royale" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="p-4 space-y-2">
-              <div className="flex justify-between items-center">
-                <h4 className="font-bold text-slate-800 text-[13px] truncate max-w-[120px]">Midnight Royale</h4>
-                <span className="font-extrabold text-[13px]" style={{ color: '#8D1A42' }}>Rp 150k</span>
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-100 h-64 animate-pulse">
+                <div className="h-44 bg-slate-100 rounded-t-2xl"></div>
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-slate-100 rounded w-3/4"></div>
+                  <div className="h-3 bg-slate-100 rounded w-1/2"></div>
+                </div>
               </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-medium">
-                <span>Premium Series</span>
-                <span className="text-slate-500">428 Sales</span>
+            ))
+          ) : stats.trendingTemplates.length === 0 ? (
+            <p className="text-slate-400 text-sm">Tidak ada data template populer.</p>
+          ) : stats.trendingTemplates.map((template: any) => (
+            <div key={template.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="h-44 overflow-hidden bg-slate-50 relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={template.image} alt={template.name} className="w-full h-full object-cover" loading="lazy" />
               </div>
-            </div>
-          </div>
-
-          {/* Card 2: Summit Pro */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="h-44 overflow-hidden bg-slate-50 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-2.png" alt="Summit Pro" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="p-4 space-y-2">
-              <div className="flex justify-between items-center">
-                <h4 className="font-bold text-slate-800 text-[13px] truncate max-w-[120px]">Summit Pro</h4>
-                <span className="font-extrabold text-[13px]" style={{ color: '#8D1A42' }}>Rp 225k</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-medium">
-                <span>Enterprise Series</span>
-                <span className="text-slate-500">312 Sales</span>
+              <div className="p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-slate-800 text-[13px] truncate max-w-[120px]">{template.name}</h4>
+                  <span className="font-extrabold text-[13px]" style={{ color: '#8D1A42' }}>{formatPrice(template.price)}</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                  <span>{template.category}</span>
+                  <span className="text-slate-500">{template.sales} Sales</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Card 3: Neon Party */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="h-44 overflow-hidden bg-slate-50 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-3.png" alt="Neon Party" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="p-4 space-y-2">
-              <div className="flex justify-between items-center">
-                <h4 className="font-bold text-slate-800 text-[13px] truncate max-w-[120px]">Neon Party</h4>
-                <span className="font-extrabold text-[13px]" style={{ color: '#8D1A42' }}>Rp 85k</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-medium">
-                <span>Creative Series</span>
-                <span className="text-slate-500">954 Sales</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 4: Elysian Night */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
-            <div className="h-44 overflow-hidden bg-slate-50 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/landing/hero-4.png" alt="Elysian Night" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="p-4 space-y-2">
-              <div className="flex justify-between items-center">
-                <h4 className="font-bold text-slate-800 text-[13px] truncate max-w-[120px]">Elysian Night</h4>
-                <span className="font-extrabold text-[13px]" style={{ color: '#8D1A42' }}>Rp 300k</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-medium">
-                <span>Designer Series</span>
-                <span className="text-slate-500">156 Sales</span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

@@ -49,6 +49,42 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     const body = await req.json();
 
+    // ── Publish / Aktifkan undangan ──────────────────────────────────────────
+    if (body.publish === true) {
+      // Hanya bisa publish jika status masih pending
+      if (project.status !== 'pending') {
+        return NextResponse.json(
+          { success: false, error: project.status === 'active' ? 'Undangan sudah aktif.' : 'Undangan sudah kedaluwarsa.' },
+          { status: 400 }
+        );
+      }
+
+      const now   = new Date();
+      const price = project.priceSnapshot ?? 0;
+      let expiresAt: Date;
+
+      if (price <= 150000) {
+        // Bronze: 2 hari
+        expiresAt = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+      } else if (price <= 350000) {
+        // Silver: 3 bulan
+        expiresAt = new Date(now);
+        expiresAt.setMonth(expiresAt.getMonth() + 3);
+      } else {
+        // Gold: 6 bulan
+        expiresAt = new Date(now);
+        expiresAt.setMonth(expiresAt.getMonth() + 6);
+      }
+
+      const published = await Project.findByIdAndUpdate(
+        id,
+        { $set: { status: 'active', activatedAt: now, expiresAt } },
+        { new: true }
+      ).populate('themeId');
+
+      return NextResponse.json({ success: true, data: published }, { status: 200 });
+    }
+
     // Fields that are allowed to be updated
     const allowedFields = [
       'coupleName',
@@ -60,6 +96,7 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       'enableRsvp', 'enableGuestbook',
       'bankName', 'bankAccount', 'bankHolder',
       'bgMusic',
+      'guests',
     ];
 
     const updateData: Record<string, any> = {};

@@ -32,7 +32,7 @@ export default function TemplateCatalog() {
     },
   });
 
-  const filtered = templates.filter((t) =>
+  const filtered = templates.filter((t: Template) =>
     t.templateName.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -92,7 +92,7 @@ export default function TemplateCatalog() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((tpl) => (
+          {filtered.map((tpl: Template) => (
             <div key={tpl._id} className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
               <div className="h-56 relative overflow-hidden bg-slate-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
