@@ -145,7 +145,7 @@ export default function EditUndanganDashboard() {
       );
     }
 
-    if (activeSection === 'pengaturan') {
+    if (activeSection === 'musik' || activeSection === 'pengaturan') {
       return (
         <PengaturanForm
           projectId={id as string}
