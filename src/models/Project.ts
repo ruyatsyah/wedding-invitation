@@ -5,7 +5,8 @@ export interface IProject extends Document {
   clientName: string;
   coupleName: string;
   customUrl: string;
-  themeId: mongoose.Types.ObjectId;
+  themeId?: mongoose.Types.ObjectId;
+  plan?: string;
   status: 'pending' | 'active' | 'expired';
   priceSnapshot: number;
   // Content fields
@@ -40,9 +41,10 @@ const ProjectSchema = new Schema<IProject>(
     clientName: { type: String, default: 'Client' },
     coupleName: { type: String, required: true },
     customUrl: { type: String, required: true, unique: true, trim: true },
-    themeId: { type: Schema.Types.ObjectId, ref: 'Template', required: true },
+    themeId: { type: Schema.Types.ObjectId, ref: 'Template', required: false },
+    plan: { type: String, default: 'bronze' },
     status: { type: String, enum: ['pending', 'active', 'expired'], default: 'active' },
-    priceSnapshot: { type: Number, required: true },
+    priceSnapshot: { type: Number, required: true, default: 0 },
     // Content
     groomFullName: { type: String, default: '' },
     groomParents: { type: String, default: '' },

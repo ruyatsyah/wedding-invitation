@@ -8,7 +8,7 @@ export default function LayarTamu() {
         {/* Text */}
         <div className="space-y-6 order-2 lg:order-1">
           <div className="space-y-2">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">Layar Tamu</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#000000]">Layar Tamu</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Tampilkan Ucapan Tamu di Layar Proyektor
             </h2>
@@ -23,7 +23,7 @@ export default function LayarTamu() {
               'Animasi tampilan premium yang memukau',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-slate-600">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-rose-50 flex items-center justify-center text-[#8e1b42] text-xs font-bold mt-0.5">✓</span>
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-neutral-50 flex items-center justify-center text-[#000000] text-xs font-bold mt-0.5">✓</span>
                 {item}
               </li>
             ))}
@@ -32,13 +32,13 @@ export default function LayarTamu() {
 
         {/* Screen Mockup */}
         <div className="relative flex justify-center order-1 lg:order-2">
-          <div className="absolute inset-0 bg-rose-50/60 rounded-3xl filter blur-3xl -z-10" />
+          <div className="absolute inset-0 bg-neutral-50/60 rounded-3xl filter blur-3xl -z-10" />
 
           <div className="w-full max-w-lg bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
             {/* Top bar */}
             <div className="px-5 py-3 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-rose-400 text-xs">♥</span>
+                <span className="text-neutral-400 text-xs">♥</span>
                 <span className="text-xs font-semibold text-slate-300">Kabar Bahagia Live Screen</span>
               </div>
               <span className="flex items-center gap-1.5 text-[9px] font-semibold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
@@ -56,7 +56,7 @@ export default function LayarTamu() {
               ].map((wish, i) => (
                 <div
                   key={i}
-                  className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4 text-left ${i === 0 ? 'ring-1 ring-rose-400/30' : ''}`}
+                  className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4 text-left ${i === 0 ? 'ring-1 ring-neutral-400/30' : ''}`}
                 >
                   <div className="flex justify-between items-center mb-1.5">
                     <span className="text-xs font-bold text-white">{wish.name}</span>

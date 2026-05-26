@@ -43,7 +43,7 @@ export default function Tema() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-14 space-y-3 max-w-xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">Koleksi Tema</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#000000]">Koleksi Tema</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Pilihan Desain Premium</h2>
           <p className="text-slate-500 text-sm leading-relaxed">
             Dirancang oleh desainer profesional kami. Responsif, elegan, dan mudah dikustomisasi sesuai keinginan Anda.
@@ -105,13 +105,13 @@ export default function Tema() {
                     href={theme.sourceCodeUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full py-2 px-3 text-xs font-semibold text-pink-600 border border-pink-200 hover:border-pink-600 hover:bg-pink-50/50 rounded-xl transition-all text-center cursor-pointer"
+                    className="w-full py-2 px-3 text-xs font-semibold text-gray-600 border border-gray-200 hover:border-gray-600 hover:bg-gray-50/50 rounded-xl transition-all text-center cursor-pointer"
                   >
                     Preview
                   </a>
                   <button
                     onClick={() => handleGunakanTema(theme._id)}
-                    className="w-full py-2 px-3 text-xs font-semibold text-white bg-pink-600 hover:bg-pink-700 rounded-xl shadow-md shadow-pink-600/10 transition-all text-center cursor-pointer"
+                    className="w-full py-2 px-3 text-xs font-semibold text-white bg-gray-600 hover:bg-gray-700 rounded-xl shadow-md shadow-gray-600/10 transition-all text-center cursor-pointer"
                   >
                     Gunakan Tema
                   </button>

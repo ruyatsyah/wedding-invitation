@@ -22,15 +22,15 @@ export default function Footer() {
   return (
     <footer className="bg-slate-900 text-white">
       {/* CTA Banner */}
-      <div className="bg-[#8e1b42] py-20">
+      <div className="bg-[#000000] py-20">
         <div className="max-w-3xl mx-auto px-6 text-center space-y-5">
           <h3 className="text-2xl sm:text-3xl font-extrabold">Siap Membuat Undangan Pernikahan Digital?</h3>
-          <p className="text-rose-100 text-sm leading-relaxed">
+          <p className="text-neutral-100 text-sm leading-relaxed">
             Mulai gratis hari ini. Tidak perlu kartu kredit, tidak ada biaya tersembunyi.
           </p>
           <Link
             href="/admin"
-            className="inline-block px-8 py-3.5 bg-white text-[#8e1b42] text-sm font-bold rounded-xl hover:bg-rose-50 transition-all shadow-lg"
+            className="inline-block px-8 py-3.5 bg-white text-[#000000] text-sm font-bold rounded-xl hover:bg-neutral-50 transition-all shadow-lg"
           >
             Buat Undangan Sekarang →
           </Link>
@@ -43,7 +43,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-rose-400 text-xl">♥</span>
+              <span className="text-neutral-400 text-xl">♥</span>
               <span className="font-extrabold text-xl tracking-tight">Kabar Bahagia</span>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
@@ -85,7 +85,7 @@ export default function Footer() {
             </ul>
             <Link
               href="/admin"
-              className="inline-block mt-2 px-5 py-2.5 bg-[#8e1b42] hover:bg-[#731433] text-white text-xs font-semibold rounded-lg transition-all"
+              className="inline-block mt-2 px-5 py-2.5 bg-[#000000] hover:bg-[#171717] text-white text-xs font-semibold rounded-lg transition-all"
             >
               Buka Dashboard
             </Link>

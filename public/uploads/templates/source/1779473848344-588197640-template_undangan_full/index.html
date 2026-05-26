@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pernikahan - Bram & Anin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="wedding-cover" class="cover-overlay">
+        <div class="cover-content">
+            <p class="subtitle-cover">UNDANGAN PERNIKAHAN</p>
+            <h1 class="couple-name-cover">Bram & Anin</h1>
+            <p class="cover-invite-text">Kepada Bapak/Ibu/Saudara/i Kami Mengundang Anda Untuk Hadir di Hari Bahagia Kami</p>
+            <button id="btn-buka-undangan" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Buka Undangan
+            </button>
+        </div>
+    </div>
+
+    <div id="main-content" class="main-content hidden">
+        
+        <section class="hero-section">
+            <div class="hero-inner">
+                <h2 class="couple-title">Bram & Anin</h2>
+                <p class="hero-tagline">Hari Bahagia Kami!</p>
+                <div class="scroll-indicator">
+                    <div class="mouse-icon"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="verse-section">
+            <div class="container">
+                <div class="verse-card">
+                    <p class="arabic-text">وَمِنْ اٰيٰتِهٖٓ اَنْ خَلَقَ لَكُمْ مِّنْ اَنْفُسِكُمْ اَزْوَاجًا لِّتَسْكُنُوْٓا اِلَيْهَا وَجَعَلَ بَيْنَكُمْ مَّوَدَّةً وَّرَحْمَةً ۗ اِنَّ فِيْ ذٰلِكَ لَاٰيٰتٍ لِّقَوْمٍ يَّتَفَكَّرُوْنَ</p>
+                    <p class="verse-translation">
+                        "Dan di antara tanda-tanda (kebesaran)-Nya ialah bahwa Dia menciptakan pasangan-pasangan untukmu dari (jenis) dirimu sendiri agar kamu merasa tenteram kepadanya. Dan Dia menjadikan di antaramu rasa cinta dan kasih sayang. Sesungguhnya pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir."
+                    </p>
+                    <span class="verse-reference">(Q.S. Ar-Rum : 21)</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="mempelai-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Calon Mempelai</h2>
+                    <p>Dengan penuh kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i untuk berkenan hadir dan merayakan hari bahagia kami.</p>
+                </div>
+                
+                <div class="mempelai-grid">
+                    <div class="mempelai-card animate-on-scroll">
+                        <div class="mempelai-photo-frame">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600" alt="Mempelai Pria" class="mempelai-img">
+                        </div>
+                        <h3>Bramasta Putra, S.Kom</h3>
+                        <p class="parent-info">
+                            Putra Kedua dari<br>
+                            <strong>Bapak Joko Susilo</strong><br>&<br><strong>Ibu Endang Rahayu</strong>
+                        </p>
+                    </div>
+
+                    <div class="mempelai-separator">&</div>
+
+                    <div class="mempelai-card animate-on-scroll">
+                        <div class="mempelai-photo-frame">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600" alt="Mempelai Wanita" class="mempelai-img">
+                        </div>
+                        <h3>Anindya Kirana, S.E.</h3>
+                        <p class="parent-info">
+                            Putri Ketiga dari<br>
+                            <strong>Bapak Ahmad Wijaya</strong><br>&<br><strong>Ibu Siti Aminah</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="countdown-section">
+            <div class="container">
+                <div class="countdown-box">
+                    <h3>Menuju Hari Bahagia</h3>
+                    <div id="countdown-timer" class="timer-grid">
+                        <div class="timer-item">
+                            <span id="days" class="timer-number">00</span>
+                            <span class="timer-label">Hari</span>
+                        </div>
+                        <div class="timer-item">
+                            <span id="hours" class="timer-number">00</span>
+                            <span class="timer-label">Jam</span>
+                        </div>
+                        <div class="timer-item">
+                            <span id="minutes" class="timer-number">00</span>
+                            <span class="timer-label">Menit</span>
+                        </div>
+                        <div class="timer-item">
+                            <span id="seconds" class="timer-number">00</span>
+                            <span class="timer-label">Detik</span>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" id="btn-save-date">
+                        Simpan Tanggal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="venue-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Waktu & Tempat Acara</h2>
+                    <p>Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir memberikan doa restu.</p>
+                </div>
+
+                <div class="events-grid">
+                    <div class="event-card animate-on-scroll">
+                        <div class="card-accent-header">
+                            <h3>Akad Nikah</h3>
+                        </div>
+                        <div class="event-body">
+                            <div class="event-date-badge">
+                                <span class="day-name">Minggu</span>
+                                <span class="day-num">18</span>
+                                <span class="month-year">Oktober 2026</span>
+                            </div>
+                            <p class="event-time">08:00 - 10:00 WIB</p>
+                            <hr class="card-divider">
+                            <p class="venue-name"><strong>Grand Ballroom Hotel Mulia</strong></p>
+                            <p class="venue-address">Jl. Asia Afrika, Senayan, Kec. Tanah Abang, Kota Jakarta Pusat, DKI Jakarta 10270</p>
+                            <button class="btn-primary btn-sm">Lihat Lokasi</button>
+                        </div>
+                    </div>
+
+                    <div class="event-card animate-on-scroll">
+                        <div class="card-accent-header">
+                            <h3>Resepsi Pernikahan</h3>
+                        </div>
+                        <div class="event-body">
+                            <div class="event-date-badge">
+                                <span class="day-name">Minggu</span>
+                                <span class="day-num">18</span>
+                                <span class="month-year">Oktober 2026</span>
+                            </div>
+                            <p class="event-time">11:00 - Selesai</p>
+                            <hr class="card-divider">
+                            <p class="venue-name"><strong>Grand Ballroom Hotel Mulia</strong></p>
+                            <p class="venue-address">Jl. Asia Afrika, Senayan, Kec. Tanah Abang, Kota Jakarta Pusat, DKI Jakarta 10270</p>
+                            <button class="btn-primary btn-sm">Lihat Lokasi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Galeri Pernikahan</h2>
+                </div>
+                <div class="main-image-container">
+                    <img id="featured-photo" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Foto Utama">
+                </div>
+                <div class="thumbnails-container">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400" onclick="updateGallery(this)">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1519225495846-b9cf6660124b?w=400" onclick="updateGallery(this)">
+                    <img class="thumbnail active" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=400" onclick="updateGallery(this)">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=400" onclick="updateGallery(this)">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?w=400" onclick="updateGallery(this)">
+                </div>
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <section class="rsvp-section">
+            <div class="container">
+                <div class="rsvp-card">
+                    <h2>Konfirmasi Kehadiran (RSVP)</h2>
+                    <p>Mohon untuk dapat mengisi form RSVP di bawah ini, agar kami dapat mempersiapkan segala sesuatunya dengan lebih baik.</p>
+                    
+                    <form id="rsvp-form">
+                        <div class="form-group">
+                            <input type="text" id="rsvp-nama" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="rsvp-hp" placeholder="Nomor Handphone" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="rsvp-tamu" placeholder="Jumlah Tamu" min="1" max="5" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="rsvp-konfirmasi" required>
+                                <option value="" disabled selected>Konfirmasi Kehadiran</option>
+                                <option value="hadir">Ya, Saya Akan Hadir</option>
+                                <option value="ragu">Masih Ragu / Mungkin Hadir</option>
+                                <option value="tidak">Maaf, Saya Tidak Bisa Hadir</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary w-100">Kirim Konfirmasi</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="wishes-section">
+            <div class="container">
+                <div class="wishes-card">
+                    <h2>Ucapan & Doa Restu</h2>
+                    <form id="wishes-form">
+                        <div class="form-group">
+                            <input type="text" id="wish-nama" placeholder="Nama Anda" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="wish-text" placeholder="Tulis harapan dan doa terbaikmu untuk kedua mempelai..." maxlength="300" required></textarea>
+                            <small class="char-counter">Huruf yang tersisa: <span id="char-count">300</span></small>
+                        </div>
+                        <button type="submit" class="btn-primary">Kirim Ucapan</button>
+                    </form>
+
+                    <hr class="card-divider" style="margin: 30px 0;">
+
+                    <div id="wishes-wall" class="wishes-wall">
+                        <div class="wish-item">
+                            <div class="wish-avatar">R</div>
+                            <div class="wish-body">
+                                <h4>Rizky Pratama</h4>
+                                <p>Alhamdulillah ya Bram & Anin, akhirnya bisa menunaikan ibadah terpanjang bersama pasangan. Semoga lancar dan sukses sampai hari H, menjadi keluarga yang sakinah mawaddah warahmah. Amin! 🤲✨</p>
+                                <span class="wish-time">1 jam yang lalu</span>
+                            </div>
+                        </div>
+                        
+                        <div class="wish-item">
+                            <div class="wish-avatar">H</div>
+                            <div class="wish-body">
+                                <h4>Hikmat Sobandi</h4>
+                                <p>Selamat menempuh hidup baru buat Anin dan Bram. Semoga perjalanan rumah tangga kalian penuh sabar, tawa, dan keberkahan yang tak ada putusnya. Aminnn yarabal alamin.</p>
+                                <span class="wish-time">3 jam yang lalu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="wedding-footer">
+            <p>Terima Kasih Atas Doa & Restu Anda</p>
+            <h3>Bram & Anin</h3>
+            <p class="viding-credit">Created with ❤️ Template Showcase</p>
+        </footer>
+
+    </div>
+
+    <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>

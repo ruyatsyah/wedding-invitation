@@ -132,7 +132,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
 
             {/* Error Message */}
             {error && (
-              <div className="bg-rose-50 text-rose-600 text-sm p-3 rounded-lg border border-rose-200">
+              <div className="bg-neutral-50 text-neutral-600 text-sm p-3 rounded-lg border border-neutral-200">
                 {error}
               </div>
             )}

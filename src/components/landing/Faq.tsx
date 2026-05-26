@@ -33,7 +33,7 @@ export default function Faq() {
       <div className="max-w-3xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-12 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">FAQ</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#000000]">FAQ</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Pertanyaan yang Sering Ditanyakan</h2>
         </div>
 
@@ -43,10 +43,10 @@ export default function Faq() {
             <div key={i} className="bg-white rounded-xl border border-slate-100 overflow-hidden">
               <button
                 onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between px-6 py-4 text-left text-sm font-semibold text-slate-800 hover:text-[#8e1b42] transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-6 py-4 text-left text-sm font-semibold text-slate-800 hover:text-[#000000] transition-colors cursor-pointer"
               >
                 <span>{faq.q}</span>
-                <span className={`ml-4 flex-shrink-0 text-[#8e1b42] text-lg font-light transition-transform duration-200 ${open === i ? 'rotate-45' : ''}`}>
+                <span className={`ml-4 flex-shrink-0 text-[#000000] text-lg font-light transition-transform duration-200 ${open === i ? 'rotate-45' : ''}`}>
                   +
                 </span>
               </button>

@@ -35,8 +35,8 @@ export default function Hero({ onLoginOpen }: HeroProps) {
       className="relative min-h-screen flex items-center bg-white overflow-hidden pt-20"
     >
       {/* Subtle background blobs */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose-50 rounded-full filter blur-[120px] opacity-60 -translate-y-1/4 translate-x-1/4 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-pink-50 rounded-full filter blur-[100px] opacity-50 translate-y-1/4 -translate-x-1/4 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-neutral-50 rounded-full filter blur-[120px] opacity-60 -translate-y-1/4 translate-x-1/4 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gray-50 rounded-full filter blur-[100px] opacity-50 translate-y-1/4 -translate-x-1/4 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
         {/* ── Left ── */}
@@ -44,7 +44,7 @@ export default function Hero({ onLoginOpen }: HeroProps) {
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
               Undangan Pernikahan{' '}
-              <span className="relative text-[#8e1b42]">
+              <span className="relative text-[#000000]">
                 Digital
                 <svg
                   className="absolute -bottom-1 left-0 w-full"
@@ -54,7 +54,7 @@ export default function Hero({ onLoginOpen }: HeroProps) {
                 >
                   <path
                     d="M2 6C50 2 150 2 198 6"
-                    stroke="#f9a8bf"
+                    stroke="#d4d4d4"
                     strokeWidth="3"
                     strokeLinecap="round"
                   />
@@ -73,14 +73,14 @@ export default function Hero({ onLoginOpen }: HeroProps) {
               onClick={() => {
                 if (onLoginOpen) onLoginOpen();
               }}
-              className="px-7 py-3.5 bg-[#8e1b42] hover:bg-[#731433] text-white text-sm font-semibold rounded-xl shadow-lg shadow-rose-900/15 hover:shadow-rose-900/25 transform hover:-translate-y-0.5 transition-all cursor-pointer"
+              className="px-7 py-3.5 bg-[#000000] hover:bg-[#171717] text-white text-sm font-semibold rounded-xl shadow-lg shadow-neutral-900/15 hover:shadow-neutral-900/25 transform hover:-translate-y-0.5 transition-all cursor-pointer"
               type="button"
             >
               Buat Undangan Gratis →
             </button>
             <button
               onClick={() => scrollTo('tema')}
-              className="px-7 py-3.5 bg-white text-slate-700 text-sm font-semibold border border-slate-200 rounded-xl hover:border-rose-200 hover:bg-rose-50/50 transform hover:-translate-y-0.5 transition-all cursor-pointer"
+              className="px-7 py-3.5 bg-white text-slate-700 text-sm font-semibold border border-slate-200 rounded-xl hover:border-neutral-200 hover:bg-neutral-50/50 transform hover:-translate-y-0.5 transition-all cursor-pointer"
               type="button"
             >
               Lihat Desain Tema
@@ -108,8 +108,8 @@ export default function Hero({ onLoginOpen }: HeroProps) {
           <div className="relative w-[280px] h-[560px]">
             {/* Decorative ring (Centered behind the phone mockup) */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
-              <div className="absolute w-[380px] h-[380px] rounded-full border border-rose-200/80" />
-              <div className="absolute w-[480px] h-[480px] rounded-full border border-rose-100" />
+              <div className="absolute w-[380px] h-[380px] rounded-full border border-neutral-200/80" />
+              <div className="absolute w-[480px] h-[480px] rounded-full border border-neutral-100" />
             </div>
 
             {/* Phone */}

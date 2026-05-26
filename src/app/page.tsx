@@ -18,8 +18,8 @@ function PageContent() {
 
   if (!guestSlug) {
     return (
-      <div className="min-h-screen bg-[#FCF8F9] flex items-center justify-center">
-        <p className="text-rose-800 font-medium text-sm animate-pulse">Memuat...</p>
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <p className="text-neutral-800 font-medium text-sm animate-pulse">Memuat...</p>
       </div>
     );
   }
@@ -30,8 +30,8 @@ function PageContent() {
 export default function Page() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#FCF8F9] flex items-center justify-center">
-        <p className="text-rose-800 font-medium text-sm animate-pulse">Memuat Undangan...</p>
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <p className="text-neutral-800 font-medium text-sm animate-pulse">Memuat Undangan...</p>
       </div>
     }>
       <PageContent />

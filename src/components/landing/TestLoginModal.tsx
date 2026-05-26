@@ -42,7 +42,7 @@ export default function TestLoginModal() {
             onClick={handleGoogleSignIn}
             disabled={isLoading}
             type="button"
-            className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-[#8e1b42] text-white rounded-xl font-semibold hover:bg-[#731433] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+            className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-[#000000] text-white rounded-xl font-semibold hover:bg-[#171717] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
           >
             {isLoading ? (
               <>
@@ -93,7 +93,7 @@ export default function TestLoginModal() {
           </button>
 
           {error && (
-            <div className="bg-rose-50 text-rose-600 text-sm p-3 rounded-lg border border-rose-200">
+            <div className="bg-neutral-50 text-neutral-600 text-sm p-3 rounded-lg border border-neutral-200">
               {error}
             </div>
           )}

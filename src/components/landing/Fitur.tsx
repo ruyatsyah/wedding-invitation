@@ -14,13 +14,13 @@ const FEATURES = [
 
 export default function Fitur() {
   return (
-    <section id="fitur" className="py-24 bg-white scroll-mt-20">
+    <section id="fitur" className="py-24 bg-[#0a0a0a] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center mb-14 space-y-3 max-w-xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">Fitur Platform</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Lengkap untuk Hari Bahagia Anda</h2>
-          <p className="text-slate-500 text-sm leading-relaxed">
+          <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">Fitur Platform</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Lengkap untuk Hari Bahagia Anda</h2>
+          <p className="text-neutral-400 text-sm leading-relaxed">
             Semua yang Anda butuhkan untuk membagikan undangan pernikahan secara digital, dalam satu platform.
           </p>
         </div>
@@ -30,13 +30,13 @@ export default function Fitur() {
           {FEATURES.map((f, i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl border border-slate-100 hover:border-rose-100 hover:shadow-md transition-all bg-white group"
+              className="p-6 rounded-2xl border border-white/10 hover:border-white/20 hover:shadow-md transition-all bg-[#111111] group"
             >
-              <div className="w-11 h-11 bg-rose-50 group-hover:bg-rose-100 rounded-xl flex items-center justify-center text-xl mb-4 transition-colors">
+              <div className="w-11 h-11 bg-black group-hover:bg-neutral-800 rounded-xl flex items-center justify-center text-xl mb-4 transition-colors">
                 {f.icon}
               </div>
-              <h4 className="font-semibold text-slate-800 mb-2 text-sm">{f.title}</h4>
-              <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
+              <h4 className="font-semibold text-white mb-2 text-sm">{f.title}</h4>
+              <p className="text-neutral-400 text-xs leading-relaxed">{f.desc}</p>
             </div>
           ))}
         </div>

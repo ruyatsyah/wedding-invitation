@@ -7,10 +7,10 @@ export default function Download() {
 
         {/* App card mockup */}
         <div className="relative flex justify-center">
-          <div className="absolute inset-0 bg-pink-100/50 rounded-3xl filter blur-3xl -z-10" />
+          <div className="absolute inset-0 bg-gray-100/50 rounded-3xl filter blur-3xl -z-10" />
           <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-8 max-w-sm w-full space-y-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#8e1b42] rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-rose-900/20">
+              <div className="w-14 h-14 bg-[#000000] rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-neutral-900/20">
                 ♥
               </div>
               <div>
@@ -22,10 +22,10 @@ export default function Download() {
             <div className="bg-slate-50 rounded-xl p-4 space-y-2">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-slate-500">RSVP Masuk Hari Ini</span>
-                <span className="font-bold text-[#8e1b42]">+24 tamu</span>
+                <span className="font-bold text-[#000000]">+24 tamu</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-1.5">
-                <div className="bg-[#8e1b42] h-1.5 rounded-full w-3/4" />
+                <div className="bg-[#000000] h-1.5 rounded-full w-3/4" />
               </div>
               <p className="text-[10px] text-slate-400">75 dari 100 undangan dibuka</p>
             </div>
@@ -35,9 +35,9 @@ export default function Download() {
                 <p className="text-xl font-extrabold text-emerald-700">48</p>
                 <p className="text-[9px] text-emerald-600 font-medium">Konfirmasi Hadir</p>
               </div>
-              <div className="bg-rose-50 rounded-xl p-3 text-center">
-                <p className="text-xl font-extrabold text-rose-700">3</p>
-                <p className="text-[9px] text-rose-600 font-medium">Menolak Hadir</p>
+              <div className="bg-neutral-50 rounded-xl p-3 text-center">
+                <p className="text-xl font-extrabold text-neutral-700">3</p>
+                <p className="text-[9px] text-neutral-600 font-medium">Menolak Hadir</p>
               </div>
             </div>
 
@@ -55,7 +55,7 @@ export default function Download() {
         {/* Text */}
         <div className="space-y-6">
           <div className="space-y-2">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#8e1b42]">Aplikasi Mobile</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#000000]">Aplikasi Mobile</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Pantau Tamu Undangan dari Smartphone
             </h2>
@@ -70,7 +70,7 @@ export default function Download() {
               'Edit info undangan kapan saja dari HP',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-slate-600">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-rose-50 flex items-center justify-center text-[#8e1b42] text-xs font-bold mt-0.5">✓</span>
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-neutral-50 flex items-center justify-center text-[#000000] text-xs font-bold mt-0.5">✓</span>
                 {item}
               </li>
             ))}
