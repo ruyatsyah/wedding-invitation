@@ -27,7 +27,9 @@ export default function Tema() {
       const res = await fetch('/api/templates');
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Failed to fetch templates');
-      return data.data.filter((t: Template) => t.publishImmediately);
+      return data.data
+        .filter((t: Template) => t.publishImmediately && t.showOnLanding)
+        .slice(0, 8);
     }
   });
 

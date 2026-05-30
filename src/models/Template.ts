@@ -10,6 +10,7 @@ export interface ITemplate extends Document {
   guestListOnly: boolean;
   dailyLimit: number;
   publishImmediately: boolean;
+  showOnLanding: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,8 +26,12 @@ const TemplateSchema: Schema = new Schema(
     guestListOnly: { type: Boolean, default: false },
     dailyLimit: { type: Number, default: 100 },
     publishImmediately: { type: Boolean, default: true },
+    showOnLanding: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Template || mongoose.model<ITemplate>('Template', TemplateSchema);
+if (mongoose.models.Template) {
+  delete mongoose.models.Template;
+}
+export default mongoose.model<ITemplate>('Template', TemplateSchema);

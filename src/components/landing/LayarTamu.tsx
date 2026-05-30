@@ -50,17 +50,26 @@ export default function LayarTamu() {
             {/* Wishes feed */}
             <div className="p-5 space-y-3">
               {[
-                { name: 'Aditya Nugraha', time: 'Baru saja', msg: 'Selamat ya Rian & Rina! Semoga sakinah mawaddah warahmah selalu. 🎉' },
-                { name: 'Citra Kirana',   time: '1 mnt lalu',  msg: 'Happy wedding! Maaf belum bisa hadir langsung. Doa terbaik dari jauh! ❤️' },
-                { name: 'Budi Santoso',   time: '3 mnt lalu',  msg: 'Selamat berbahagia untuk kalian berdua. Semoga rumah tangganya penuh berkah.' },
+                { name: 'Aditya Nugraha', time: 'Baru saja', msg: 'Selamat ya Rian & Rina! Semoga sakinah mawaddah warahmah selalu. 🎉', status: 'Hadir' },
+                { name: 'Citra Kirana',   time: '1 mnt lalu',  msg: 'Happy wedding! Maaf belum bisa hadir langsung. Doa terbaik dari jauh! ❤️', status: 'Tidak Hadir' },
+                { name: 'Budi Santoso',   time: '3 mnt lalu',  msg: 'Selamat berbahagia untuk kalian berdua. Semoga rumah tangganya penuh berkah.', status: 'Hadir' },
               ].map((wish, i) => (
                 <div
                   key={i}
                   className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-4 text-left ${i === 0 ? 'ring-1 ring-neutral-400/30' : ''}`}
                 >
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-xs font-bold text-white">{wish.name}</span>
-                    <span className="text-[9px] text-slate-500">{wish.time}</span>
+                  <div className="flex justify-between items-start mb-1.5 gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-white">{wish.name}</span>
+                      <span className={`text-[9px] px-2 py-0.5 rounded flex items-center gap-1 font-medium ${
+                        wish.status === 'Hadir' 
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                      }`}>
+                        {wish.status === 'Hadir' ? '✓' : '✕'} {wish.status}
+                      </span>
+                    </div>
+                    <span className="text-[9px] text-slate-500 whitespace-nowrap mt-0.5">{wish.time}</span>
                   </div>
                   <p className="text-xs text-slate-300 italic">&ldquo;{wish.msg}&rdquo;</p>
                 </div>

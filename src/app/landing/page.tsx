@@ -8,8 +8,9 @@ import Hero from '@/components/landing/Hero';
 import Tema from '@/components/landing/Tema';
 import Fitur from '@/components/landing/Fitur';
 import Harga from '@/components/landing/Harga';
-import Download from '@/components/landing/Download';
+
 import Blog from '@/components/landing/Blog';
+import Testimoni from '@/components/landing/Testimoni';
 import Faq from '@/components/landing/Faq';
 import LayarTamu from '@/components/landing/LayarTamu';
 import Footer from '@/components/landing/Footer';
@@ -28,7 +29,7 @@ function LandingContent() {
     }
   }, [themeId]);
 
-  const callbackUrl = themeId ? `/client?theme=${themeId}` : '/client';
+  const callbackUrl = themeId ? `/client?theme=${themeId}` : '/onboarding?plan=bronze';
 
   return (
     <>
@@ -41,12 +42,13 @@ function LandingContent() {
         <Tema />
         <Fitur />
         <Harga />
-        <Download />
+
         <LayarTamu />
         <Blog />
+        <Testimoni />
         <Faq />
       </main>
-      <Footer />
+      <Footer onLoginOpen={() => setIsLoginModalOpen(true)} />
 
       {/* Global login modal — used for ?theme= redirect flow */}
       <LoginModal

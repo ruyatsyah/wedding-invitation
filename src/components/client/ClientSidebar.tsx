@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, BookOpen, FileText, HelpCircle, Plus, LogOut } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { LayoutDashboard, BookOpen, FileText, HelpCircle, Plus } from 'lucide-react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/client' },
@@ -20,9 +19,6 @@ interface ClientSidebarProps {
 export default function ClientSidebar({ isOpen = false, onClose }: ClientSidebarProps) {
   const pathname = usePathname();
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/landing' });
-  };
 
   const sidebarContent = (
     <div className="flex flex-col min-h-full w-full">
@@ -75,13 +71,7 @@ export default function ClientSidebar({ isOpen = false, onClose }: ClientSidebar
           <Plus className="w-4 h-4" />
           Buat Undangan Baru
         </Link>
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 py-2.5 px-4 rounded-xl text-sm font-medium transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Keluar
-        </button>
+
       </div>
     </div>
   );

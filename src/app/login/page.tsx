@@ -129,7 +129,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#000000] hover:bg-[#171717] disabled:bg-neutral-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/10 mt-2"
+                className="w-full bg-[#000000] hover:bg-[#171717] disabled:bg-neutral-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/10 mt-2 cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -157,7 +157,7 @@ function LoginForm() {
               onClick={handleGoogleLogin}
               disabled={isGoogleLoading}
               type="button"
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-neutral-200 rounded-xl text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-neutral-200 rounded-xl text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               {isGoogleLoading ? (
                 <>

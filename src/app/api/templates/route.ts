@@ -150,3 +150,33 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Template ID wajib diisi' }, { status: 400 });
+    }
+
+    const body = await req.json();
+    
+    await connectToDatabase();
+
+    const template = await Template.findByIdAndUpdate(
+      id,
+      { $set: { showOnLanding: body.showOnLanding } },
+      { new: true }
+    );
+
+    if (!template) {
+      return NextResponse.json({ success: false, error: 'Template tidak ditemukan' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Status template berhasil diupdate', template });
+  } catch (error: any) {
+    console.error('[API/templates PATCH] Error:', error.message);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}

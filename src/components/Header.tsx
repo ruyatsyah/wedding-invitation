@@ -9,10 +9,10 @@ const NAV_LINKS = [
   { name: 'Tema',       id: 'tema' },
   { name: 'Fitur',      id: 'fitur' },
   { name: 'Harga',      id: 'harga' },
-  { name: 'Download',   id: 'download' },
-  { name: 'Blog',       id: 'blog' },
-  { name: 'FAQ',        id: 'faq' },
   { name: 'Layar Tamu', id: 'layar-tamu' },
+  { name: 'Blog',       id: 'blog' },
+  { name: 'Testimoni',  id: 'testimoni' },
+  { name: 'FAQ',        id: 'faq' },
 ];
 
 const Header = () => {

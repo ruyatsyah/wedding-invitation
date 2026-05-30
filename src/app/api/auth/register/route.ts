@@ -14,6 +14,21 @@ export async function POST(req: Request) {
       );
     }
 
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(name)) {
+      return NextResponse.json(
+        { message: 'Nama hanya boleh menggunakan huruf dan spasi.' },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { message: 'Password minimal 8 karakter.' },
+        { status: 400 }
+      );
+    }
+
     await connectMongo();
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });

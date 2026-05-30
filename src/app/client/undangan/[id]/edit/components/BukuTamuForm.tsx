@@ -211,14 +211,18 @@ export default function BukuTamuForm({ projectId, initialGuests, onBack }: BukuT
                   <p className="text-xs text-neutral-500 font-mono mt-0.5">{guest.noWa}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {guest.isSent && (
+                  {guest.isSent ? (
                     <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase">
                       Terkirim
+                    </span>
+                  ) : (
+                    <span className="bg-neutral-100 text-neutral-500 text-[10px] font-bold px-2 py-1 rounded-full uppercase">
+                      Belum
                     </span>
                   )}
                   <button
                     onClick={() => handleRemoveGuest(idx)}
-                    className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     title="Hapus Tamu"
                   >
                     <Trash2 className="w-4 h-4" />

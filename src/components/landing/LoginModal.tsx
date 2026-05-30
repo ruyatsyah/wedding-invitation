@@ -40,7 +40,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm ${
+        className={`fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm ${
           isOpen ? 'block' : 'hidden'
         }`}
         onClick={onClose}
@@ -49,7 +49,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
 
       {/* Modal */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
+        className={`fixed inset-0 z-[70] flex items-center justify-center p-4 ${
           isOpen ? 'flex' : 'hidden'
         }`}
       >
@@ -80,7 +80,7 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
               onClick={handleGoogleSignIn}
               disabled={isLoading}
               type="button"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
             >
               {isLoading ? (
                 <>
