@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useRef } from 'react';
 
 const TESTIMONIALS = [
   {
@@ -40,6 +42,18 @@ const TESTIMONIALS = [
 ];
 
 export default function Testimoni() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 324; // Adjust based on card width + gap
+      scrollContainerRef.current.scrollBy({ 
+        left: direction === 'left' ? -scrollAmount : scrollAmount, 
+        behavior: 'smooth' 
+      });
+    }
+  };
+
   return (
     <section id="testimoni" className="py-24 bg-neutral-50 scroll-mt-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center space-y-12">
@@ -53,9 +67,35 @@ export default function Testimoni() {
           </p>
         </div>
 
-        {/* Horizontal scroll container */}
-        <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 pt-4 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {TESTIMONIALS.map((t, idx) => (
+        <div className="relative">
+          {/* Scroll Buttons */}
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-neutral-50 transition-all border border-neutral-100"
+            aria-label="Scroll left"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-neutral-50 transition-all border border-neutral-100"
+            aria-label="Scroll right"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Horizontal scroll container */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 pt-4 hide-scrollbar px-4 sm:px-8" 
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {TESTIMONIALS.map((t, idx) => (
             <div 
               key={idx} 
               className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl shadow-neutral-900/5 border border-neutral-100 hover:-translate-y-1 transition-transform snap-center flex-shrink-0 w-[300px] sm:w-[350px] text-left"
@@ -73,7 +113,8 @@ export default function Testimoni() {
                 <p className="text-[10px] text-slate-500">{t.role}</p>
               </div>
             </div>
-          ))}
+            ))}
+          </div>
         </div>
         
         {/* Style for hiding scrollbar in webkit browsers */}

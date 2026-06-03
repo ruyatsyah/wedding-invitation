@@ -101,12 +101,6 @@ export default function Footer({ onLoginOpen }: FooterProps) {
               <li>📱 +62 812-3456-7890</li>
               <li>📍 Jakarta, Indonesia</li>
             </ul>
-            <Link
-              href="/admin"
-              className="inline-block mt-2 px-5 py-2.5 bg-[#000000] hover:bg-[#171717] text-white text-xs font-semibold rounded-lg transition-all"
-            >
-              Buka Dashboard
-            </Link>
           </div>
         </div>
 

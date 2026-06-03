@@ -15,6 +15,7 @@ interface Template {
   guestListOnly: boolean;
   dailyLimit: number;
   publishImmediately: boolean;
+  showOnLanding?: boolean;
 }
 
 export default function Tema() {

@@ -1,25 +1,6 @@
 import React from 'react';
-
-const POSTS = [
-  {
-    tag: 'Inspirasi',
-    date: '15 Mei 2026',
-    title: 'Tips Memilih Lagu Backsound Romantis untuk Undangan Digital',
-    excerpt: 'Rekomendasi lagu akustik terbaik yang membuat tamu terharu saat membuka undangan.',
-  },
-  {
-    tag: 'Tips',
-    date: '10 Mei 2026',
-    title: 'Cara Membuat Rundown Acara Pernikahan Modern yang Terstruktur',
-    excerpt: 'Panduan lengkap menyusun jadwal akad hingga resepsi agar berjalan lancar dan tepat waktu.',
-  },
-  {
-    tag: 'Desain',
-    date: '5 Mei 2026',
-    title: 'Inspirasi Tema Pernikahan Rustic yang Hangat dan Alami',
-    excerpt: 'Elemen kayu, bunga liar, dan kain rami yang menyatu indah dalam konsep pernikahan di alam terbuka.',
-  },
-];
+import Link from 'next/link';
+import { ARTICLES } from '@/data/articles';
 
 export default function Blog() {
   return (
@@ -31,16 +12,16 @@ export default function Blog() {
             <p className="text-xs font-bold uppercase tracking-widest text-[#000000]">Artikel Blog</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Inspirasi Pernikahan</h2>
           </div>
-          <a href="#" className="text-sm font-semibold text-[#000000] hover:underline self-start sm:self-auto">
+          <Link href="/artikel" className="text-sm font-semibold text-[#000000] hover:underline self-start sm:self-auto">
             Lihat Semua Artikel →
-          </a>
+          </Link>
         </div>
 
         {/* Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {POSTS.map((post, i) => (
+          {ARTICLES.map((post) => (
             <article
-              key={i}
+              key={post.id}
               className="bg-slate-50/70 border border-slate-100 rounded-2xl overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col"
             >
               {/* Placeholder image area */}
@@ -57,9 +38,9 @@ export default function Blog() {
                 </div>
                 <h3 className="font-bold text-slate-800 text-sm leading-snug mb-2 flex-1">{post.title}</h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">{post.excerpt}</p>
-                <a href="#" className="text-xs font-semibold text-[#000000] hover:underline">
+                <Link href={`/artikel/${post.id}`} className="text-xs font-semibold text-[#000000] hover:underline mt-auto">
                   Baca Selengkapnya →
-                </a>
+                </Link>
               </div>
             </article>
           ))}

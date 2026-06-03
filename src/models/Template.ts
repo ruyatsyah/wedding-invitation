@@ -26,7 +26,7 @@ const TemplateSchema: Schema = new Schema(
     guestListOnly: { type: Boolean, default: false },
     dailyLimit: { type: Number, default: 100 },
     publishImmediately: { type: Boolean, default: true },
-    showOnLanding: { type: Boolean, default: false },
+    showOnLanding: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
