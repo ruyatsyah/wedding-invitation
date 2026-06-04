@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Save, BookOpen, Plus, Trash2, Users, Download, Upload } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
+import toast from 'react-hot-toast';
 
 interface Guest {
   name: string;
@@ -23,8 +24,6 @@ const labelCls = "block text-xs font-semibold text-neutral-500 mb-1.5 uppercase 
 export default function BukuTamuForm({ projectId, initialGuests, onBack }: BukuTamuFormProps) {
   const queryClient = useQueryClient();
   const [guests, setGuests] = useState<Guest[]>(initialGuests || []);
-  const [saveMsg, setSaveMsg] = useState('');
-
   // Local state for new guest input
   const [newName, setNewName] = useState('');
   const [newWa, setNewWa] = useState('');
@@ -59,19 +58,17 @@ export default function BukuTamuForm({ projectId, initialGuests, onBack }: BukuT
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      setSaveMsg('Tersimpan!');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.success('Daftar tamu berhasil disimpan!');
     },
-    onError: () => {
-      setSaveMsg('Gagal menyimpan.');
-      setTimeout(() => setSaveMsg(''), 3000);
+    onError: (err: Error) => {
+      toast.error(err.message || 'Gagal menyimpan daftar tamu.');
     },
   });
 
   return (
-    <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Header & Section Title */}
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm"
@@ -79,33 +76,14 @@ export default function BukuTamuForm({ projectId, initialGuests, onBack }: BukuT
           <ArrowLeft className="w-4 h-4" />
           Kembali
         </button>
-        <div className="flex items-center gap-3">
-          {saveMsg && (
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-              saveMsg === 'Tersimpan!' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
-            }`}>
-              {saveMsg}
-            </span>
-          )}
-          <button
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending}
-            className="flex items-center gap-2 bg-[#000000] hover:bg-[#171717] disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-          </button>
-        </div>
-      </div>
-
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
-        <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
-          <BookOpen className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900">Buku Tamu</h2>
-          <p className="text-xs text-neutral-500">Kelola daftar tamu yang akan diundang</p>
+        <div className="flex items-center gap-3 text-right">
+          <div>
+            <h2 className="text-lg font-bold text-neutral-900">Buku Tamu</h2>
+            <p className="text-xs text-neutral-500">Kelola daftar tamu yang akan diundang</p>
+          </div>
+          <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
+            <BookOpen className="w-5 h-5" />
+          </div>
         </div>
       </div>
 

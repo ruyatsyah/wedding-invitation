@@ -8,9 +8,10 @@ import {
 
 interface MenuGridProps {
   onMenuClick: (id: string) => void;
+  projectId?: string;
 }
 
-const iconClasses = "w-6 h-6 sm:w-8 sm:h-8 stroke-1";
+const iconClasses = "w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 stroke-[1.5]";
 
 const menuItems = [
   { id: 'pengantin', label: 'Pengantin', icon: <Users className={iconClasses} /> },
@@ -30,16 +31,16 @@ const menuItems = [
   { id: 'kirim', label: 'Kirim', icon: <Send className={`${iconClasses} text-amber-400`} /> },
   { 
     id: 'event_planner', 
-    label: 'Event Planner', 
-    icon: <CalendarCheck className="w-8 h-8 sm:w-10 sm:h-10 stroke-1" />, 
+    label: 'Planner', 
+    icon: <CalendarCheck className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 stroke-[1.5]" />, 
     isWide: true,
     badge: 'New Feature | Trial'
   },
 ];
 
-export default function MenuGrid({ onMenuClick }: MenuGridProps) {
+export default function MenuGrid({ onMenuClick, projectId }: MenuGridProps) {
   return (
-    <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6">
+    <div className="grid grid-cols-5 gap-2 sm:gap-3 mt-4 w-full">
       {menuItems.map((item) => (
         <MenuCard
           key={item.id}
@@ -47,7 +48,13 @@ export default function MenuGrid({ onMenuClick }: MenuGridProps) {
           label={item.label}
           isWide={item.isWide}
           badge={item.badge}
-          onClick={() => onMenuClick(item.id)}
+          onClick={() => {
+            if ((item as any).isExternal && projectId) {
+              window.open(`/client/undangan/${projectId}/penerima-tamu`, '_blank');
+            } else {
+              onMenuClick(item.id);
+            }
+          }}
         />
       ))}
     </div>

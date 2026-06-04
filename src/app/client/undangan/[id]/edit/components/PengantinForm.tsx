@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ArrowLeft, Camera, X, Save, AtSign, Users } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 interface PengantinFormProps {
   projectId: string;
@@ -96,9 +97,8 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
       if (!data.success) throw new Error(data.error);
       if (slot === 'groomPhoto') set('groomPhoto', data.url);
       else if (slot === 'bridePhoto') set('bridePhoto', data.url);
-    } catch (err: any) {
-      setSaveMsg('Gagal upload: ' + err.message);
-      setTimeout(() => setSaveMsg(''), 4000);
+    } catch (err: unknown) {
+      toast.error('Gagal upload: ' + (err instanceof Error ? err.message : 'Error'));
     } finally {
       setUploadingSlot(null);
     }
@@ -117,6 +117,8 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
           brideFullName: form.brideFullName,
           brideParents: form.brideParents,
           brideInstagram: form.brideInstagram,
+          groomPhoto: form.groomPhoto,
+          bridePhoto: form.bridePhoto,
         }),
       });
       const data = await res.json();
@@ -125,52 +127,33 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      setSaveMsg('Tersimpan!');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.success('Data pengantin berhasil disimpan!');
     },
     onError: () => {
-      setSaveMsg('Gagal menyimpan.');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.error('Gagal menyimpan. Coba lagi.');
     },
   });
 
   return (
-    <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Header & Section Title */}
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
         <button onClick={onBack} className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
-        <div className="flex items-center gap-3">
-          {saveMsg && (
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg === 'Tersimpan!' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
-              {saveMsg}
-            </span>
-          )}
-          <button
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending}
-            className="flex items-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-          </button>
-        </div>
-      </div>
-
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
-        <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
-          <Users className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900">Data Pengantin</h2>
-          <p className="text-xs text-neutral-500">Isi data mempelai pria dan wanita</p>
+        <div className="flex items-center gap-3 text-right">
+          <div>
+            <h2 className="text-lg font-bold text-neutral-900">Data Pengantin</h2>
+            <p className="text-xs text-neutral-500">Isi data mempelai pria dan wanita</p>
+          </div>
+          <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
+            <Users className="w-5 h-5" />
+          </div>
         </div>
       </div>
 
       {/* Nama Panggilan — full width */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm">
+      <div className="bg-neutral-50/50 rounded-2xl border border-neutral-100 p-5">
         <h3 className="text-sm font-bold text-neutral-700 mb-4">Nama Pasangan</h3>
         <div>
           <label className={labelCls}>Nama Singkat (Tampil di Undangan)</label>
@@ -188,9 +171,9 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
         {/* Mempelai Pria */}
-        <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-5">
+        <div className="bg-neutral-50/50 rounded-2xl border border-neutral-100 p-5 space-y-5">
           {/* Photo */}
-          <div className="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100">
+          <div className="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100/80">
             <PhotoSlot
               label="Mempelai Pria"
               slot="groomPhoto"
@@ -213,7 +196,7 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
           <div>
             <label className={labelCls}>Instagram <span className="normal-case font-normal text-neutral-400">(Opsional)</span></label>
             <div className="flex">
-              <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-50 text-neutral-500 text-sm">
+              <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-100 text-neutral-500 text-sm">
                 <AtSign className="w-4 h-4" />
               </span>
               <input
@@ -227,9 +210,9 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
         </div>
 
         {/* Mempelai Wanita */}
-        <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-5">
+        <div className="bg-neutral-50/50 rounded-2xl border border-neutral-100 p-5 space-y-5">
           {/* Photo */}
-          <div className="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100">
+          <div className="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100/80">
             <PhotoSlot
               label="Mempelai Wanita"
               slot="bridePhoto"
@@ -252,7 +235,7 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
           <div>
             <label className={labelCls}>Instagram <span className="normal-case font-normal text-neutral-400">(Opsional)</span></label>
             <div className="flex">
-              <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-50 text-neutral-500 text-sm">
+              <span className="px-3 flex items-center border border-r-0 border-neutral-200 rounded-l-xl bg-neutral-100 text-neutral-500 text-sm">
                 <AtSign className="w-4 h-4" />
               </span>
               <input
@@ -271,7 +254,7 @@ export default function PengantinForm({ projectId, initialData, onBack }: Pengan
       <button
         onClick={() => saveMutation.mutate()}
         disabled={saveMutation.isPending}
-        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white py-4 rounded-2xl font-bold text-sm transition-colors cursor-pointer"
+        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white py-4 rounded-xl font-bold text-sm transition-colors cursor-pointer mt-4"
       >
         <Save className="w-4 h-4" />
         {saveMutation.isPending ? 'Menyimpan...' : 'Simpan Data Pengantin'}

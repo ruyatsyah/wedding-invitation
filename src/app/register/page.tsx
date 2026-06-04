@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { signIn } from 'next-auth/react';
+import toast from 'react-hot-toast';
 
 function RegisterForm() {
   const router = useRouter();
@@ -18,7 +19,6 @@ function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const isNameInvalid = nama.length > 0 && !/^[A-Za-z\s]+$/.test(nama);
   const isPasswordInvalid = password.length > 0 && password.length < 8;
@@ -27,7 +27,7 @@ function RegisterForm() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nama || !email || !password || !confirmPassword) {
-      setError('Semua kolom wajib diisi.');
+      toast.error('Semua kolom wajib diisi.');
       return;
     }
 
@@ -43,12 +43,11 @@ function RegisterForm() {
     }
 
     if (password !== confirmPassword) {
-      setError('Password dan Konfirmasi Password tidak cocok.');
+      toast.error('Password dan Konfirmasi Password tidak cocok.');
       return;
     }
 
     setIsLoading(true);
-    setError('');
 
     try {
       const res = await fetch('/api/auth/register', {
@@ -72,9 +71,10 @@ function RegisterForm() {
         throw new Error('Pendaftaran berhasil, tetapi gagal masuk secara otomatis. Silakan login manual.');
       }
 
+      toast.success('Pendaftaran berhasil! Selamat datang 🎉');
       router.push(`/onboarding?plan=${plan}`);
-    } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan sistem.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Terjadi kesalahan sistem.');
       setIsLoading(false);
     }
   };
@@ -108,16 +108,6 @@ function RegisterForm() {
           </div>
 
           <div className="px-8 py-8 space-y-5">
-            {/* Error */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                {error}
-              </div>
-            )}
-
             {/* Registration Form */}
             <form onSubmit={handleRegister} className="space-y-4">
               <div>

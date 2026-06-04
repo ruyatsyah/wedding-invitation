@@ -21,9 +21,9 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: RouteContext) {
+export const PATCH = auth(async (req: any, { params }: any) => {
   try {
-    const session = await auth();
+    const session = req.auth;
     if (!session?.user?.email) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
@@ -94,9 +94,14 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       'eventDate', 'eventTime', 'eventTimezone',
       'venue', 'mapsUrl', 'youtubeUrl',
       'enableRsvp', 'enableGuestbook',
-      'bankName', 'bankAccount', 'bankHolder',
+      'bankName', 'bankAccount', 'bankHolder', 'digitalEnvelopes',
       'bgMusic',
+      'quoteText', 'quoteSource', 'igStoryUrl',
       'guests',
+      'loveStories',
+      'plannerTasks',
+      'themeId',
+      'status',
     ];
 
     const updateData: Record<string, any> = {};
@@ -115,11 +120,11 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     console.error('[PATCH /api/projects/[id]]', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
+export const DELETE = auth(async (req: any, { params }: any) => {
   try {
-    const session = await auth();
+    const session = req.auth;
     if (!session?.user?.email) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
@@ -146,4 +151,4 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});

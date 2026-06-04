@@ -1,0 +1,492 @@
+/* General Reset & Typography */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #333333;
+    line-height: 1.6;
+    background-color: #fbf9f6;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+h1, h2, h3, .wedding-announcement {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 2rem;
+    margin-bottom: 40px;
+    position: relative;
+    color: #8c765c;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background-color: #d4af37;
+    margin: 15px auto 0 auto;
+}
+
+.section-title-left {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+    color: #8c765c;
+    text-align: left;
+}
+
+/* Theme Configuration Backgrounds (Modul: Tema) */
+body.theme-classic-gold { background-color: #fdfbf7; }
+body.theme-romantic-pink { background-color: #fff5f5; }
+body.theme-modern-dark { background-color: #121212; color: #eaeaea; }
+body.theme-modern-dark .section-title { color: #dfc89f; }
+body.theme-modern-dark .event-card, 
+body.theme-modern-dark .profile-card,
+body.theme-modern-dark .quote-box { background-color: #1e1e1e; color: #fff; border: 1px solid #333; }
+
+/* Music Floating Button (Modul: Musik) */
+.music-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    background-color: #8c765c;
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+.music-btn:hover { transform: scale(1.1); }
+
+/* Hero Section */
+.hero {
+    position: relative;
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1920') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 20px;
+}
+
+.wedding-announcement {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.couple-names {
+    font-family: 'Sacramento', cursive;
+    font-size: 4.5rem;
+    text-transform: none;
+    margin-bottom: 30px;
+}
+
+/* Countdown Timer */
+.countdown-container p {
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+#countdown {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.time-box {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    padding: 10px 15px;
+    border-radius: 8px;
+    min-width: 70px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.time-box span {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.time-box small {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+/* Quote Section */
+.quote-section {
+    background-color: rgba(140, 118, 92, 0.05);
+    text-align: center;
+}
+
+.quote-box {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.quote-text {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.quote-author {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #8c765c;
+}
+
+/* Bride and Groom */
+.couple-flex {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.profile-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.avatar-frame {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    margin: 0 auto 20px auto;
+    overflow: hidden;
+    border: 4px solid #dfc89f;
+}
+
+.avatar-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #444;
+}
+
+.parents {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 15px;
+}
+
+.ig-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: #8c765c;
+    text-decoration: none;
+    border: 1px solid #8c765c;
+    padding: 5px 12px;
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.ig-link:hover {
+    background-color: #8c765c;
+    color: white;
+}
+
+.ampersand {
+    font-family: 'Sacramento', cursive;
+    font-size: 4rem;
+    color: #dfc89f;
+}
+
+/* Events & Planner Section */
+.events-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 50px;
+}
+
+.event-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 12px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+}
+
+.event-card h3 {
+    color: #8c765c;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.event-card p {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.btn-maps, .btn-streaming, .btn-submit {
+    display: inline-block;
+    background-color: #8c765c;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-top: 15px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s;
+}
+
+.btn-maps:hover, .btn-streaming:hover, .btn-submit:hover {
+    background-color: #705e49;
+}
+
+/* Planner Timeline */
+.planner-box {
+    background: rgba(212, 175, 55, 0.05);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 710px;
+    margin: 0 auto 40px auto;
+}
+
+.sub-title {
+    margin-bottom: 20px;
+    color: #8c765c;
+}
+
+.timeline {
+    list-style: none;
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 0; bottom: 0;
+    width: 2px; background: #dfc89f;
+}
+
+.timeline li {
+    position: relative;
+    margin-bottom: 15px;
+    padding-left: 15px;
+}
+
+.timeline li::before {
+    content: '';
+    position: absolute;
+    left: -20px; top: 6px;
+    width: 10px; height: 10px;
+    background: #8c765c;
+    border-radius: 50%;
+}
+
+/* Streaming Box */
+.streaming-box {
+    text-align: center;
+    max-width: 710px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+/* Love Story Module */
+.story-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.story-item {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #8c765c;
+}
+
+.story-year {
+    font-weight: bold;
+    color: #8c765c;
+    font-size: 1.1rem;
+}
+
+/* Gallery Module */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.gallery-grid img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.gallery-grid img:hover {
+    transform: scale(1.03);
+}
+
+/* Gift Module */
+.gift-desc {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+}
+
+.gift-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.gift-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 250px;
+    border: 1px dashed #dfc89f;
+}
+
+/* RSVP & Guestbook Section */
+.rsvp-grid {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.rsvp-form-container, .guestbook-container {
+    flex: 1;
+    min-width: 300px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dddddd;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.btn-submit-sm {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.comments-list {
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.comment-item {
+    background: #fdfdfd;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #f0f0f0;
+    font-size: 0.85rem;
+}
+
+.comment-item strong {
+    color: #8c765c;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 30px;
+    background-color: #8c765c;
+    color: white;
+    font-size: 0.85rem;
+}
+
+/* Responsive Handling */
+@media (max-width: 768px) {
+    .couple-names { font-size: 3rem; }
+    .couple-flex { flex-direction: column; }
+    .rsvp-grid { flex-direction: column; }
+}

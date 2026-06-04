@@ -2,11 +2,16 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongoose';
 import Guest from '@/models/Guest';
 
-// GET all guests
-export async function GET() {
+// GET all guests for a specific project
+export async function GET(request: Request) {
   try {
     await connectToDatabase();
-    const guests = await Guest.find({}).sort({ createdAt: -1 });
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('projectId');
+    
+    const query = projectId ? { projectId } : {};
+    const guests = await Guest.find(query).sort({ createdAt: -1 });
+    
     return NextResponse.json({ success: true, data: guests });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -14,11 +19,14 @@ export async function GET() {
   }
 }
 
-// POST create guest
 export async function POST(request: Request) {
   try {
     await connectToDatabase();
     const body = await request.json();
+    
+    if (!body.projectId) {
+      return NextResponse.json({ success: false, error: 'projectId is required' }, { status: 400 });
+    }
     
     // Create unique slug from name
     const slug = body.name

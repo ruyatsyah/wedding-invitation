@@ -60,8 +60,8 @@ export default function KirimForm({ projectId, customUrl, initialGuests, onBack 
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* Header & Section Title */}
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm"
@@ -69,16 +69,14 @@ export default function KirimForm({ projectId, customUrl, initialGuests, onBack 
           <ArrowLeft className="w-4 h-4" />
           Kembali
         </button>
-      </div>
-
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
-        <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
-          <MessageSquare className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900">Kirim Undangan (WA Blast)</h2>
-          <p className="text-xs text-neutral-500">Kirim pesan undangan ke daftar tamu Anda secara instan</p>
+        <div className="flex items-center gap-3 text-right">
+          <div>
+            <h2 className="text-lg font-bold text-neutral-900">Kirim Undangan (WA Blast)</h2>
+            <p className="text-xs text-neutral-500">Kirim pesan undangan ke daftar tamu Anda secara instan</p>
+          </div>
+          <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
+            <MessageSquare className="w-5 h-5" />
+          </div>
         </div>
       </div>
 

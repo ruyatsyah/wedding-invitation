@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Settings, Wallet, Music, Link as LinkIcon, ToggleLeft, ToggleRight } from 'lucide-react';
+import { ArrowLeft, Save, Settings, Link as LinkIcon, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 interface PengaturanFormProps {
   projectId: string;
@@ -10,9 +11,6 @@ interface PengaturanFormProps {
     customUrl: string;
     enableRsvp: boolean;
     enableGuestbook: boolean;
-    bankName: string;
-    bankAccount: string;
-    bankHolder: string;
     bgMusic: string;
   };
   onBack: () => void;
@@ -41,9 +39,9 @@ function Toggle({ enabled, onToggle, label, description }: { enabled: boolean; o
 export default function PengaturanForm({ projectId, initialData, onBack }: PengaturanFormProps) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState(initialData);
-  const [saveMsg, setSaveMsg] = useState('');
-
-  useEffect(() => { setForm(initialData); }, [initialData]);
+  useEffect(() => {
+    setForm(initialData);
+  }, [initialData]);
 
   const set = (key: keyof typeof form, value: string | boolean) =>
     setForm(prev => ({ ...prev, [key]: value }));
@@ -56,9 +54,6 @@ export default function PengaturanForm({ projectId, initialData, onBack }: Penga
         body: JSON.stringify({
           enableRsvp: form.enableRsvp,
           enableGuestbook: form.enableGuestbook,
-          bankName: form.bankName,
-          bankAccount: form.bankAccount,
-          bankHolder: form.bankHolder,
           bgMusic: form.bgMusic,
         }),
       });
@@ -68,47 +63,28 @@ export default function PengaturanForm({ projectId, initialData, onBack }: Penga
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      setSaveMsg('Tersimpan!');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.success('Pengaturan berhasil disimpan!');
     },
     onError: () => {
-      setSaveMsg('Gagal menyimpan.');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.error('Gagal menyimpan pengaturan.');
     },
   });
 
   return (
-    <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Header & Section Title */}
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
         <button onClick={onBack} className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
-        <div className="flex items-center gap-3">
-          {saveMsg && (
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg === 'Tersimpan!' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
-              {saveMsg}
-            </span>
-          )}
-          <button
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending}
-            className="flex items-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-          </button>
-        </div>
-      </div>
-
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
-        <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
-          <Settings className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900">Pengaturan</h2>
-          <p className="text-xs text-neutral-500">Konfigurasi fitur dan informasi tambahan undangan</p>
+        <div className="flex items-center gap-3 text-right">
+          <div>
+            <h2 className="text-lg font-bold text-neutral-900">Pengaturan</h2>
+            <p className="text-xs text-neutral-500">Konfigurasi fitur dan informasi tambahan undangan</p>
+          </div>
+          <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
+            <Settings className="w-5 h-5" />
+          </div>
         </div>
       </div>
 
@@ -151,43 +127,7 @@ export default function PengaturanForm({ projectId, initialData, onBack }: Penga
         </div>
       </div>
 
-      {/* Rekening / Gift */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-neutral-700 flex items-center gap-2">
-          <Wallet className="w-4 h-4" /> Amplop Digital / Rekening
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Nama Bank</label>
-            <input className={inputCls} placeholder="Contoh: BCA, Mandiri, BNI" value={form.bankName} onChange={e => set('bankName', e.target.value)} />
-          </div>
-          <div>
-            <label className={labelCls}>Nomor Rekening</label>
-            <input className={inputCls} placeholder="Contoh: 1234567890" value={form.bankAccount} onChange={e => set('bankAccount', e.target.value)} />
-          </div>
-        </div>
-        <div>
-          <label className={labelCls}>Nama Pemilik Rekening</label>
-          <input className={inputCls} placeholder="Contoh: Ahmad Fulan" value={form.bankHolder} onChange={e => set('bankHolder', e.target.value)} />
-        </div>
-      </div>
 
-      {/* Background Music */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-5 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-neutral-700 flex items-center gap-2">
-          <Music className="w-4 h-4" /> Musik Latar
-        </h3>
-        <div>
-          <label className={labelCls}>Link Audio / YouTube</label>
-          <input
-            className={inputCls}
-            placeholder="https://www.youtube.com/watch?v=... atau link MP3"
-            value={form.bgMusic}
-            onChange={e => set('bgMusic', e.target.value)}
-          />
-          <p className="text-[11px] text-neutral-400 mt-1.5">Masukkan link YouTube atau URL file MP3 untuk musik latar undangan.</p>
-        </div>
-      </div>
 
       {/* Save Footer */}
       <button

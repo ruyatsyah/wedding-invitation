@@ -127,6 +127,8 @@ export interface ProjectData {
   bankName?: string;
   bankAccount?: string;
   bankHolder?: string;
+  digitalEnvelopes?: { bankName: string; bankAccount: string; bankHolder: string }[];
+  loveStories?: { date: string; title: string; story: string }[];
 }
 
 interface WeddingInvitationProps {
@@ -146,6 +148,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
   const [isPlaying, setIsPlaying] = useState(false);
 
   // RSVP
+  const [rsvpName, setRsvpName] = useState('');
   const [rsvpStatus, setRsvpStatus] = useState<'ATTENDING' | 'DECLINED'>('ATTENDING');
   const [rsvpPax, setRsvpPax] = useState(1);
   const [rsvpSuccess, setRsvpSuccess] = useState(false);
@@ -182,15 +185,32 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
     }
   });
 
-  const { data: wishesData = [] } = useQuery({
-    queryKey: ['wishes'],
-    queryFn: async () => {
-      const res = await fetch('/api/wishes');
+  // Mutasi RSVP berbasis project (tanpa perlu guestSlug)
+  const submitRsvpMutation = useMutation({
+    mutationFn: async (payload: { projectId: string; name: string; rsvpStatus: string; pax: number }) => {
+      const res = await fetch('/api/rsvp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       return data.data;
     },
-    enabled: !isDemo && (projectData?.enableGuestbook !== false),
+    onSuccess: () => setRsvpSuccess(true),
+  });
+
+  const { data: wishesData = [], refetch: refetchWishes } = useQuery({
+    queryKey: ['wishes', projectData?._id],
+    queryFn: async () => {
+      if (!projectData?._id) return [];
+      const res = await fetch(`/api/wishes?projectId=${projectData._id}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+    enabled: !isDemo && !!projectData?._id && (projectData?.enableGuestbook !== false),
+    refetchInterval: 15000, // auto refresh ucapan setiap 15 detik
   });
 
   const submitWishMutation = useMutation({
@@ -205,7 +225,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['wishes'] });
+      queryClient.invalidateQueries({ queryKey: ['wishes', projectData?._id] });
     }
   });
 
@@ -217,6 +237,7 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
     if (guestData) {
       setGuestName(guestData.name);
       setWishName(guestData.name);
+      setRsvpName(guestData.name);
       if (!guestData.isOpened) {
         updateGuestMutation.mutate({ isOpened: true });
       }
@@ -278,10 +299,27 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
       setRsvpSuccess(true);
       return;
     }
-    updateGuestMutation.mutate(
-      { rsvpStatus, pax: rsvpStatus === 'ATTENDING' ? rsvpPax : 0 },
-      { onSuccess: () => setRsvpSuccess(true) }
-    );
+
+    const nameToUse = rsvpName || guestData?.name || wishName;
+    if (!nameToUse) return;
+
+    if (guestSlug && guestData) {
+      // Jika ada guestSlug, update record tamu yang ada
+      updateGuestMutation.mutate(
+        { rsvpStatus, pax: rsvpStatus === 'ATTENDING' ? rsvpPax : 0 },
+        { onSuccess: () => setRsvpSuccess(true) }
+      );
+    } else if (projectData?._id) {
+      // Jika tidak ada guestSlug, simpan sebagai tamu baru via /api/rsvp
+      submitRsvpMutation.mutate({
+        projectId: projectData._id,
+        name: nameToUse,
+        rsvpStatus,
+        pax: rsvpStatus === 'ATTENDING' ? rsvpPax : 0,
+      });
+    } else {
+      setRsvpSuccess(true);
+    }
   };
 
   const handleWish = async (e: React.FormEvent) => {
@@ -293,8 +331,10 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
       return;
     }
 
+    if (!projectData?._id) return;
+
     submitWishMutation.mutate(
-      { name: wishName, message: wishMsg, attendance: wishAttend },
+      { projectId: projectData._id, name: wishName, message: wishMsg, attendance: wishAttend },
       { onSuccess: () => setWishMsg('') }
     );
   };
@@ -427,6 +467,32 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
             </div>
           </section>
 
+          {/* Kisah Cinta */}
+          {((!isDemo && projectData?.loveStories && projectData.loveStories.length > 0) || (isDemo && theme === 'snapfoto')) && (
+            <section className={`px-8 py-16 ${style.sectionBg} text-center space-y-8`}>
+              <h2 className={`text-3xl font-serif italic font-bold ${style.textTitle}`}>Kisah Cinta</h2>
+              <div className="space-y-6 max-w-sm mx-auto text-left relative z-0">
+                <div className="absolute left-[13px] top-4 bottom-4 w-0.5 bg-pink-200/50 -z-10"></div>
+                {(isDemo ? [
+                  { date: 'Januari 2020', title: 'Pertama Bertemu', story: 'Berawal dari teman satu kampus, kami mulai mengenal satu sama lain dalam sebuah kepanitiaan acara.' },
+                  { date: 'Desember 2022', title: 'Menjalin Asmara', story: 'Setelah kelulusan, kami memutuskan untuk merajut kasih dengan komitmen yang lebih serius.' },
+                  { date: 'Agustus 2025', title: 'Lamaran', story: 'Sebuah momen yang tak terlupakan saat keluarga besar kami bertemu untuk merencanakan pernikahan ini.' }
+                ] : projectData?.loveStories || []).map((story, idx) => (
+                  <div key={idx} className="flex gap-5 relative">
+                    <div className="w-7 h-7 rounded-full bg-pink-100 border-2 border-pink-300 flex items-center justify-center shrink-0 mt-1 z-10">
+                      <span className="text-[10px]">❤️</span>
+                    </div>
+                    <div className={`${style.cardBg} p-5 rounded-2xl border shadow-sm flex-1`}>
+                      <span className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">{story.date}</span>
+                      <h4 className={`font-bold text-sm ${style.textTitle} mt-1 mb-2`}>{story.title}</h4>
+                      <p className={`text-xs ${style.textBody} opacity-80 leading-relaxed`}>{story.story}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Gallery */}
           {((!isDemo && projectData?.gallery && projectData.gallery.filter(Boolean).length > 0) || isDemo) && (
             <section className="px-8 py-16 text-center space-y-8">
@@ -493,6 +559,19 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
               </div>
             ) : (
               <form onSubmit={handleRsvp} className="max-w-xs mx-auto space-y-4 text-left">
+                {/* Nama — tampil jika tidak ada guestSlug atau nama belum diisi */}
+                {!guestSlug && (
+                  <div>
+                    <label className="block text-[10px] font-bold opacity-60 mb-2 uppercase tracking-wider">Nama Anda</label>
+                    <input
+                      value={rsvpName}
+                      onChange={(e) => setRsvpName(e.target.value)}
+                      placeholder="Nama lengkap"
+                      className="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-pink-400 transition-colors bg-white text-slate-800"
+                      required={!guestSlug}
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-[10px] font-bold opacity-60 mb-2 uppercase tracking-wider">Status Kehadiran</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -528,10 +607,10 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
                 )}
                 <button
                   type="submit"
-                  disabled={updateGuestMutation.isPending}
+                  disabled={updateGuestMutation.isPending || submitRsvpMutation.isPending}
                   className={`w-full py-3 rounded-xl transition-all shadow-md cursor-pointer ${style.primaryBtn}`}
                 >
-                  {updateGuestMutation.isPending ? 'Mengirim...' : 'Kirim Konfirmasi'}
+                  {(updateGuestMutation.isPending || submitRsvpMutation.isPending) ? 'Mengirim...' : 'Kirim Konfirmasi'}
                 </button>
               </form>
             )}
@@ -539,19 +618,44 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
           )}
 
           {/* Gift / Angpao */}
-          {((!isDemo && projectData?.bankName && projectData?.bankAccount) || isDemo) && (
+          {((!isDemo && ((projectData?.digitalEnvelopes && projectData.digitalEnvelopes.length > 0) || (projectData?.bankName && projectData?.bankAccount))) || isDemo) && (
             <section className={`px-8 py-16 text-center space-y-6`}>
               <h2 className={`text-3xl font-serif italic font-bold ${style.textTitle}`}>Wedding Gift</h2>
               <p className={`text-xs ${style.textBody} opacity-80 max-w-xs mx-auto`}>
                 Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Dan jika memberi adalah ungkapan tanda kasih Anda, Anda dapat memberi kado secara cashless.
               </p>
-              <div className={`${style.cardBg} p-6 rounded-2xl border shadow-sm max-w-xs mx-auto space-y-4`}>
-                <span className="text-3xl block">💌</span>
-                <div>
-                  <h4 className={`font-bold text-lg ${style.textTitle}`}>{!isDemo && projectData?.bankName ? projectData.bankName : 'Bank BCA'}</h4>
-                  <p className={`font-mono text-xl tracking-wider ${style.textSub} my-2 select-all`}>{!isDemo && projectData?.bankAccount ? projectData.bankAccount : '1234567890'}</p>
-                  <p className={`text-xs ${style.textBody} uppercase tracking-wider`}>a.n. {!isDemo && projectData?.bankHolder ? projectData.bankHolder : groomName}</p>
-                </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+                {isDemo ? (
+                  <div className={`${style.cardBg} p-6 rounded-2xl border shadow-sm space-y-4`}>
+                    <span className="text-3xl block">💌</span>
+                    <div>
+                      <h4 className={`font-bold text-lg ${style.textTitle}`}>Bank BCA</h4>
+                      <p className={`font-mono text-xl tracking-wider ${style.textSub} my-2 select-all`}>1234567890</p>
+                      <p className={`text-xs ${style.textBody} uppercase tracking-wider`}>a.n. {demoNames.groom}</p>
+                    </div>
+                  </div>
+                ) : (projectData?.digitalEnvelopes && projectData.digitalEnvelopes.length > 0) ? (
+                  projectData.digitalEnvelopes.map((env, idx) => (
+                    <div key={idx} className={`${style.cardBg} p-6 rounded-2xl border shadow-sm space-y-4`}>
+                      <span className="text-3xl block">💌</span>
+                      <div>
+                        <h4 className={`font-bold text-lg ${style.textTitle}`}>{env.bankName}</h4>
+                        <p className={`font-mono text-xl tracking-wider ${style.textSub} my-2 select-all`}>{env.bankAccount}</p>
+                        <p className={`text-xs ${style.textBody} uppercase tracking-wider`}>a.n. {env.bankHolder}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className={`${style.cardBg} p-6 rounded-2xl border shadow-sm space-y-4`}>
+                    <span className="text-3xl block">💌</span>
+                    <div>
+                      <h4 className={`font-bold text-lg ${style.textTitle}`}>{projectData?.bankName}</h4>
+                      <p className={`font-mono text-xl tracking-wider ${style.textSub} my-2 select-all`}>{projectData?.bankAccount}</p>
+                      <p className={`text-xs ${style.textBody} uppercase tracking-wider`}>a.n. {projectData?.bankHolder || groomName}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           )}

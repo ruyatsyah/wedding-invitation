@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PENGANTIN_PRIA_PANGGILAN}} & {{PENGANTIN_WANITA_PANGGILAN}} - Undangan Pernikahan</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for Premium Wedding Feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&family=Sacramento&display=swap" rel="stylesheet">
+</head>
+<body class="theme-{{TEMA_WARNA}}">
+
+    <!-- Musik Background (Modul: Musik) -->
+    <audio id="bg-music" loop>
+        <source src="{{MUSIK_URL}}" type="audio/mpeg">
+    </audio>
+    <button id="music-toggle" class="music-btn" onclick="toggleMusic()">🎵</button>
+
+    <!-- 1. Hero Section / Cover (Modul: Pengantin & Tema) -->
+    <header class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="wedding-announcement">THE WEDDING OF</p>
+            <h1 class="couple-names">{{PENGANTIN_PRIA_PANGGILAN}} & {{PENGANTIN_WANITA_PANGGILAN}}</h1>
+            <div class="countdown-container">
+                <p>Menghitung Hari Bahagia:</p>
+                <div id="countdown" data-date="{{ACARA_COUNTDOWN_ISO}}">
+                    <!-- Target format: YYYY-MM-DDTHH:MM:SS -->
+                    <div class="time-box"><span id="days">00</span><small>Hari</small></div>
+                    <div class="time-box"><span id="hours">00</span><small>Jam</small></div>
+                    <div class="time-box"><span id="minutes">00</span><small>Menit</small></div>
+                    <div class="time-box"><span id="seconds">00</span><small>Detik</small></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Modul: Quote -->
+    <section class="quote-section">
+        <div class="container">
+            <div class="quote-box">
+                <p class="quote-text">"{{QUOTE_TEKS}}"</p>
+                <p class="quote-author">{{QUOTE_SUMBER}}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Modul: Pengantin Detail -->
+    <section class="bride-groom-section">
+        <div class="container">
+            <h2 class="section-title">Mempelai</h2>
+            <div class="couple-flex">
+                <!-- Pengantin Pria -->
+                <div class="profile-card">
+                    <div class="avatar-frame">
+                        <img src="{{PENGANTIN_PRIA_FOTO}}" alt="Foto Mempelai Pria">
+                    </div>
+                    <h3>{{PENGANTIN_PRIA_NAMA_LENGKAP}}</h3>
+                    <p class="parents">Putra dari Bapak {{PENGANTIN_PRIA_AYAH}} & Ibu {{PENGANTIN_PRIA_IBU}}</p>
+                    <!-- Modul: Story IG -->
+                    <a href="{{PENGANTIN_PRIA_IG}}" target="_blank" class="ig-link">📸 @{{PENGANTIN_PRIA_IG_USERNAME}}</a>
+                </div>
+                
+                <div class="ampersand">&</div>
+
+                <!-- Pengantin Wanita -->
+                <div class="profile-card">
+                    <div class="avatar-frame">
+                        <img src="{{PENGANTIN_WANITA_FOTO}}" alt="Foto Mempelai Wanita">
+                    </div>
+                    <h3>{{PENGANTIN_WANITA_NAMA_LENGKAP}}</h3>
+                    <p class="parents">Putri dari Bapak {{PENGANTIN_WANITA_AYAH}} & Ibu {{PENGANTIN_WANITA_IBU}}</p>
+                    <!-- Modul: Story IG -->
+                    <a href="{{PENGANTIN_WANITA_IG}}" target="_blank" class="ig-link">📸 @{{PENGANTIN_WANITA_IG_USERNAME}}</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Modul: Acara & Planner (Agenda) -->
+    <section class="events-section">
+        <div class="container">
+            <h2 class="section-title">Waktu & Tempat Acara</h2>
+            <div class="events-grid">
+                <!-- Akad Nikah -->
+                <div class="event-card">
+                    <h3>Akad Nikah</h3>
+                    <p class="date">📅 {{ACARA_AKAD_TANGGAL}}</p>
+                    <p class="time">⏰ {{ACARA_AKAD_WAKTU}}</p>
+                    <p class="place">📍 <strong>{{ACARA_AKAD_LOKASI}}</strong><br>{{ACARA_AKAD_ALAMAT_LENGKAP}}</p>
+                    <a href="{{ACARA_AKAD_MAPS_LINK}}" target="_blank" class="btn-maps">Buka Google Maps</a>
+                </div>
+                <!-- Resepsi -->
+                <div class="event-card">
+                    <h3>Resepsi Pernikahan</h3>
+                    <p class="date">📅 {{ACARA_RESEPSI_TANGGAL}}</p>
+                    <p class="time">⏰ {{ACARA_RESEPSI_WAKTU}}</p>
+                    <p class="place">📍 <strong>{{ACARA_RESEPSI_LOKASI}}</strong><br>{{ACARA_RESEPSI_ALAMAT_LENGKAP}}</p>
+                    <a href="{{ACARA_RESEPSI_MAPS_LINK}}" target="_blank" class="btn-maps">Buka Google Maps</a>
+                </div>
+            </div>
+
+            <!-- Modul: Planner (Timeline / Itinerary) -->
+            <div class="planner-box">
+                <h3 class="sub-title">Susunan Acara (Planner)</h3>
+                <ul class="timeline">
+                    {{PLANNER_TIMELINE_ITEMS}}
+                    <!-- Backend meng-inject baris <li> secara dinamis atau raw HTML -->
+                </ul>
+            </div>
+
+            <!-- Modul: Streaming -->
+            <div class="streaming-box">
+                <h3>Live Streaming</h3>
+                <p>Bagi keluarga dan kerabat yang tidak dapat hadir secara fisik, silakan saksikan kebahagiaan kami secara virtual melalui tautan berikut:</p>
+                <a href="{{STREAMING_URL}}" target="_blank" class="btn-streaming">📺 Tonton Live Streaming</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Modul: Kisah Cinta (Timeline Story) -->
+    <section class="love-story-section">
+        <div class="container">
+            <h2 class="section-title">Kisah Cinta Kami</h2>
+            <div class="story-container">
+                {{KISAH_CINTA_HTML_SNIPPET}}
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Modul: Galeri Foto -->
+    <section class="gallery-section">
+        <div class="container">
+            <h2 class="section-title">Galeri Kebahagiaan</h2>
+            <div class="gallery-grid">
+                {{GALERI_FOTO_ITEMS_HTML}}
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Modul: Kado (Digital Gift) -->
+    <section class="gift-section">
+        <div class="container">
+            <h2 class="section-title">Kado Digital</h2>
+            <p class="gift-desc">Doa restu Anda adalah karunia terindah bagi kami. Namun jika Anda ingin memberikan tanda kasih, dapat melalui rekening/dompet digital berikut:</p>
+            <div class="gift-grid">
+                {{KADO_REKENING_ITEMS_HTML}}
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. Modul: RSVP & Buku Tamu / Ucapan -->
+    <section class="rsvp-guestbook-section">
+        <div class="container">
+            <div class="rsvp-grid">
+                <!-- Form RSVP -->
+                <div class="rsvp-form-container">
+                    <h2 class="section-title-left">Konfirmasi Kehadiran (RSVP)</h2>
+                    <form id="rsvp-form" onsubmit="submitRSVP(event)">
+                        <input type="hidden" id="invitation-id" value="{{INVITATION_ID}}">
+                        <div class="form-group">
+                            <label for="rsvp-name">Nama Tamu</label>
+                            <input type="text" id="rsvp-name" required placeholder="Masukkan Nama Anda">
+                        </div>
+                        <div class="form-group">
+                            <label for="rsvp-status">Konfirmasi</label>
+                            <select id="rsvp-status" required>
+                                <option value="">-- Pilih Konfirmasi --</option>
+                                <option value="hadir">Hadir</option>
+                                <option value="tidak_hadir">Tidak Hadir</option>
+                                <option value="ragu">Masih Ragu</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rsvp-count">Jumlah Pendamping</label>
+                            <input type="number" id="rsvp-count" min="1" max="5" value="1">
+                        </div>
+                        <button type="submit" class="btn-submit">Kirim Konfirmasi</button>
+                    </form>
+                </div>
+
+                <!-- Buku Tamu / Ucapan -->
+                <div class="guestbook-container">
+                    <h2 class="section-title-left">Buku Tamu & Ucapan</h2>
+                    <form id="comment-form" onsubmit="submitComment(event)">
+                        <div class="form-group">
+                            <input type="text" id="comment-name" required placeholder="Nama Anda">
+                        </div>
+                        <div class="form-group">
+                            <textarea id="comment-text" rows="3" required placeholder="Tuliskan ucapan & doa restu Anda..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-sm">Kirim Ucapan (Kirim)</button>
+                    </form>
+
+                    <!-- List Tempat Ucapan Di-render -->
+                    <div class="comments-list" id="comments-display-area">
+                        {{BUKU_TAMU_UCAPAN_LIST_HTML}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer & Setting Meta -->
+    <footer>
+        <p>Made with ❤️ by {{SISTEM_BRANDING_FOOTER}}</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
