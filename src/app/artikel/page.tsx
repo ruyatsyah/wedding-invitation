@@ -10,11 +10,11 @@ function ArtikelContent() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-slate-50 py-24">
+      <main className="min-h-screen bg-slate-50 pt-12 pb-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {/* Header */}
           <div className="text-center mb-16 space-y-4 max-w-2xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">Kumpulan Artikel</h1>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Kumpulan Artikel</h1>
             <p className="text-slate-500 text-base leading-relaxed">
               Temukan berbagai tips, inspirasi, dan panduan lengkap untuk mempersiapkan pernikahan impian Anda.
             </p>

@@ -7,8 +7,10 @@ export interface IUser extends Document {
   role: "admin" | "client";
   image?: string;
   emailVerified?: Date;
-  provider?: "credentials" | "google";
+  provider?: "credentials" | "google" | "hybrid";
   banned?: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
 }
 
@@ -27,11 +29,13 @@ const UserSchema = new Schema<IUser>(
     emailVerified: { type: Date },
     provider: {
       type: String,
-      enum: ["credentials", "google"],
+      enum: ["credentials", "google", "hybrid"],
       default: "credentials",
     },
     role: { type: String, enum: ["admin", "client"], default: "client" },
     banned: { type: Boolean, default: false },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true },
 );

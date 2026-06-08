@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import LoginModal from './LoginModal';
 
 interface Template {
@@ -127,6 +128,21 @@ export default function Tema() {
                 Belum ada tema yang dipublikasikan saat ini.
               </div>
             )}
+          </div>
+        )}
+
+        {/* View All Themes Button */}
+        {!isLoading && templates.length > 0 && (
+          <div className="mt-12 flex justify-center">
+            <Link 
+              href="/koleksi-tema"
+              className="px-8 py-3 bg-white text-slate-900 border border-slate-200 text-sm font-semibold rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm flex items-center gap-2 group cursor-pointer"
+            >
+              Lihat Semua Tema
+              <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
           </div>
         )}
       </div>

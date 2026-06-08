@@ -3,6 +3,7 @@
 import { X } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import Link from 'next/link';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -20,8 +21,9 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
     setError('');
 
     try {
+      const targetUrl = callbackUrl === '/onboarding' ? '/client' : (callbackUrl || '/client');
       await signIn('google', {
-        redirectTo: callbackUrl || '/client',
+        redirectTo: targetUrl,
         redirect: true,
       });
     } catch (err) {
@@ -154,6 +156,28 @@ export default function LoginModal({ isOpen, onClose, callbackUrl }: LoginModalP
                 <li>✓ Akses dashboard kapan saja</li>
                 <li>✓ Kelola semua undangan Anda</li>
               </ul>
+            </div>
+
+            {/* Register / Login links */}
+            <div className="space-y-2 text-center pt-1">
+              <p className="text-sm text-slate-500">
+                Belum punya akun?{' '}
+                <Link
+                  href={`/register?callbackUrl=${encodeURIComponent(callbackUrl || '/onboarding')}`}
+                  className="text-[#000000] font-bold hover:underline"
+                >
+                  Daftar di sini
+                </Link>
+              </p>
+              <p className="text-sm text-slate-500">
+                Sudah punya akun?{' '}
+                <Link
+                  href={callbackUrl === '/onboarding' ? '/login' : `/login?callbackUrl=${encodeURIComponent(callbackUrl || '/client')}`}
+                  className="text-[#000000] font-bold hover:underline"
+                >
+                  Masuk di sini
+                </Link>
+              </p>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 interface Package {
   _id: string;
@@ -17,7 +18,12 @@ interface Package {
   sortOrder: number;
 }
 
-export default function Harga() {
+interface HargaProps {
+  onSelectPlan?: (plan: string) => void;
+}
+
+export default function Harga({ onSelectPlan }: HargaProps = {}) {
+  const { data: session } = useSession();
   const { data: packages = [], isLoading } = useQuery({
     queryKey: ['packages', 'landing'],
     queryFn: async () => {
@@ -91,24 +97,57 @@ export default function Harga() {
                 </div>
 
                 <ul className="space-y-3 text-sm flex-1">
-                  {plan.features.map((feat) => (
-                    <li key={feat} className="flex items-center gap-2.5">
-                      <span className={`text-xs font-bold ${plan.popular ? 'text-neutral-200' : 'text-[#000000]'}`}>✓</span>
-                      <span className={plan.popular ? 'text-neutral-50' : 'text-slate-600'}>{feat}</span>
-                    </li>
-                  ))}
+                  {plan.features.map((feat) => {
+                    const isExcluded = feat.startsWith('-');
+                    const cleanFeat = isExcluded ? feat.substring(1).trim() : feat.replace(/^\+/, '').trim();
+                    return (
+                      <li key={feat} className="flex items-center gap-2.5">
+                        {isExcluded ? (
+                          <span className={`text-xs font-bold ${plan.popular ? 'text-rose-400' : 'text-rose-500'}`}>✕</span>
+                        ) : (
+                          <span className={`text-xs font-bold ${plan.popular ? 'text-emerald-400' : 'text-[#000000]'}`}>✓</span>
+                        )}
+                        <span className={plan.popular 
+                          ? (isExcluded ? 'text-neutral-400 line-through' : 'text-neutral-50') 
+                          : (isExcluded ? 'text-slate-400 line-through' : 'text-slate-600')
+                        }>
+                          {cleanFeat}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
 
-                <Link
-                  href={`/register?plan=${plan.name.toLowerCase()}`}
-                  className={`mt-8 w-full py-3 rounded-xl text-center text-sm font-semibold transition-all block ${
-                    plan.popular
-                      ? 'bg-white text-[#000000] hover:bg-neutral-50'
-                      : 'bg-[#000000] text-white hover:bg-[#171717] shadow-md shadow-neutral-900/10'
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+                {session ? (
+                  <Link
+                    href={`/onboarding?plan=${plan.name.toLowerCase()}`}
+                    className={`mt-8 w-full py-3 rounded-xl text-center text-sm font-semibold transition-all block ${
+                      plan.popular
+                        ? 'bg-white text-[#000000] hover:bg-neutral-50'
+                        : 'bg-[#000000] text-white hover:bg-[#171717] shadow-md shadow-neutral-900/10'
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (onSelectPlan) {
+                        onSelectPlan(plan.name.toLowerCase());
+                      } else {
+                        window.location.href = `/login?callbackUrl=/onboarding?plan=${plan.name.toLowerCase()}`;
+                      }
+                    }}
+                    type="button"
+                    className={`mt-8 w-full py-3 rounded-xl text-center text-sm font-semibold transition-all block cursor-pointer ${
+                      plan.popular
+                        ? 'bg-white text-[#000000] hover:bg-neutral-50'
+                        : 'bg-[#000000] text-white hover:bg-[#171717] shadow-md shadow-neutral-900/10'
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                )}
               </div>
             ))}
           </div>

@@ -213,7 +213,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 </button>
                 <div className="border-t border-slate-100 mt-1 pt-1">
                   <button
-                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    onMouseDown={(e) => {
+                      e.preventDefault(); // Mencegah focus hilang
+                      if (onClose) onClose(); // Tutup sidebar di mobile
+                      signOut({ callbackUrl: '/login', redirect: true });
+                    }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left"
                   >
                     <LogOut className="w-4 h-4" />

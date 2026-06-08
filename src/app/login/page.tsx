@@ -126,6 +126,12 @@ function LoginForm() {
                 </div>
               </div>
 
+              <div className="flex justify-end">
+                <Link href="/forgot-password" className="text-sm font-semibold text-[#000000] hover:underline">
+                  Lupa Password?
+                </Link>
+              </div>
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -183,7 +189,7 @@ function LoginForm() {
             {/* Register link */}
             <p className="text-center text-sm text-neutral-500 pt-1">
               Belum punya akun?{' '}
-              <Link href="/register" className="text-[#000000] font-bold hover:underline">
+              <Link href={`/register?callbackUrl=${encodeURIComponent(callbackUrl === '/client' ? '/onboarding' : callbackUrl)}`} className="text-[#000000] font-bold hover:underline">
                 Daftar di sini
               </Link>
             </p>

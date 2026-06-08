@@ -74,6 +74,8 @@ export const authConfig: NextAuthConfig = {
               provider: 'google',
               role: 'client',
             });
+            // Redirect new Google users to onboarding
+            return '/onboarding';
           } else if (existingUser.provider !== 'google') {
             existingUser.provider = 'google';
             existingUser.image = user.image;
@@ -88,19 +90,29 @@ export const authConfig: NextAuthConfig = {
       }
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
+      if (trigger === 'update') {
+        if (session?.name) token.name = session.name;
+        // If hasPassword is explicitly passed in update, sync it to token
+        if (typeof session?.hasPassword === 'boolean') {
+          token.hasPassword = session.hasPassword;
+        }
+      }
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.image = user.image;
         token.provider = account?.provider ?? 'credentials';
+        token.name = user.name;
         // Fetch role from DB
         try {
           await connectDB();
           const dbUser = await User.findOne({ email: user.email });
           token.role = dbUser?.role ?? 'client';
+          token.hasPassword = !!dbUser?.password;
         } catch {
           token.role = 'client';
+          token.hasPassword = false;
         }
       }
       return token;
@@ -111,7 +123,11 @@ export const authConfig: NextAuthConfig = {
         (session.user as any).id = token.id as string;
         (session.user as any).provider = token.provider as string;
         (session.user as any).role = token.role as string;
+        (session.user as any).hasPassword = token.hasPassword as boolean;
         session.user.image = token.image as string;
+        if (token.name) {
+          session.user.name = token.name as string;
+        }
       }
       return session;
     },

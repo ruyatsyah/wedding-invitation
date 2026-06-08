@@ -162,12 +162,20 @@ export default function PackageManagerView() {
               </div>
 
               <ul className="space-y-2 text-sm text-slate-600 flex-1 mb-6">
-                {pkg.features.map((feat, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>{feat}</span>
-                  </li>
-                ))}
+                {pkg.features.map((feat, i) => {
+                  const isExcluded = feat.startsWith('-');
+                  const cleanFeat = isExcluded ? feat.substring(1).trim() : feat.replace(/^\+/, '').trim();
+                  return (
+                    <li key={i} className="flex items-center gap-2">
+                      {isExcluded ? (
+                        <X className="w-4 h-4 text-rose-500 shrink-0" />
+                      ) : (
+                        <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      )}
+                      <span className={isExcluded ? 'text-slate-400 line-through' : ''}>{cleanFeat}</span>
+                    </li>
+                  );
+                })}
               </ul>
 
               <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
@@ -288,14 +296,16 @@ export default function PackageManagerView() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Fitur (1 baris = 1 fitur)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Fitur <span className="font-normal text-slate-500">(1 baris = 1 fitur. Awali dengan "-" untuk fitur yang disilang)</span>
+                </label>
                 <textarea
                   required
                   rows={5}
                   value={formData.features}
                   onChange={e => setFormData({ ...formData, features: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#8D1A42]/20 focus:border-[#8D1A42] outline-none"
-                  placeholder="3 Tema Standar&#10;Galeri 3 Foto&#10;Buku Tamu Digital"
+                  placeholder="3 Tema Standar&#10;- Galeri Video&#10;- Layar Tamu Proyektor"
                 />
               </div>
 

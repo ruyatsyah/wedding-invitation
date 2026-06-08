@@ -4,12 +4,14 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const plan = searchParams.get('plan') || 'bronze';
+  const plan = searchParams.get('plan') || '';
+  const callbackUrl = searchParams.get('callbackUrl') || (plan ? `/onboarding?plan=${plan}` : '/onboarding');
 
   const [nama, setNama] = useState('');
   const [email, setEmail] = useState('');
@@ -19,6 +21,13 @@ function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace(callbackUrl);
+    }
+  }, [status, router, callbackUrl]);
 
   const isNameInvalid = nama.length > 0 && !/^[A-Za-z\s]+$/.test(nama);
   const isPasswordInvalid = password.length > 0 && password.length < 8;
@@ -72,7 +81,7 @@ function RegisterForm() {
         throw new Error('Pendaftaran berhasil, tetapi gagal masuk secara otomatis. Silakan login manual.');
       }
 
-      router.push(`/onboarding?plan=${plan}`);
+      router.push(callbackUrl);
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan sistem.');
       setIsLoading(false);
@@ -84,7 +93,7 @@ function RegisterForm() {
     setError('');
     try {
       await signIn('google', {
-        callbackUrl: `/onboarding?plan=${plan}`,
+        callbackUrl,
       });
     } catch (err) {
       setError('Terjadi kesalahan. Silakan coba lagi.');

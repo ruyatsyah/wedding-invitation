@@ -21,6 +21,7 @@ function LandingContent() {
   const themeId = searchParams.get('theme');
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   // Auto-open login modal when ?theme= is present (redirected from /client?theme=)
   useEffect(() => {
@@ -29,7 +30,10 @@ function LandingContent() {
     }
   }, [themeId]);
 
-  const callbackUrl = themeId ? `/client?theme=${themeId}` : '/onboarding?plan=bronze';
+  let callbackUrl = themeId ? `/client?theme=${themeId}` : '/onboarding';
+  if (selectedPlan) {
+    callbackUrl = `/onboarding?plan=${selectedPlan}`;
+  }
 
   return (
     <>
@@ -41,7 +45,12 @@ function LandingContent() {
         />
         <Tema />
         <Fitur />
-        <Harga />
+        <Harga 
+          onSelectPlan={(plan) => {
+            setSelectedPlan(plan);
+            setIsLoginModalOpen(true);
+          }}
+        />
 
         <LayarTamu />
         <Blog />
@@ -53,7 +62,13 @@ function LandingContent() {
       {/* Global login modal — used for ?theme= redirect flow */}
       <LoginModal
         isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
+        onClose={() => {
+          setIsLoginModalOpen(false);
+          // Optional: clear selectedPlan on close if desired, 
+          // but keeping it nullifies only on successful close if we want.
+          // We'll clear it so subsequent "Buat Undangan Gratis" clicks don't use the old plan.
+          setTimeout(() => setSelectedPlan(null), 300);
+        }}
         callbackUrl={callbackUrl}
       />
     </>
