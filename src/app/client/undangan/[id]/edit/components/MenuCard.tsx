@@ -12,19 +12,19 @@ export default function MenuCard({ icon, label, onClick, isWide, badge }: MenuCa
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center p-2 sm:p-4 bg-[#000000] text-white rounded-xl hover:bg-[#171717] transition-all shadow-md group ${
-        isWide ? 'col-span-3 flex-row gap-2 sm:gap-4 py-4 sm:py-6' : 'aspect-square'
+      className={`relative flex flex-col items-center justify-center p-1.5 sm:p-2 bg-[#000000] text-white rounded-xl hover:bg-[#171717] transition-all shadow-md group ${
+        isWide ? 'col-span-full flex-row gap-3 py-2.5 sm:py-3' : 'aspect-square'
       }`}
     >
       {badge && (
-        <span className="absolute top-2 right-2 md:top-3 md:right-3 bg-emerald-500 text-white text-[8px] md:text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
+        <span className="absolute top-1 right-1 md:top-2 md:right-2 bg-emerald-500 text-white text-[7px] md:text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm z-10">
           {badge}
         </span>
       )}
-      <div className={`text-white transition-transform group-hover:scale-110 ${isWide ? '' : 'mb-1 sm:mb-3'}`}>
+      <div className={`text-white transition-transform group-hover:scale-110 ${isWide ? '' : 'mb-1 sm:mb-1.5'}`}>
         {icon}
       </div>
-      <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight">{label}</span>
+      <span className="text-[8px] sm:text-[9px] md:text-[10px] font-medium text-center leading-tight px-0 sm:px-0.5 max-w-full overflow-hidden text-ellipsis">{label}</span>
     </button>
   );
 }

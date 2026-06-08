@@ -9,6 +9,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] flex flex-col md:flex-row">
@@ -29,10 +30,15 @@ export default function AdminLayout({
       </header>
 
       {/* Shared Sidebar Component */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        isMinimized={isMinimized}
+        onToggleMinimize={() => setIsMinimized(!isMinimized)}
+      />
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-52px)] md:max-h-screen md:h-screen md:ml-60">
+      <div className={`flex-1 overflow-y-auto max-h-[calc(100vh-52px)] md:max-h-screen md:h-screen transition-all duration-300 ${isMinimized ? 'md:ml-20' : 'md:ml-60'}`}>
         {children}
       </div>
     </div>

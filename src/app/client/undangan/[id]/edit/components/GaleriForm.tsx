@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Images } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import PhotoUploadSlot from './PhotoUploadSlot';
+import toast from 'react-hot-toast';
 
 interface GaleriFormProps {
   projectId: string;
@@ -21,7 +22,6 @@ export default function GaleriForm({ projectId, initialGallery, onBack }: Galeri
     return arr.slice(0, MAX_PHOTOS);
   });
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
-  const [saveMsg, setSaveMsg] = useState('');
 
   useEffect(() => {
     const arr = [...(initialGallery || [])];
@@ -81,47 +81,28 @@ export default function GaleriForm({ projectId, initialGallery, onBack }: Galeri
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      setSaveMsg('Tersimpan!');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.success('Galeri berhasil disimpan!');
     },
-    onError: () => {
-      setSaveMsg('Gagal menyimpan.');
-      setTimeout(() => setSaveMsg(''), 3000);
+    onError: (err: Error) => {
+      toast.error(err.message || 'Gagal menyimpan galeri.');
     },
   });
 
   return (
-    <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Header & Section Title */}
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
         <button onClick={onBack} className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
-        <div className="flex items-center gap-3">
-          {saveMsg && (
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg === 'Tersimpan!' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
-              {saveMsg}
-            </span>
-          )}
-          <button
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending}
-            className="flex items-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-          </button>
-        </div>
-      </div>
-
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
-        <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
-          <Images className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900">Galeri Foto</h2>
-          <p className="text-xs text-neutral-500">Upload hingga {MAX_PHOTOS} foto kenangan untuk undangan</p>
+        <div className="flex items-center gap-3 text-right">
+          <div>
+            <h2 className="text-lg font-bold text-neutral-900">Galeri Foto</h2>
+            <p className="text-xs text-neutral-500">Upload hingga {MAX_PHOTOS} foto kenangan untuk undangan</p>
+          </div>
+          <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
+            <Images className="w-5 h-5" />
+          </div>
         </div>
       </div>
 

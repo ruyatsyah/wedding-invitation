@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 function LoginForm() {
   const router = useRouter();
@@ -17,19 +18,20 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [error, setError] = useState(
-    urlError === 'CredentialsSignin' ? 'Email atau password salah.' : ''
-  );
+
+  // Show URL error via toast on mount
+  if (urlError === 'CredentialsSignin') {
+    setTimeout(() => toast.error('Email atau password salah.'), 0);
+  }
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Email dan password wajib diisi.');
+      toast.error('Email dan password wajib diisi.');
       return;
     }
 
     setIsLoading(true);
-    setError('');
 
     const result = await signIn('credentials', {
       email,
@@ -38,7 +40,7 @@ function LoginForm() {
     });
 
     if (result?.error) {
-      setError('Email atau password salah.');
+      toast.error('Email atau password salah.');
       setIsLoading(false);
       return;
     }
@@ -57,7 +59,6 @@ function LoginForm() {
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
-    setError('');
     await signIn('google', { redirectTo: callbackUrl });
   };
 
@@ -77,16 +78,6 @@ function LoginForm() {
           </div>
 
           <div className="px-8 py-8 space-y-5">
-            {/* Error */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
-                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                {error}
-              </div>
-            )}
-
             {/* Credentials Form */}
             <form onSubmit={handleCredentialsLogin} className="space-y-4">
               <div>

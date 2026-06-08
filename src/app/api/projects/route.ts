@@ -5,9 +5,9 @@ import Template from '@/models/Template';
 import User from '@/models/User';
 import { auth } from '@/lib/auth';
 
-export async function POST(req: NextRequest) {
+export const POST = auth(async (req: any) => {
   try {
-    const session = await auth();
+    const session = req.auth;
     if (!session?.user?.email) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
@@ -57,11 +57,11 @@ export async function POST(req: NextRequest) {
     console.error('[API/projects] Error creating project:', error);
     return NextResponse.json({ success: false, error: error.message || 'Terjadi kesalahan server' }, { status: 500 });
   }
-}
+});
 
-export async function GET() {
+export const GET = auth(async (req: any) => {
   try {
-    const session = await auth();
+    const session = req.auth;
     if (!session?.user?.email) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
@@ -83,4 +83,4 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});

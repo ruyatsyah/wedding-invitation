@@ -1,8 +1,56 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 export default function SystemSettingsPage() {
+  const queryClient = useQueryClient();
+
+  const [form, setForm] = useState({
+    invitationActivePeriod: '1 Year Auto-lock',
+    maintenanceMode: false,
+  });
+
+  const { data: settingsData, isLoading } = useQuery({
+    queryKey: ['adminSettings'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/settings');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    }
+  });
+
+  useEffect(() => {
+    if (settingsData) {
+      setForm({
+        invitationActivePeriod: settingsData.invitationActivePeriod || '1 Year Auto-lock',
+        maintenanceMode: settingsData.maintenanceMode || false,
+      });
+    }
+  }, [settingsData]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminSettings'] });
+      toast.success('System settings saved successfully!');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to save settings');
+    }
+  });
+
   return (
     <div className="p-6 md:p-8 space-y-8 bg-[#fafafc] min-h-screen pb-16">
       {/* Top Header Search & Controls */}
@@ -56,36 +104,54 @@ export default function SystemSettingsPage() {
             <h3 className="font-bold text-[15px]">General Settings</h3>
           </div>
 
-          <div className="space-y-6">
-            <div>
-              <label className="block text-[12px] font-semibold text-slate-800 mb-2">Invitation Active Period</label>
-              <div className="relative">
-                <select className="w-full bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg focus:ring-[#8D1A42] focus:border-[#8D1A42] block p-2.5 appearance-none cursor-pointer outline-none">
-                  <option>1 Year Auto-lock</option>
-                  <option>6 Months Auto-lock</option>
-                  <option>Never Expire</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-              </div>
-              <p className="text-[11.5px] text-slate-500 mt-2 leading-relaxed">After this period, invitations will be archived and access restricted.</p>
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
+          {isLoading ? (
+            <div className="py-10 text-center text-sm text-slate-500 animate-pulse">Loading settings...</div>
+          ) : (
+            <div className="space-y-6">
               <div>
-                <p className="text-[13px] font-bold text-slate-800">Maintenance Mode</p>
-                <p className="text-[11.5px] text-slate-500 mt-0.5">Temporarily disable front-end access</p>
+                <label className="block text-[12px] font-semibold text-slate-800 mb-2">Invitation Active Period</label>
+                <div className="relative">
+                  <select 
+                    value={form.invitationActivePeriod}
+                    onChange={(e) => setForm({ ...form, invitationActivePeriod: e.target.value })}
+                    className="w-full bg-white border border-slate-200 text-slate-700 text-[13px] rounded-lg focus:ring-[#8D1A42] focus:border-[#8D1A42] block p-2.5 appearance-none cursor-pointer outline-none"
+                  >
+                    <option>1 Year Auto-lock</option>
+                    <option>6 Months Auto-lock</option>
+                    <option>Never Expire</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+                <p className="text-[11.5px] text-slate-500 mt-2 leading-relaxed">After this period, invitations will be archived and access restricted.</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" value="" className="sr-only peer" />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8D1A42]"></div>
-              </label>
-            </div>
-          </div>
 
-          <button className="w-full mt-8 py-3 text-white text-[14px] font-semibold rounded-lg shadow-sm hover:opacity-90 transition-opacity" style={{ backgroundColor: '#6a1230' }}>
-            Save Changes
+              <div className="flex items-center justify-between pt-2">
+                <div>
+                  <p className="text-[13px] font-bold text-slate-800">Maintenance Mode</p>
+                  <p className="text-[11.5px] text-slate-500 mt-0.5">Temporarily disable front-end access</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={form.maintenanceMode}
+                    onChange={(e) => setForm({ ...form, maintenanceMode: e.target.checked })}
+                    className="sr-only peer" 
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8D1A42]"></div>
+                </label>
+              </div>
+            </div>
+          )}
+
+          <button 
+            onClick={() => saveMutation.mutate()}
+            disabled={saveMutation.isPending || isLoading}
+            className="w-full mt-8 py-3 text-white text-[14px] font-semibold rounded-lg shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50" 
+            style={{ backgroundColor: '#6a1230' }}
+          >
+            {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
 

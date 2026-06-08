@@ -62,7 +62,7 @@ export default async function InvitationByCustomUrlPage(
   }
 
   const projectData: ProjectData = {
-    _id: project._id,
+    _id: project._id?.toString(),
     coupleName: project.coupleName,
     groomFullName: project.groomFullName,
     groomParents: project.groomParents,
@@ -84,6 +84,8 @@ export default async function InvitationByCustomUrlPage(
     bankName: project.bankName,
     bankAccount: project.bankAccount,
     bankHolder: project.bankHolder,
+    digitalEnvelopes: project.digitalEnvelopes || [],
+    loveStories: project.loveStories || [],
   };
 
   return (

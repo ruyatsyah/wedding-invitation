@@ -2,6 +2,7 @@ import React from 'react';
 import { UserPlus, Monitor, Link2, Copy, ToggleRight } from 'lucide-react';
 
 interface EditHeaderProps {
+  projectId: string;
   coupleName: string;
   customUrl: string;
   status: string;
@@ -15,12 +16,12 @@ interface EditHeaderProps {
 }
 
 export default function EditHeader({ 
-  coupleName, customUrl, status, accessCode, stats, onToggleStatus 
+  projectId, coupleName, customUrl, status, accessCode, stats, onToggleStatus 
 }: EditHeaderProps) {
   const isActive = status === 'active';
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden mt-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
       {/* Top Black Section */}
       <div className="bg-[#000000] text-white p-6 relative">
         <div className="flex justify-between items-start mb-2">
@@ -79,7 +80,10 @@ export default function EditHeader({
         <p className="text-xs text-neutral-500 mb-1">Kode Akses Undangan</p>
         <p className="text-2xl font-bold tracking-widest text-neutral-900 mb-4">{accessCode}</p>
         
-        <button className="w-full md:w-auto bg-[#171717] hover:bg-[#000000] text-white px-8 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm">
+        <button 
+          onClick={() => window.open(`/client/undangan/${projectId}/penerima-tamu`, '_blank')}
+          className="w-full md:w-auto bg-[#171717] hover:bg-[#000000] text-white px-8 py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+        >
           <Monitor className="w-4 h-4" />
           Buka Layar Penerima Tamu
         </button>

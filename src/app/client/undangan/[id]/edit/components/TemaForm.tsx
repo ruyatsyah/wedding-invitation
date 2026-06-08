@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Save, Palette, Check } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 interface TemaFormProps {
   projectId: string;
@@ -20,7 +21,6 @@ interface Template {
 export default function TemaForm({ projectId, initialThemeId, onBack }: TemaFormProps) {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState(initialThemeId || '');
-  const [saveMsg, setSaveMsg] = useState('');
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ['templates'],
@@ -45,47 +45,28 @@ export default function TemaForm({ projectId, initialThemeId, onBack }: TemaForm
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
-      setSaveMsg('Tema berhasil disimpan!');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.success('Tema berhasil disimpan!');
     },
     onError: () => {
-      setSaveMsg('Gagal menyimpan.');
-      setTimeout(() => setSaveMsg(''), 3000);
+      toast.error('Gagal menyimpan tema.');
     },
   });
 
   return (
-    <div className="space-y-6 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      {/* Header & Section Title */}
+      <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
         <button onClick={onBack} className="flex items-center gap-2 text-neutral-600 font-semibold hover:text-neutral-900 transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
-        <div className="flex items-center gap-3">
-          {saveMsg && (
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${saveMsg.includes('berhasil') ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
-              {saveMsg}
-            </span>
-          )}
-          <button
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending || !selectedId}
-            className="flex items-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer"
-          >
-            <Save className="w-4 h-4" />
-            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-          </button>
-        </div>
-      </div>
-
-      {/* Section Title */}
-      <div className="flex items-center gap-3 pb-4 border-b border-neutral-100">
-        <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
-          <Palette className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-neutral-900">Pilih Tema</h2>
-          <p className="text-xs text-neutral-500">Pilih desain undangan yang sesuai dengan keinginan Anda</p>
+        <div className="flex items-center gap-3 text-right">
+          <div>
+            <h2 className="text-lg font-bold text-neutral-900">Pilih Tema</h2>
+            <p className="text-xs text-neutral-500">Pilih desain undangan yang sesuai dengan keinginan Anda</p>
+          </div>
+          <div className="w-10 h-10 bg-neutral-900 text-white rounded-xl flex items-center justify-center">
+            <Palette className="w-5 h-5" />
+          </div>
         </div>
       </div>
 
@@ -131,6 +112,16 @@ export default function TemaForm({ projectId, initialThemeId, onBack }: TemaForm
           ))}
         </div>
       )}
+
+      {/* Save Footer */}
+      <button
+        onClick={() => saveMutation.mutate()}
+        disabled={saveMutation.isPending || !selectedId}
+        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 disabled:bg-neutral-300 text-white py-4 rounded-xl font-bold text-sm transition-colors cursor-pointer mt-4"
+      >
+        <Save className="w-4 h-4" />
+        {saveMutation.isPending ? 'Menyimpan...' : 'Simpan Tema'}
+      </button>
     </div>
   );
 }

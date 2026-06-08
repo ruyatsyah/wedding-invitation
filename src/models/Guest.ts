@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IGuest extends Document {
+  projectId: mongoose.Types.ObjectId;
   name: string;
   slug: string;
   phone?: string;
@@ -14,6 +15,7 @@ export interface IGuest extends Document {
 
 const GuestSchema: Schema = new Schema(
   {
+    projectId: { type: Schema.Types.ObjectId, ref: 'Project', required: false },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     phone: { type: String },
@@ -29,4 +31,5 @@ const GuestSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+delete mongoose.models.Guest;
 export default mongoose.models.Guest || mongoose.model<IGuest>('Guest', GuestSchema);

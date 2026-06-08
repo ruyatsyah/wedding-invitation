@@ -47,16 +47,107 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     }
 
     // ── Data injection ────────────────────────────────────────────────────────
+    const origin = req.nextUrl.origin;
+
+    // Helper: parse "Putra dari Bapak X & Ibu Y" → { ayah, ibu }
+    const parseParents = (raw: string) => {
+      const match = raw.match(/Bapak\s+(.+?)\s*[&dan]+\s*Ibu\s+(.+)/i);
+      return { ayah: match?.[1]?.trim() || raw, ibu: match?.[2]?.trim() || '' };
+    };
+    const groomP = parseParents(project.groomParents || '');
+    const brideP = parseParents(project.brideParents || '');
+
+    // Helper: Instagram username (strip @ and URL)
+    const igUsername = (ig: string) =>
+      ig.replace(/https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^@/, '').replace(/\/$/, '');
+    const groomIgUser = igUsername(project.groomInstagram || '');
+    const brideIgUser = igUsername(project.brideInstagram || '');
+    const groomIgUrl  = groomIgUser ? `https://instagram.com/${groomIgUser}` : '#';
+    const brideIgUrl  = brideIgUser ? `https://instagram.com/${brideIgUser}` : '#';
+
+    // Helper: format date (date string YYYY-MM-DD)
+    const MONTHS_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const DAYS_ID   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const fmtDate = (dateStr: string) => {
+      if (!dateStr) return '';
+      const dt = new Date(dateStr + 'T00:00:00');
+      return `${DAYS_ID[dt.getDay()]}, ${dt.getDate()} ${MONTHS_ID[dt.getMonth()]} ${dt.getFullYear()}`;
+    };
+    const eventDateFormatted = fmtDate(project.eventDate || '');
+    const eventTimeFull = project.eventTime
+      ? `${project.eventTime} ${(project.eventTimezone || 'WIB').split(' ')[0]} - Selesai`
+      : '';
+    const countdownISO = project.eventDate
+      ? `${project.eventDate}T${project.eventTime || '08:00'}:00`
+      : '';
+
+    // Helper: gallery full URLs
+    const galleryUrls = (project.gallery || []).map((g: string) => g ? `${origin}${g}` : '');
+
+    // Helper: Logo map for bank/ewallet
+    const LOGO_MAP: Record<string, string> = {
+      'bca': '/bank-logos/bca.png', 'bni': '/bank-logos/bni.png',
+      'bri': '/bank-logos/bri.png', 'bsi': '/bank-logos/bsi.png',
+      'mandiri': '/bank-logos/mandiri.png', 'dana': '/bank-logos/dana.png',
+      'gopay': '/bank-logos/gopay.png', 'ovo': '/bank-logos/ovo.png',
+      'shopeepay': '/bank-logos/shoppepay.png', 'shoppepay': '/bank-logos/shoppepay.png',
+      'jenius': '/bank-logos/Jenius-logo.png', 'link aja': '/bank-logos/link-aja.png',
+      'linkaja': '/bank-logos/link-aja.png', 'cimb': '/bank-logos/cimb-niaga.png',
+      'cimb niaga': '/bank-logos/cimb-niaga.png',
+    };
+
+    // ── Render HTML for array fields ─────────────────────────────────────────
+    // Love stories HTML
+    const loveStoriesHtml = (project.loveStories || []).map((s: any) =>
+      `<div class="love-story-item story-item">
+        <div class="story-dot"></div>
+        <div class="story-content">
+          <span class="story-date">${s.date || ''}</span>
+          <h4 class="story-title">${s.title || ''}</h4>
+          <p class="story-text">${s.story || ''}</p>
+        </div>
+      </div>`
+    ).join('') || '<p style="opacity:.5;text-align:center">Belum ada kisah cinta.</p>';
+
+    // Gallery HTML
+    const galleryHtml = galleryUrls.filter(Boolean).map((url: string, i: number) =>
+      `<div class="gallery-item"><img src="${url}" alt="Foto ${i + 1}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:8px;"></div>`
+    ).join('') || '';
+
+    // Digital envelopes HTML
+    const envelopesHtml = (project.digitalEnvelopes || []).map((env: any) => {
+      const key = (env.bankName || '').toLowerCase().trim();
+      const logo = LOGO_MAP[key];
+      const header = logo
+        ? `<img src="${logo}" alt="${env.bankName}" style="height:32px;object-fit:contain;display:block;margin-bottom:10px;">`
+        : `<strong>${env.bankName}</strong>`;
+      return `<div class="gift-card envelope-item">
+        ${header}
+        <p class="envelope-account" style="font-size:1.2rem;font-family:monospace;letter-spacing:2px;margin:8px 0;">${env.bankAccount}</p>
+        <p class="envelope-holder" style="font-size:.85rem;opacity:.7;">a.n. ${env.bankHolder}</p>
+      </div>`;
+    }).join('') || '<p style="opacity:.5;text-align:center">Belum ada rekening.</p>';
+
+    // Planner timeline HTML
+    const plannerHtml = (project.plannerTasks || []).map((t: any) =>
+      `<li class="${t.isCompleted ? 'done' : ''}"><span class="timeline-time">${t.category || ''}</span><span class="timeline-event">${t.title || ''}</span></li>`
+    ).join('') || '<li><span class="timeline-event">Belum ada susunan acara.</span></li>';
+
+    // Music URL (absolute)
+    const bgMusicUrl = (project.bgMusic && project.bgMusic !== '')
+      ? `${origin}${project.bgMusic}` : '';
+
     const data = {
+      // ── Standard placeholders (English) ─────────────────────────────────────
       COUPLE_NAME:      project.coupleName || '',
       GROOM_NAME:       project.groomFullName || '',
       GROOM_PARENTS:    project.groomParents || '',
       GROOM_INSTAGRAM:  project.groomInstagram || '',
-      GROOM_PHOTO:      project.groomPhoto ? `${req.nextUrl.origin}${project.groomPhoto}` : '',
+      GROOM_PHOTO:      project.groomPhoto ? `${origin}${project.groomPhoto}` : '',
       BRIDE_NAME:       project.brideFullName || '',
       BRIDE_PARENTS:    project.brideParents || '',
       BRIDE_INSTAGRAM:  project.brideInstagram || '',
-      BRIDE_PHOTO:      project.bridePhoto ? `${req.nextUrl.origin}${project.bridePhoto}` : '',
+      BRIDE_PHOTO:      project.bridePhoto ? `${origin}${project.bridePhoto}` : '',
       EVENT_DATE:       project.eventDate || '',
       EVENT_TIME:       project.eventTime || '',
       EVENT_TIMEZONE:   project.eventTimezone || 'WIB',
@@ -66,21 +157,112 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       BANK_NAME:        project.bankName || '',
       BANK_ACCOUNT:     project.bankAccount || '',
       BANK_HOLDER:      project.bankHolder || '',
+      DIGITAL_ENVELOPES: project.digitalEnvelopes || [],
       CUSTOM_URL:       project.customUrl || '',
       PROJECT_ID:       project._id?.toString() || '',
-      GALLERY_1:        project.gallery?.[0] ? `${req.nextUrl.origin}${project.gallery[0]}` : '',
-      GALLERY_2:        project.gallery?.[1] ? `${req.nextUrl.origin}${project.gallery[1]}` : '',
-      GALLERY_3:        project.gallery?.[2] ? `${req.nextUrl.origin}${project.gallery[2]}` : '',
-      GALLERY_4:        project.gallery?.[3] ? `${req.nextUrl.origin}${project.gallery[3]}` : '',
-      GALLERY_5:        project.gallery?.[4] ? `${req.nextUrl.origin}${project.gallery[4]}` : '',
-      BG_MUSIC:         (project.bgMusic && project.bgMusic !== '') ? `${req.nextUrl.origin}${project.bgMusic}` : '',
+      GALLERY_1:        galleryUrls[0] || '',
+      GALLERY_2:        galleryUrls[1] || '',
+      GALLERY_3:        galleryUrls[2] || '',
+      GALLERY_4:        galleryUrls[3] || '',
+      GALLERY_5:        galleryUrls[4] || '',
+      BG_MUSIC:         bgMusicUrl,
+      QUOTE_TEXT:       project.quoteText || '',
+      QUOTE_SOURCE:     project.quoteSource || '',
+      IG_STORY_URL:     project.igStoryUrl || '',
+      LOVE_STORIES:     project.loveStories || [],
+      ENABLE_RSVP:      project.enableRsvp ?? true,
+      ENABLE_GUESTBOOK: project.enableGuestbook ?? true,
+      GUESTS:           project.guests || [],
+      PLANNER_TASKS:    project.plannerTasks || [],
+      STATUS:           project.status || 'active',
+      PLAN:             project.plan || 'bronze',
+
+      // ── Indonesian placeholder aliases ────────────────────────────────────────
+      // Musik
+      MUSIK_URL:                      bgMusicUrl,
+      // Pengantin Pria
+      PENGANTIN_PRIA_NAMA_LENGKAP:    project.groomFullName || '',
+      PENGANTIN_PRIA_PANGGILAN:       (project.groomFullName || '').split(' ')[0] || '',
+      PENGANTIN_PRIA_FOTO:            project.groomPhoto ? `${origin}${project.groomPhoto}` : '',
+      PENGANTIN_PRIA_AYAH:            groomP.ayah,
+      PENGANTIN_PRIA_IBU:             groomP.ibu,
+      PENGANTIN_PRIA_IG:              groomIgUrl,
+      PENGANTIN_PRIA_IG_USERNAME:     groomIgUser,
+      PENGANTIN_PRIA_ORANG_TUA:       project.groomParents || '',
+      // Pengantin Wanita
+      PENGANTIN_WANITA_NAMA_LENGKAP:  project.brideFullName || '',
+      PENGANTIN_WANITA_PANGGILAN:     (project.brideFullName || '').split(' ')[0] || '',
+      PENGANTIN_WANITA_FOTO:          project.bridePhoto ? `${origin}${project.bridePhoto}` : '',
+      PENGANTIN_WANITA_AYAH:          brideP.ayah,
+      PENGANTIN_WANITA_IBU:           brideP.ibu,
+      PENGANTIN_WANITA_IG:            brideIgUrl,
+      PENGANTIN_WANITA_IG_USERNAME:   brideIgUser,
+      PENGANTIN_WANITA_ORANG_TUA:     project.brideParents || '',
+      // Nama Pasangan
+      NAMA_PASANGAN:                  project.coupleName || '',
+      NAMA_PENGANTIN:                 project.coupleName || '',
+      // Acara
+      ACARA_TANGGAL:                  eventDateFormatted,
+      ACARA_WAKTU:                    eventTimeFull,
+      ACARA_LOKASI:                   project.venue || '',
+      ACARA_ALAMAT:                   project.venue || '',
+      ACARA_MAPS_LINK:                project.mapsUrl || '',
+      ACARA_COUNTDOWN_ISO:            countdownISO,
+      // Akad
+      ACARA_AKAD_TANGGAL:             eventDateFormatted,
+      ACARA_AKAD_WAKTU:               project.eventTime ? `${project.eventTime} ${(project.eventTimezone || 'WIB').split(' ')[0]}` : '',
+      ACARA_AKAD_LOKASI:              project.venue || '',
+      ACARA_AKAD_ALAMAT_LENGKAP:      project.venue || '',
+      ACARA_AKAD_MAPS_LINK:           project.mapsUrl || '',
+      // Resepsi (same data — single venue model)
+      ACARA_RESEPSI_TANGGAL:          eventDateFormatted,
+      ACARA_RESEPSI_WAKTU:            project.eventTime ? `${project.eventTime} ${(project.eventTimezone || 'WIB').split(' ')[0]}` : '',
+      ACARA_RESEPSI_LOKASI:           project.venue || '',
+      ACARA_RESEPSI_ALAMAT_LENGKAP:   project.venue || '',
+      ACARA_RESEPSI_MAPS_LINK:        project.mapsUrl || '',
+      // Quote
+      QUOTE_TEKS:                     project.quoteText || '',
+      QUOTE_SUMBER:                   project.quoteSource || '',
+      KUTIPAN:                        project.quoteText || '',
+      KUTIPAN_SUMBER:                 project.quoteSource || '',
+      // Streaming
+      STREAMING_URL:                  project.youtubeUrl || '',
+      STREAMING_LINK:                 project.youtubeUrl || '',
+      YOUTUBE_EMBED:                  (() => {
+        const m = (project.youtubeUrl || '').match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+        return m ? `https://www.youtube.com/embed/${m[1]}` : '';
+      })(),
+      // Galeri
+      FOTO_1:                         galleryUrls[0] || '',
+      FOTO_2:                         galleryUrls[1] || '',
+      FOTO_3:                         galleryUrls[2] || '',
+      FOTO_4:                         galleryUrls[3] || '',
+      FOTO_5:                         galleryUrls[4] || '',
+      // IG Story
+      STORY_IG_URL:                   project.igStoryUrl || '',
+      IG_STORY_LINK:                  project.igStoryUrl || '',
+      // Project & System
+      INVITATION_ID:                  project._id?.toString() || '',
+      PROJECT_CUSTOM_URL:             project.customUrl || '',
+      SISTEM_BRANDING_FOOTER:         'Wedding Invitation System',
+      TEMA_WARNA:                     'elegant',
+      // HTML-generating placeholders (rendered server-side as HTML)
+      KISAH_CINTA_HTML_SNIPPET:       loveStoriesHtml,
+      GALERI_FOTO_ITEMS_HTML:         galleryHtml,
+      KADO_REKENING_ITEMS_HTML:       envelopesHtml,
+      AMPLOP_DIGITAL_HTML:            envelopesHtml,
+      PLANNER_TIMELINE_ITEMS:         plannerHtml,
+      BUKU_TAMU_UCAPAN_LIST_HTML:     '',  // rendered dynamically via RSVP API
     };
 
     // ── Replace {{PLACEHOLDER}} patterns ─────────────────────────────────────
     for (const [key, value] of Object.entries(data)) {
-      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
-      html = html.replace(regex, value);
+      if (typeof value === 'string') {
+        const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+        html = html.replace(regex, value);
+      }
     }
+
 
     // ── Server-side direct HTML replacement ───────────────────────────────────
     // Build couple short name
@@ -434,6 +616,68 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
       if (d.BANK_NAME) setText('.bank-name, .rekening-bank, .gift-bank', d.BANK_NAME);
       if (d.BANK_ACCOUNT) setText('.bank-number, .rekening-number, .gift-number, .no-rekening', d.BANK_ACCOUNT);
       if (d.BANK_HOLDER) setText('.bank-holder, .rekening-atas-nama, .gift-holder, .atas-nama', d.BANK_HOLDER);
+
+      // Multi digital envelopes rendering
+      var envelopesContainer = document.getElementById('digital-envelopes-container');
+      if (envelopesContainer && d.DIGITAL_ENVELOPES && d.DIGITAL_ENVELOPES.length > 0) {
+        var logoMap = {
+          'bca': '/bank-logos/bca.png',
+          'bni': '/bank-logos/bni.png',
+          'bri': '/bank-logos/bri.png',
+          'bsi': '/bank-logos/bsi.png',
+          'cimb': '/bank-logos/cimb-niaga.png',
+          'cimb niaga': '/bank-logos/cimb-niaga.png',
+          'dana': '/bank-logos/dana.png',
+          'gopay': '/bank-logos/gopay.png',
+          'jenius': '/bank-logos/Jenius-logo.png',
+          'link aja': '/bank-logos/link-aja.png',
+          'linkaja': '/bank-logos/link-aja.png',
+          'mandiri': '/bank-logos/mandiri.png',
+          'ovo': '/bank-logos/ovo.png',
+          'shopeepay': '/bank-logos/shoppepay.png',
+          'shoppepay': '/bank-logos/shoppepay.png'
+        };
+        var htmlStr = '';
+        d.DIGITAL_ENVELOPES.forEach(function(env) {
+          var bName = (env.bankName || '').toLowerCase().trim();
+          var logoPath = logoMap[bName];
+          var headerHtml = logoPath 
+            ? '<img src="' + logoPath + '" alt="' + env.bankName + '" style="height: 30px; object-fit: contain; margin-bottom: 10px;" />'
+            : '<h4 style="margin-bottom: 10px;">' + env.bankName + '</h4>';
+            
+          htmlStr += '<div class="envelope-item">' + headerHtml + '<p class="envelope-account">' + env.bankAccount + '</p><p class="envelope-holder">a.n. ' + env.bankHolder + '</p></div>';
+        });
+        envelopesContainer.innerHTML = htmlStr;
+      }
+
+      // ── Quotes ────────────────────────────────────────────────────────────
+      if (d.QUOTE_TEXT) setText('.quote-text', d.QUOTE_TEXT);
+      if (d.QUOTE_SOURCE) setText('.quote-source', d.QUOTE_SOURCE);
+
+      // ── IG Story ──────────────────────────────────────────────────────────
+      if (d.IG_STORY_URL) {
+        document.querySelectorAll('.ig-story-link, a[href*="instagram.com/stories"]').forEach(function(el) {
+          if (el.tagName === 'A') el.href = d.IG_STORY_URL;
+        });
+      }
+
+      // ── Love Stories ──────────────────────────────────────────────────────
+      var loveStoriesContainer = document.getElementById('love-stories-container');
+      if (loveStoriesContainer && d.LOVE_STORIES && d.LOVE_STORIES.length > 0) {
+        var lsHtml = '';
+        d.LOVE_STORIES.forEach(function(story) {
+          lsHtml += '<div class="love-story-item"><h4 class="story-title">' + story.title + '</h4><span class="story-date">' + story.date + '</span><p class="story-text">' + story.story + '</p></div>';
+        });
+        loveStoriesContainer.innerHTML = lsHtml;
+      }
+
+      // ── RSVP & Guestbook Visibility ───────────────────────────────────────
+      if (d.ENABLE_RSVP === false) {
+        document.querySelectorAll('.rsvp-section, #rsvp').forEach(function(el) { el.style.display = 'none'; });
+      }
+      if (d.ENABLE_GUESTBOOK === false) {
+        document.querySelectorAll('.guestbook-section, #guestbook').forEach(function(el) { el.style.display = 'none'; });
+      }
 
       // ── Background Music ──────────────────────────────────────────────────
       var audioEl = document.getElementById('bg-music');

@@ -19,9 +19,9 @@ async function saveFile(file: File, folder: string): Promise<string> {
   return `/uploads/${folder}/${filename}`;
 }
 
-export async function POST(req: NextRequest, { params }: RouteContext) {
+export const POST = auth(async (req: any, { params }: any) => {
   try {
-    const session = await auth();
+    const session = req.auth;
     if (!session?.user?.email) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
@@ -84,4 +84,4 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     console.error('[upload]', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+});

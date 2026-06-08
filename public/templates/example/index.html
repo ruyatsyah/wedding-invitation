@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undangan Pernikahan - {{COUPLE_NAME}}</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Base Variables */
+    :root {
+      --primary-color: #8C7C6D; /* Elegant taupe/gold */
+      --text-main: #333333;
+      --text-light: #666666;
+      --bg-light: #FDFBF7;
+      --bg-white: #FFFFFF;
+      --font-serif: 'Cormorant Garamond', serif;
+      --font-sans: 'Montserrat', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      background-color: var(--bg-light);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5 {
+      font-family: var(--font-serif);
+      font-weight: 600;
+    }
+
+    section {
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Helper Classes for Dynamic Injection */
+    .hidden { display: none !important; }
+
+    /* Hero Section */
+    .hero-section {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(rgba(253, 251, 247, 0.85), rgba(253, 251, 247, 0.85)), var(--hero-bg-url, #f0ede8) center/cover;
+      position: relative;
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+    .hero-title {
+      font-size: 4.5rem;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      line-height: 1.1;
+    }
+    .hero-date {
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    /* Quote Section */
+    .quote-section {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 60px 20px;
+    }
+    .quote-text {
+      font-size: 1.5rem;
+      font-family: var(--font-serif);
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+    .quote-source {
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Couple Section */
+    .couple-section .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 50px;
+      color: var(--primary-color);
+    }
+    .couple-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    @media (min-width: 768px) {
+      .couple-container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 80px;
+      }
+    }
+    .mempelai-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .mempelai-img-wrapper {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 5px solid var(--bg-white);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .mempelai-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .mempelai-name {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .parent-info {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 15px;
+    }
+    .instagram-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Event Section */
+    .event-section {
+      background-color: var(--bg-white);
+    }
+    .event-card {
+      background-color: var(--bg-light);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+      margin-top: 30px;
+    }
+    .event-date {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .event-time {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    .venue-name {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+    }
+    .venue-address {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      margin-bottom: 30px;
+    }
+    .btn-maps {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: var(--primary-color);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .btn-maps:hover {
+      background-color: #7a6a5b;
+      transform: translateY(-2px);
+    }
+
+    /* Love Stories Section */
+    .love-story-section {
+      background-color: var(--bg-light);
+    }
+    #love-stories-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      text-align: left;
+      border-left: 2px solid var(--primary-color);
+      padding-left: 30px;
+      margin-left: 20px;
+    }
+    .love-story-item {
+      position: relative;
+    }
+    .love-story-item::before {
+      content: '';
+      position: absolute;
+      left: -37px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+    }
+    .story-title {
+      font-size: 1.4rem;
+      margin-bottom: 5px;
+    }
+    .story-date {
+      font-size: 0.85rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .story-text {
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+
+    /* Streaming & IG Story Section */
+    .streaming-section {
+      background-color: var(--bg-white);
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 */
+      height: 0;
+      overflow: hidden;
+      max-width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .ig-story-banner {
+      background-color: #fafafa;
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px dashed var(--primary-color);
+      margin-top: 40px;
+    }
+    .ig-story-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 15px;
+    }
+
+    /* Gallery Section */
+    .gallery-section {
+      background-color: var(--bg-light);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    @media (min-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .gallery-item {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+    }
+    .gallery-item:hover {
+      transform: scale(1.03);
+    }
+    .gallery-item.featured {
+      grid-column: 1 / -1;
+      aspect-ratio: 16/9;
+    }
+
+    /* Gift / Envelopes Section */
+    .gift-section {
+      background-color: var(--bg-white);
+    }
+    .gift-intro {
+      margin-bottom: 40px;
+      color: var(--text-light);
+    }
+    #digital-envelopes-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .envelope-item {
+      background-color: var(--bg-light);
+      padding: 30px;
+      border-radius: 15px;
+      min-width: 280px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      border-top: 4px solid var(--primary-color);
+    }
+    .envelope-item h4 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+    .envelope-account {
+      font-size: 1.5rem;
+      font-family: monospace;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .envelope-holder {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    /* RSVP Section */
+    .rsvp-section {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .rsvp-section .section-title {
+      color: white;
+    }
+    .rsvp-form {
+      background-color: rgba(255,255,255,0.1);
+      padding: 40px 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background-color: rgba(255,255,255,0.05);
+      color: white;
+      border-radius: 8px;
+      font-family: inherit;
+    }
+    .form-control::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background-color: white;
+      color: var(--primary-color);
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    .btn-submit:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .wedding-footer {
+      padding: 60px 20px;
+      background-color: #222;
+      color: white;
+      text-align: center;
+    }
+    .wedding-footer h3 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: white;
+    }
+    .wedding-footer p {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Music is injected dynamically by the API if present -->
+
+  <!-- Hero Section -->
+  <section class="hero-section" data-bg="{{GALLERY_1}}">
+    <div class="hero-subtitle">Undangan Pernikahan</div>
+    <h1 class="hero-title couple-name-cover">{{COUPLE_NAME}}</h1>
+    <div class="hero-date event-date-text">{{EVENT_DATE}}</div>
+  </section>
+
+  <!-- Quote Section -->
+  <section class="quote-section">
+    <div class="container">
+      <div class="quote-text">{{QUOTE_TEXT}}</div>
+      <div class="quote-source">{{QUOTE_SOURCE}}</div>
+    </div>
+  </section>
+
+  <!-- Couple Section -->
+  <section class="couple-section">
+    <div class="container">
+      <h2 class="section-title">Sang Mempelai</h2>
+      <div class="couple-container">
+        <!-- Groom -->
+        <div class="mempelai-card">
+          <div class="mempelai-img-wrapper">
+            <img src="{{GROOM_PHOTO}}" alt="Mempelai Pria" class="mempelai-img">
+          </div>
+          <h3 class="mempelai-name">{{GROOM_NAME}}</h3>
+          <div class="parent-info">{{GROOM_PARENTS}}</div>
+          <a href="#" class="instagram-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            {{GROOM_INSTAGRAM}}
+          </a>
+        </div>
+        
+        <!-- Bride -->
+        <div class="mempelai-card">
+          <div class="mempelai-img-wrapper">
+            <img src="{{BRIDE_PHOTO}}" alt="Mempelai Wanita" class="mempelai-img">
+          </div>
+          <h3 class="mempelai-name">{{BRIDE_NAME}}</h3>
+          <div class="parent-info">{{BRIDE_PARENTS}}</div>
+          <a href="#" class="instagram-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            {{BRIDE_INSTAGRAM}}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Love Story Section -->
+  <section class="love-story-section">
+    <div class="container">
+      <h2 class="section-title">Kisah Cinta Kami</h2>
+      <div id="love-stories-container">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Event Section -->
+  <section class="event-section">
+    <div class="container">
+      <h2 class="section-title">Waktu & Tempat</h2>
+      <div class="event-card">
+        <h3 class="event-date tanggal-acara">{{EVENT_DATE}}</h3>
+        <p class="event-time">{{EVENT_TIME}}</p>
+        <div class="venue-info">
+          <p class="venue-name"><strong>{{VENUE}}</strong></p>
+          <p class="venue-address">{{VENUE}}</p>
+        </div>
+        <a href="{{MAPS_URL}}" class="btn-maps" target="_blank">Buka di Google Maps</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Streaming & IG Story Section -->
+  <section class="streaming-section">
+    <div class="container">
+      <h2 class="section-title">Live Streaming</h2>
+      <div class="video-container">
+        <iframe src="" frameborder="0" allowfullscreen></iframe>
+      </div>
+      
+      <div class="ig-story-banner">
+        <h3>Bagikan Momen Bahagia</h3>
+        <p>Gunakan filter Instagram Story kami untuk membagikan momen kebahagiaan ini.</p>
+        <a href="#" class="ig-story-link" target="_blank">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          Gunakan Filter IG Story
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section class="gallery-section">
+    <div class="container">
+      <h2 class="section-title">Galeri</h2>
+      <div class="gallery-grid">
+        <img id="featured-photo" src="{{GALLERY_1}}" alt="Gallery Featured" class="gallery-item featured">
+        <img src="{{GALLERY_2}}" alt="Gallery 2" class="gallery-item thumbnail">
+        <img src="{{GALLERY_3}}" alt="Gallery 3" class="gallery-item thumbnail">
+        <img src="{{GALLERY_4}}" alt="Gallery 4" class="gallery-item thumbnail">
+        <img src="{{GALLERY_5}}" alt="Gallery 5" class="gallery-item thumbnail">
+      </div>
+    </div>
+  </section>
+
+  <!-- Gift Section -->
+  <section class="gift-section">
+    <div class="container">
+      <h2 class="section-title">Kado Digital</h2>
+      <p class="gift-intro">Doa restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberikan tanda kasih untuk kami, dapat melalui:</p>
+      <div id="digital-envelopes-container">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP & Guestbook Section -->
+  <section class="rsvp-section" id="rsvp">
+    <div class="container">
+      <h2 class="section-title">RSVP & Ucapan</h2>
+      <div class="rsvp-form">
+        <form>
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" class="form-control" placeholder="Nama Anda" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kehadiran</label>
+            <select class="form-control" required>
+              <option value="Hadir">Hadir</option>
+              <option value="Tidak Hadir">Tidak Hadir</option>
+            </select>
+          </div>
+          <div class="form-group guestbook-section" id="guestbook">
+            <label class="form-label">Ucapan & Doa</label>
+            <textarea class="form-control" rows="4" placeholder="Tuliskan ucapan dan doa restu..."></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Kirim Konfirmasi</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="wedding-footer">
+    <div class="container">
+      <h3 class="couple-title">{{COUPLE_NAME}}</h3>
+      <p>Terima kasih atas doa & restunya.</p>
+    </div>
+  </footer>
+
+  <!--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  SELF-DEMO SCRIPT                                                ║
+    ║  Script ini aktif HANYA ketika template diakses langsung         ║
+    ║  sebagai file statis (misal: /templates/example/index.html).     ║
+    ║  Jika diakses via API (undangan klien), script ini dilewati      ║
+    ║  karena window.__INVITATION_DATA__ sudah diisi oleh API.         ║
+    ╚══════════════════════════════════════════════════════════════════╝
+  -->
+  <script>
+  (function() {
+    // Jika data sudah di-inject oleh API server-side, jangan jalankan demo ini
+    if (window.__INVITATION_DATA__ && window.__INVITATION_DATA__.GROOM_NAME) return;
+
+    // ── LOGO MAP ─────────────────────────────────────────────────────────────
+    var LOGO_MAP = {
+      'bca': '/bank-logos/bca.png', 'bni': '/bank-logos/bni.png',
+      'bri': '/bank-logos/bri.png', 'bsi': '/bank-logos/bsi.png',
+      'mandiri': '/bank-logos/mandiri.png', 'dana': '/bank-logos/dana.png',
+      'gopay': '/bank-logos/gopay.png', 'ovo': '/bank-logos/ovo.png',
+      'shopeepay': '/bank-logos/shoppepay.png', 'jenius': '/bank-logos/Jenius-logo.png',
+      'cimb': '/bank-logos/cimb-niaga.png', 'link aja': '/bank-logos/link-aja.png',
+    };
+
+    // ── DUMMY DATA ────────────────────────────────────────────────────────────
+    var DEMO = {
+      COUPLE_NAME:     'Romeo & Juliet',
+      GROOM_NAME:      'Romeo Montague',
+      GROOM_PARENTS:   'Putra dari Bapak Montague & Ibu Montague',
+      GROOM_INSTAGRAM: '@romeo.montague',
+      GROOM_PHOTO:     'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+      BRIDE_NAME:      'Juliet Capulet',
+      BRIDE_PARENTS:   'Putri dari Bapak Capulet & Ibu Capulet',
+      BRIDE_INSTAGRAM: '@juliet.cap',
+      BRIDE_PHOTO:     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      EVENT_DATE:      '2027-12-31',
+      EVENT_TIME:      '09:00',
+      EVENT_TIMEZONE:  'WIB',
+      VENUE:           'Verona Grand Ballroom, Jakarta Selatan',
+      MAPS_URL:        'https://maps.google.com/?q=Verona+Grand+Ballroom',
+      YOUTUBE_URL:     'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      QUOTE_TEXT:      '"Mencintai bukanlah mencari seseorang yang sempurna, melainkan melihat seseorang yang tidak sempurna dengan cara yang sempurna."',
+      QUOTE_SOURCE:    '— Sam Keen',
+      GALLERY_1: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+      GALLERY_2: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
+      GALLERY_3: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80',
+      GALLERY_4: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80',
+      GALLERY_5: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=800&q=80',
+      DIGITAL_ENVELOPES: [
+        { bankName: 'BCA',   bankAccount: '1234567890',  bankHolder: 'Romeo Montague' },
+        { bankName: 'GoPay', bankAccount: '081234567890', bankHolder: 'Juliet Capulet' }
+      ],
+      LOVE_STORIES: [
+        { date: '14 Februari 2020', title: 'Pertemuan Pertama',  story: 'Kami bertemu pertama kali di sebuah kedai kopi kecil di sudut kota saat hujan turun deras.' },
+        { date: '31 Desember 2022', title: 'Lamaran',             story: 'Di bawah kembang api pergantian tahun, ia berlutut dan menanyakan satu pertanyaan yang mengubah segalanya.' },
+        { date: '31 Desember 2027', title: 'Hari Bahagia',        story: 'Hari yang selalu kami impikan akhirnya tiba. Kami memulai babak baru bersama, untuk selamanya.' }
+      ],
+    };
+
+    window.__INVITATION_DATA__ = DEMO;
+
+    // ── DATE FORMATTER ────────────────────────────────────────────────────────
+    function formatDate(dateStr) {
+      var MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+      var DAYS   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      var dt = new Date(dateStr + 'T00:00:00');
+      return {
+        dayName:   DAYS[dt.getDay()],
+        dayNum:    String(dt.getDate()),
+        monthYear: MONTHS[dt.getMonth()] + ' ' + dt.getFullYear(),
+        full:      DAYS[dt.getDay()] + ', ' + dt.getDate() + ' ' + MONTHS[dt.getMonth()] + ' ' + dt.getFullYear()
+      };
+    }
+
+    // ── HELPER ────────────────────────────────────────────────────────────────
+    function setText(sel, val) {
+      if (!val) return;
+      document.querySelectorAll(sel).forEach(function(el) { el.textContent = val; });
+    }
+    function setHTML(sel, val) {
+      if (!val) return;
+      document.querySelectorAll(sel).forEach(function(el) { el.innerHTML = val; });
+    }
+
+    // ── REPLACE REMAINING {{...}} IN DOM ──────────────────────────────────────
+    // Walk all text nodes and replace any {{KEY}} still visible
+    function replacePlaceholdersInDOM() {
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      var node;
+      while ((node = walker.nextNode())) {
+        if (node.nodeValue && /\{\{[^}]+\}\}/.test(node.nodeValue)) {
+          var txt = node.nodeValue;
+          Object.keys(DEMO).forEach(function(key) {
+            if (typeof DEMO[key] === 'string') {
+              txt = txt.replace(new RegExp('\\{\\{\\s*' + key + '\\s*\\}\\}', 'g'), DEMO[key]);
+            }
+          });
+          // Clean up any remaining {{...}}
+          txt = txt.replace(/\{\{[^}]*\}\}/g, '');
+          node.nodeValue = txt;
+        }
+      }
+
+      // Also fix src attributes with placeholders
+      document.querySelectorAll('[src]').forEach(function(el) {
+        var src = el.getAttribute('src');
+        if (src && /\{\{/.test(src)) {
+          Object.keys(DEMO).forEach(function(key) {
+            if (typeof DEMO[key] === 'string') {
+              src = src.replace(new RegExp('\\{\\{\\s*' + key + '\\s*\\}\\}', 'g'), DEMO[key]);
+            }
+          });
+          src = src.replace(/\{\{[^}]*\}\}/g, '');
+          el.setAttribute('src', src);
+        }
+      });
+
+      // Also fix href attributes with placeholders
+      document.querySelectorAll('[href]').forEach(function(el) {
+        var href = el.getAttribute('href');
+        if (href && /\{\{/.test(href)) {
+          Object.keys(DEMO).forEach(function(key) {
+            if (typeof DEMO[key] === 'string') {
+              href = href.replace(new RegExp('\\{\\{\\s*' + key + '\\s*\\}\\}', 'g'), DEMO[key]);
+            }
+          });
+          href = href.replace(/\{\{[^}]*\}\}/g, '');
+          el.setAttribute('href', href);
+        }
+      });
+    }
+
+    // ── MAIN RENDER FUNCTION ──────────────────────────────────────────────────
+    function renderDemo() {
+      var d = DEMO;
+      var fmt = formatDate(d.EVENT_DATE);
+      var groomFirst = d.GROOM_NAME.split(' ')[0];
+      var brideFirst = d.BRIDE_NAME.split(' ')[0];
+      var coupleShort = groomFirst + ' & ' + brideFirst;
+      var timeFmt = d.EVENT_TIME + ' ' + d.EVENT_TIMEZONE + ' - Selesai';
+
+      // Replace all remaining raw placeholders in DOM
+      replacePlaceholdersInDOM();
+
+      // ── Couple Names ────────────────────────────────────────────────────────
+      document.title = 'Demo Preview — ' + coupleShort;
+      setText('.couple-name-cover', coupleShort);
+      setText('.couple-title', coupleShort);
+      document.querySelectorAll('footer h3, .wedding-footer h3').forEach(function(el) {
+        el.textContent = coupleShort;
+      });
+
+      // ── Groom Card ──────────────────────────────────────────────────────────
+      var groomCard = document.querySelectorAll('.mempelai-card')[0];
+      if (groomCard) {
+        var gH = groomCard.querySelector('h3');
+        if (gH) gH.textContent = d.GROOM_NAME;
+        var gP = groomCard.querySelector('.parent-info');
+        if (gP) gP.textContent = d.GROOM_PARENTS;
+        var gImg = groomCard.querySelector('.mempelai-img, img');
+        if (gImg) gImg.src = d.GROOM_PHOTO;
+        var gIg = groomCard.querySelector('.instagram-link');
+        if (gIg) gIg.textContent = d.GROOM_INSTAGRAM;
+      }
+
+      // ── Bride Card ──────────────────────────────────────────────────────────
+      var brideCard = document.querySelectorAll('.mempelai-card')[1];
+      if (brideCard) {
+        var bH = brideCard.querySelector('h3');
+        if (bH) bH.textContent = d.BRIDE_NAME;
+        var bP = brideCard.querySelector('.parent-info');
+        if (bP) bP.textContent = d.BRIDE_PARENTS;
+        var bImg = brideCard.querySelector('.mempelai-img, img');
+        if (bImg) bImg.src = d.BRIDE_PHOTO;
+        var bIg = brideCard.querySelector('.instagram-link');
+        if (bIg) bIg.textContent = d.BRIDE_INSTAGRAM;
+      }
+
+      // ── Date & Time ─────────────────────────────────────────────────────────
+      setText('.day-name',     fmt.dayName);
+      setText('.day-num',      fmt.dayNum);
+      setText('.month-year',   fmt.monthYear);
+      setText('.event-date-text, .tanggal-acara', fmt.full);
+      setText('.event-time',   timeFmt);
+
+      // ── Venue ───────────────────────────────────────────────────────────────
+      document.querySelectorAll('.venue-name').forEach(function(el) {
+        el.innerHTML = '<strong>' + d.VENUE + '</strong>';
+      });
+      setText('.venue-address', d.VENUE);
+      document.querySelectorAll('.btn-maps, a[href*="maps"]').forEach(function(el) {
+        el.href = d.MAPS_URL;
+      });
+
+      // ── Quote ───────────────────────────────────────────────────────────────
+      setText('.quote-text',   d.QUOTE_TEXT);
+      setText('.quote-source', d.QUOTE_SOURCE);
+
+      // ── Gallery ─────────────────────────────────────────────────────────────
+      var galleries = [d.GALLERY_1, d.GALLERY_2, d.GALLERY_3, d.GALLERY_4, d.GALLERY_5];
+      var featured = document.getElementById('featured-photo');
+      if (featured) featured.src = galleries[0];
+      var thumbs = document.querySelectorAll('.thumbnail');
+      galleries.forEach(function(url, i) { if (thumbs[i]) thumbs[i].src = url; });
+
+      // ── Hero Background ─────────────────────────────────────────────────────
+      document.querySelectorAll('[data-bg]').forEach(function(el) {
+        var bgKey = el.getAttribute('data-bg');
+        var bgUrl = DEMO[bgKey] || bgKey; // support both key name and direct URL
+        if (bgUrl && !bgUrl.includes('{{')) {
+          el.style.backgroundImage = 'linear-gradient(rgba(253,251,247,0.8),rgba(253,251,247,0.8)), url("' + bgUrl + '")';
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+        }
+      });
+
+      // ── YouTube ─────────────────────────────────────────────────────────────
+      var ytId = 'dQw4w9WgXcQ';
+      document.querySelectorAll('.video-container iframe, iframe[src*="youtube"], iframe').forEach(function(el) {
+        el.src = 'https://www.youtube.com/embed/' + ytId;
+      });
+
+      // ── Love Stories ────────────────────────────────────────────────────────
+      var lsContainer = document.getElementById('love-stories-container');
+      if (lsContainer && d.LOVE_STORIES && d.LOVE_STORIES.length > 0) {
+        lsContainer.innerHTML = d.LOVE_STORIES.map(function(s) {
+          return '<div class="love-story-item"><h4 class="story-title">' + s.title + '</h4><span class="story-date">' + s.date + '</span><p class="story-text">' + s.story + '</p></div>';
+        }).join('');
+      }
+
+      // ── Digital Envelopes ───────────────────────────────────────────────────
+      var envContainer = document.getElementById('digital-envelopes-container');
+      if (envContainer && d.DIGITAL_ENVELOPES && d.DIGITAL_ENVELOPES.length > 0) {
+        envContainer.innerHTML = d.DIGITAL_ENVELOPES.map(function(env) {
+          var key = (env.bankName || '').toLowerCase().trim();
+          var logo = LOGO_MAP[key];
+          var header = logo
+            ? '<img src="' + logo + '" alt="' + env.bankName + '" style="height:32px;object-fit:contain;display:block;margin-bottom:12px;">'
+            : '<h4 style="margin-bottom:12px;">' + env.bankName + '</h4>';
+          return '<div class="envelope-item">' + header + '<p class="envelope-account">' + env.bankAccount + '</p><p class="envelope-holder">a.n. ' + env.bankHolder + '</p></div>';
+        }).join('');
+      }
+
+      // ── Block forms in demo mode ─────────────────────────────────────────────
+      document.querySelectorAll('form').forEach(function(f) {
+        f.addEventListener('submit', function(e) {
+          e.preventDefault();
+          alert('Ini adalah tampilan DEMO. Beli template ini untuk mengaktifkan semua fitur termasuk RSVP.');
+        });
+      });
+
+      // ── Demo Banner ──────────────────────────────────────────────────────────
+      var banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ec4899;color:#fff;text-align:center;font-size:11px;font-weight:700;font-family:sans-serif;padding:8px 16px;z-index:2147483647;letter-spacing:0.5px;box-shadow:0 2px 10px rgba(236,72,153,0.4);';
+      banner.textContent = '🔍 TAMPILAN DEMO — Semua data adalah contoh dummy. Gunakan template ini untuk undangan asli Anda.';
+      document.body.insertBefore(banner, document.body.firstChild);
+
+      // Add spacer so content isn't hidden under banner
+      var spacer = document.createElement('div');
+      spacer.style.height = '36px';
+      document.body.insertBefore(spacer, banner.nextSibling);
+    }
+
+    // Run after DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderDemo);
+    } else {
+      renderDemo();
+    }
+  })();
+  </script>
+
+</body>
+</html>
