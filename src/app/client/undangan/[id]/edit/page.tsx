@@ -349,6 +349,7 @@ export default function EditUndanganDashboard() {
               <div className="flex-1 bg-neutral-100 relative overflow-hidden">
                 {projectData?.customUrl ? (
                   <iframe 
+                    key={projectData.updatedAt}
                     src={`/${projectData.customUrl}`}
                     className="w-full h-full border-0"
                     title="Live Preview Mobile"
@@ -377,6 +378,7 @@ export default function EditUndanganDashboard() {
               <div className="flex-1 bg-neutral-50 relative">
                 {projectData?.customUrl ? (
                   <iframe 
+                    key={projectData.updatedAt}
                     src={`/${projectData.customUrl}`}
                     className="w-full h-full border-0"
                     title="Live Preview"

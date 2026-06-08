@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Music } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 interface MusikFormProps {
@@ -19,6 +19,16 @@ const labelCls = "block text-xs font-semibold text-neutral-500 mb-1.5 uppercase 
 export default function MusikForm({ projectId, initialData, onBack }: MusikFormProps) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState(initialData);
+
+  const { data: musicList, isLoading: isLoadingMusic } = useQuery({
+    queryKey: ['music-options'],
+    queryFn: async () => {
+      const res = await fetch('/api/music');
+      if (!res.ok) throw new Error('Gagal memuat musik');
+      const json = await res.json();
+      return json.data;
+    }
+  });
 
   useEffect(() => { setForm(initialData); }, [initialData]);
 
@@ -71,14 +81,21 @@ export default function MusikForm({ projectId, initialData, onBack }: MusikFormP
           <Music className="w-4 h-4" /> Musik Latar
         </h3>
         <div>
-          <label className={labelCls}>Link Audio / YouTube</label>
-          <input
+          <label className={labelCls}>Pilih Musik Latar</label>
+          <select
             className={inputCls}
-            placeholder="https://www.youtube.com/watch?v=... atau link MP3"
             value={form.bgMusic}
             onChange={e => set('bgMusic', e.target.value)}
-          />
-          <p className="text-[11px] text-neutral-400 mt-1.5">Masukkan link YouTube atau URL file MP3 untuk musik latar undangan.</p>
+            disabled={isLoadingMusic}
+          >
+            <option value="">-- Pilih Musik --</option>
+            {musicList?.map((m: any) => (
+              <option key={m._id} value={m.url}>
+                {m.title}
+              </option>
+            ))}
+          </select>
+          <p className="text-[11px] text-neutral-400 mt-1.5">Pilih musik latar yang telah disediakan.</p>
         </div>
       </div>
 

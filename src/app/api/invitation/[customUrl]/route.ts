@@ -715,6 +715,102 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
           else el.textContent = value;
         });
       });
+
+      // ── RSVP Logic ────────────────────────────────────────────────────────
+      var rsvpForm = document.getElementById('rsvp-form');
+      if (rsvpForm) {
+        rsvpForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var submitBtn = rsvpForm.querySelector('button[type="submit"]');
+          var originalText = submitBtn ? submitBtn.textContent : '';
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Mengirim...'; }
+
+          var name = (document.getElementById('rsvp-name') || rsvpForm.querySelector('[name="name"]'))?.value || '';
+          var rawStatus = (document.getElementById('rsvp-status') || rsvpForm.querySelector('[name="status"]'))?.value || 'ATTENDING';
+          var statusLower = String(rawStatus).toLowerCase().trim();
+          var status = (statusLower === 'hadir' || statusLower === 'attending' || statusLower === 'ya') ? 'ATTENDING' : 'DECLINED';
+          var pax = parseInt((document.getElementById('rsvp-pax') || rsvpForm.querySelector('[name="pax"]'))?.value || '1', 10);
+
+          fetch('/api/rsvp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectId: d.PROJECT_ID, name: name, rsvpStatus: status, pax: status === 'ATTENDING' ? pax : 0 })
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.success) {
+              alert('Terima kasih atas konfirmasi Anda!');
+              rsvpForm.reset();
+            } else alert('Gagal: ' + res.error);
+          })
+          .catch(err => alert('Terjadi kesalahan'))
+          .finally(() => {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
+          });
+        });
+      }
+
+      // ── Guestbook Logic ───────────────────────────────────────────────────
+      var guestbookForm = document.getElementById('guestbook-form');
+      var guestbookList = document.getElementById('guestbook-list');
+
+      function loadWishes() {
+        if (!guestbookList) return;
+        fetch('/api/wishes?projectId=' + d.PROJECT_ID)
+          .then(res => res.json())
+          .then(res => {
+            if (res.success && res.data) {
+              var html = res.data.map(function(w) {
+                return '<div class="wish-item" style="margin-bottom:15px;padding:15px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
+                  '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">' +
+                  '<strong style="font-size:14px;color:#333;">' + w.name + '</strong>' +
+                  '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#f0f0f0;color:#555;">' + w.attendance + '</span>' +
+                  '</div>' +
+                  '<p style="margin:0;font-size:12px;color:#666;font-style:italic;">"' + w.message + '"</p>' +
+                  '</div>';
+              }).join('');
+              guestbookList.innerHTML = html || '<p style="text-align:center;color:#999;font-size:12px;">Belum ada ucapan.</p>';
+            }
+          })
+          .catch(console.error);
+      }
+
+      if (guestbookForm) {
+        guestbookForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var submitBtn = guestbookForm.querySelector('button[type="submit"]');
+          var originalText = submitBtn ? submitBtn.textContent : '';
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Mengirim...'; }
+
+          var name = (document.getElementById('wish-name') || guestbookForm.querySelector('[name="name"]'))?.value || '';
+          var message = (document.getElementById('wish-message') || guestbookForm.querySelector('[name="message"]'))?.value || '';
+          var rawAttendance = (document.getElementById('wish-attendance') || guestbookForm.querySelector('[name="attendance"]'))?.value || 'Hadir';
+          var attLower = String(rawAttendance).toLowerCase().trim();
+          var attendance = 'Hadir';
+          if (attLower === 'tidak hadir' || attLower === 'tidak' || attLower === 'batal') attendance = 'Tidak Hadir';
+          else if (attLower === 'masih ragu' || attLower === 'ragu' || attLower === 'mungkin') attendance = 'Masih Ragu';
+
+          fetch('/api/wishes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ projectId: d.PROJECT_ID, name: name, message: message, attendance: attendance })
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.success) {
+              guestbookForm.reset();
+              loadWishes();
+            } else alert('Gagal: ' + res.error);
+          })
+          .catch(err => alert('Terjadi kesalahan'))
+          .finally(() => {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
+          });
+        });
+      }
+
+      // Initial load
+      loadWishes();
     }
 
     if (document.readyState === 'loading') {
