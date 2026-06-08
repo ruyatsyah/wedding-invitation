@@ -86,6 +86,7 @@ export default async function InvitationByCustomUrlPage(
     bankHolder: project.bankHolder,
     digitalEnvelopes: project.digitalEnvelopes || [],
     loveStories: project.loveStories || [],
+    bgMusic: project.bgMusic || '',
   };
 
   return (

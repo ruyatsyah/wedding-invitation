@@ -129,6 +129,7 @@ export interface ProjectData {
   bankHolder?: string;
   digitalEnvelopes?: { bankName: string; bankAccount: string; bankHolder: string }[];
   loveStories?: { date: string; title: string; story: string }[];
+  bgMusic?: string;
 }
 
 interface WeddingInvitationProps {
@@ -274,7 +275,8 @@ export default function WeddingInvitation({ guestSlug, theme = 'sunda', isDemo =
   const eventTime = (!isDemo && projectData?.eventTime) ? projectData.eventTime : '09.00';
   const eventTimezone = (!isDemo && projectData?.eventTimezone) ? projectData.eventTimezone.split(' ')[0] : 'WIB';
 
-  const bgmSrc = theme === 'snapfoto' ? '/assets/music/snapfoto-bgm.mp3' : undefined;
+  const defaultBgm = theme === 'snapfoto' ? '/assets/music/snapfoto-bgm.mp3' : undefined;
+  const bgmSrc = projectData?.bgMusic || defaultBgm;
 
   const handleOpenInvitation = () => {
     setIsOpen(true);
