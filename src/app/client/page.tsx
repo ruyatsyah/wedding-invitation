@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { BarChart3, CalendarDays, Package, Settings, ExternalLink, Plus, ShoppingCart, X } from 'lucide-react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 
 interface Template {
@@ -53,6 +53,8 @@ function DashboardContent() {
     }
   }, [themeId, templates]);
 
+  const queryClient = useQueryClient();
+
   const createProjectMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch('/api/projects', {
@@ -64,7 +66,10 @@ function DashboardContent() {
       if (!data.success) throw new Error(data.error || 'Gagal memproses pesanan.');
       return data.data;
     },
-    onSuccess: () => { router.push('/client/undangan'); },
+    onSuccess: () => { 
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      router.push('/client/undangan'); 
+    },
     onError: (err: any) => { setErrorMsg(err.message); }
   });
 

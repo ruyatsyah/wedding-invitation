@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Search, Eye, ShoppingCart } from 'lucide-react';
+import { Search, Eye, ShoppingCart, Settings2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 interface Template {
   _id: string;
@@ -21,6 +22,8 @@ interface Template {
 
 export default function TemplateCatalog() {
   const [search, setSearch] = useState('');
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ['templates', 'published'],
@@ -32,12 +35,27 @@ export default function TemplateCatalog() {
     },
   });
 
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to fetch projects');
+      return data.data;
+    },
+  });
+
   const filtered = templates.filter((t: Template) =>
     t.templateName.toLowerCase().includes(search.toLowerCase())
   );
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+
+  const getUsedProject = (templateId: string) => {
+    if (isAdmin) return null; // Admin bebas pakai berulang kali
+    return projects.find((p: any) => p.themeId?._id === templateId || p.themeId === templateId);
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -92,8 +110,15 @@ export default function TemplateCatalog() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((tpl: Template) => (
-            <div key={tpl._id} className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
+          {filtered.map((tpl: Template) => {
+            const usedProject = getUsedProject(tpl._id);
+            return (
+            <div key={tpl._id} className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow relative">
+              {usedProject && (
+                <div className="absolute top-3 right-3 bg-[#8D1A42]/90 text-white px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider z-10 shadow-sm backdrop-blur-sm">
+                  DIGUNAKAN
+                </div>
+              )}
               <div className="h-56 relative overflow-hidden bg-slate-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
@@ -132,16 +157,25 @@ export default function TemplateCatalog() {
                   >
                     <Eye className="w-4 h-4" /> Preview
                   </a>
-                  <Link
-                    href={`/client?theme=${tpl._id}`}
-                    className="flex items-center justify-center gap-1.5 py-2.5 bg-[#8D1A42] rounded-lg text-sm font-medium text-white hover:bg-[#721535] transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" /> Gunakan
-                  </Link>
+                  {usedProject ? (
+                    <Link
+                      href={`/client/undangan/${usedProject._id}/edit`}
+                      className="flex items-center justify-center gap-1.5 py-2.5 bg-[#8D1A42] rounded-lg text-sm font-medium text-white hover:bg-[#721535] transition-colors"
+                    >
+                      <Settings2 className="w-4 h-4" /> Kelola
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/client?theme=${tpl._id}`}
+                      className="flex items-center justify-center gap-1.5 py-2.5 bg-[#8D1A42] rounded-lg text-sm font-medium text-white hover:bg-[#721535] transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> Gunakan
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
-          ))}
+          )})}
           
           {/* Empty State / Not found */}
           {filtered.length === 0 && (

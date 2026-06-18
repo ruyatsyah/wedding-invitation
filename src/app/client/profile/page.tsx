@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { User, Mail, Shield, Save, Edit, Loader2, X, Eye, EyeOff } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { User, Mail, Shield, Save, Edit, Loader2, X, Eye, EyeOff, Gem } from 'lucide-react';
 
 export default function ClientProfilePage() {
   const { data: session, update } = useSession();
@@ -24,6 +25,25 @@ export default function ClientProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState('');
   
   const hasPassword = (user as any)?.hasPassword;
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+  });
+
+  let userTier = 'BRONZE';
+  if ((user as any)?.role === 'admin') {
+    userTier = 'GOLD';
+  } else if (projects.some((p: any) => p.plan?.toLowerCase() === 'gold')) {
+    userTier = 'GOLD';
+  } else if (projects.some((p: any) => p.plan?.toLowerCase() === 'silver')) {
+    userTier = 'SILVER';
+  }
 
   useEffect(() => {
     if (user?.name) {
@@ -147,10 +167,22 @@ export default function ClientProfilePage() {
                   Edit Profile
                 </button>
               )}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
-                <Shield className="w-3.5 h-3.5" />
-                Akun Terverifikasi
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
+                  <Shield className="w-3.5 h-3.5" />
+                  Akun Terverifikasi
+                </span>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ${
+                  userTier === 'GOLD' 
+                    ? 'bg-amber-100 text-amber-700 border-amber-200' 
+                    : userTier === 'SILVER' 
+                      ? 'bg-slate-100 text-slate-700 border-slate-200' 
+                      : 'bg-[#8F6B52]/10 text-[#8F6B52] border-[#8F6B52]/20'
+                }`}>
+                  <Gem className="w-3.5 h-3.5" />
+                  {userTier} TIER
+                </span>
+              </div>
             </div>
           </div>
 
