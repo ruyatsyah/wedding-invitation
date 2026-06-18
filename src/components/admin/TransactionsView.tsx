@@ -11,6 +11,7 @@ interface Project {
   customUrl: string;
   status: 'pending' | 'active' | 'expired';
   priceSnapshot: number;
+  plan?: string;
   activatedAt?: string;
   expiresAt?: string;
   createdAt: string;
@@ -32,16 +33,16 @@ interface Stats {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function getPackage(price: number): { label: string; color: string; bg: string } {
-  if (price <= 0)        return { label: 'Bronze', color: '#92400e', bg: '#fef3c7' };
-  if (price <= 150000)   return { label: 'Bronze', color: '#92400e', bg: '#fef3c7' };
-  if (price <= 350000)   return { label: 'Silver', color: '#475569', bg: '#f1f5f9' };
-  return                        { label: 'Gold',   color: '#854d0e', bg: '#fef9c3' };
+function getPackage(planName: string = 'Bronze'): { label: string; color: string; bg: string } {
+  const normalized = planName.toLowerCase();
+  if (normalized === 'silver') return { label: 'Silver', color: '#475569', bg: '#f1f5f9' };
+  if (normalized === 'gold')   return { label: 'Gold',   color: '#854d0e', bg: '#fef9c3' };
+  return                              { label: 'Bronze', color: '#92400e', bg: '#fef3c7' };
 }
 
 function getStatusBadge(status: string) {
-  if (status === 'active' || status === 'expired')   return { label: 'Success',   color: '#065f46', bg: '#d1fae5' };
-  return                            { label: 'Failed',  color: '#991b1b', bg: '#fee2e2' };
+  if (status === 'active' || status === 'pending')   return { label: 'Success',   color: '#065f46', bg: '#d1fae5' };
+  if (status === 'expired')                          return { label: 'Expired',   color: '#dc2626', bg: '#fee2e2' };
 }
 
 function formatRp(n: number) {
@@ -225,7 +226,7 @@ export default function TransactionsView() {
               )}
 
               {!isLoading && projects.map(proj => {
-                const pkg    = getPackage(proj.priceSnapshot);
+                const pkg    = getPackage(proj.plan);
                 const badge  = getStatusBadge(proj.status);
                 const userId = proj.userId?._id ?? proj._id;
                 const bg     = avatarColor(userId);

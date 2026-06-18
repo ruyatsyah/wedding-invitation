@@ -3,6 +3,14 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
+import { useSession } from 'next-auth/react';
+
+declare global {
+  interface Window {
+    snap: any;
+  }
+}
 
 interface Plan {
   _id: string;
@@ -27,6 +35,7 @@ function parseNumericPrice(price: string): number {
 function OnboardingFlow() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const initialPlan = searchParams.get('plan') || '';
 
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -37,8 +46,23 @@ function OnboardingFlow() {
   const [coupleName, setCoupleName] = useState('');
   const [customUrl, setCustomUrl] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  
+  // Buyer Details (for paid plans)
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [buyerPhone, setBuyerPhone] = useState('');
+  
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmittedPayment, setIsSubmittedPayment] = useState(false);
+
+  // Prefill buyer details from session
+  useEffect(() => {
+    if (session?.user) {
+      setBuyerName((prev) => prev || session.user?.name || '');
+      setBuyerEmail((prev) => prev || session.user?.email || '');
+    }
+  }, [session]);
 
   // Fetch packages from API
   useEffect(() => {
@@ -119,22 +143,94 @@ function OnboardingFlow() {
     }
   };
 
-  const handlePaymentSubmit = (e: React.FormEvent) => {
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!coupleName || !customUrl) {
-      setErrorMsg('Mohon lengkapi nama dan URL undangan.');
-      return;
-    }
-    if (!paymentMethod) {
-      setErrorMsg('Mohon pilih metode pembayaran.');
+    setIsSubmittedPayment(true);
+    
+    if (!buyerName || !buyerEmail || !buyerPhone) {
+      // Tidak set errorMsg untuk field kosong, hanya tampilkan field merah
       return;
     }
     setErrorMsg('');
-    submitOnboarding();
+    setIsLoading(true);
+
+    try {
+      // 1. Get token from our backend
+      const tempCoupleName = coupleName || 'Pending';
+      const tempCustomUrl = customUrl || `pending-${Date.now()}`;
+
+      const res = await fetch('/api/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: selectedPlan?.name,
+          planId: selectedPlanId,
+          price: selectedPlan?.price,
+          coupleName: buyerName || tempCoupleName, // Use buyerName so Midtrans shows correct name
+          customUrl: tempCustomUrl,
+          customerDetails: {
+            first_name: buyerName,
+            email: buyerEmail,
+            phone: buyerPhone,
+          }
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Gagal mendapatkan token pembayaran.');
+      }
+
+      // 2. Open Midtrans Snap popup
+      window.snap.pay(data.token, {
+        onSuccess: async function (result: any) {
+          // 3. Save onboarding data after successful payment
+          try {
+            const payload: any = {
+              coupleName: buyerName || tempCoupleName,
+              customUrl: tempCustomUrl,
+              plan: selectedPlan?.name?.toLowerCase() || selectedPlanId,
+              planId: selectedPlanId,
+            };
+
+            await fetch('/api/onboarding', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+
+            router.push('/client/undangan');
+          } catch (e) {
+            console.error(e);
+            router.push('/client/undangan');
+          }
+        },
+        onPending: function (result: any) {
+          setErrorMsg('Menunggu pembayaran diselesaikan.');
+          setIsLoading(false);
+        },
+        onError: function (result: any) {
+          setErrorMsg('Pembayaran gagal.');
+          setIsLoading(false);
+        },
+        onClose: function () {
+          setErrorMsg('Anda menutup popup pembayaran sebelum menyelesaikannya.');
+          setIsLoading(false);
+        },
+      });
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Terjadi kesalahan saat memproses pembayaran.');
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-neutral-900 py-16 px-4">
+      <Script
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || 'SB-Mid-client-xX2XhE2G-eF2Q6X2G2F2X2X2'}
+        strategy="lazyOnload"
+      />
       {/* Navbar / Logo Header */}
       <div className="max-w-4xl mx-auto flex justify-center mb-12">
         <Link href="/" className="inline-block">
@@ -304,60 +400,47 @@ function OnboardingFlow() {
 
             <form onSubmit={handlePaymentSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-neutral-800 mb-2">Nama Panggilan Mempelai</label>
+                <label className="block text-sm font-semibold text-neutral-800 mb-2">Nama</label>
                 <input
                   type="text"
-                  value={coupleName}
-                  onChange={(e) => setCoupleName(e.target.value)}
-                  placeholder="Contoh: Romi & Shinta"
-                  className="w-full bg-neutral-50 text-base text-neutral-900 px-4 py-3 rounded-xl border border-neutral-200 outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-all"
+                  value={buyerName}
+                  onChange={(e) => setBuyerName(e.target.value)}
+                  placeholder="Nama Lengkap"
+                  className={`w-full bg-neutral-50 text-base text-neutral-900 px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-all ${
+                    isSubmittedPayment && !buyerName ? 'border-red-500' : 'border-neutral-200'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-neutral-800 mb-2">Custom URL / Link Undangan</label>
-                <div className="flex items-center">
-                  <span className="bg-neutral-100 border border-neutral-200 border-r-0 rounded-l-xl px-4 py-3 text-neutral-500 text-sm select-none">
-                    kabarbaik.co/
-                  </span>
-                  <input
-                    type="text"
-                    value={customUrl}
-                    onChange={(e) => setCustomUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="romishinta"
-                    className="w-full bg-white text-base text-neutral-900 px-4 py-3 rounded-r-xl border border-neutral-200 outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-all"
-                  />
-                </div>
+                <label className="block text-sm font-semibold text-neutral-800 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={buyerEmail}
+                  onChange={(e) => setBuyerEmail(e.target.value)}
+                  placeholder="contoh@email.com"
+                  readOnly
+                  className={`w-full bg-neutral-100 text-base text-neutral-500 px-4 py-3 rounded-xl border outline-none cursor-not-allowed ${
+                    isSubmittedPayment && !buyerEmail ? 'border-red-500' : 'border-neutral-200'
+                  }`}
+                />
               </div>
 
-              <div className="pt-4 border-t border-neutral-100">
-                <label className="block text-sm font-semibold text-neutral-800 mb-3">Pilih Metode Pembayaran</label>
-                <div className="grid grid-cols-2 gap-4">
-                  {['Transfer BCA', 'Transfer Mandiri', 'QRIS', 'E-Wallet (OVO/Dana)'].map((method) => (
-                    <label
-                      key={method}
-                      className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${
-                        paymentMethod === method
-                          ? 'border-[#000000] bg-neutral-50 ring-1 ring-[#000000]'
-                          : 'border-neutral-200 hover:border-neutral-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={method}
-                        checked={paymentMethod === method}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="sr-only"
-                      />
-                      <span className="text-sm font-medium text-neutral-800">{method}</span>
-                    </label>
-                  ))}
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-neutral-800 mb-2">Hp/Wa</label>
+                <input
+                  type="text"
+                  value={buyerPhone}
+                  onChange={(e) => setBuyerPhone(e.target.value)}
+                  placeholder="08123456789"
+                  className={`w-full bg-neutral-50 text-base text-neutral-900 px-4 py-3 rounded-xl border outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-all ${
+                    isSubmittedPayment && !buyerPhone ? 'border-red-500' : 'border-neutral-200'
+                  }`}
+                />
               </div>
 
               <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200 mt-6 flex justify-between items-center">
-                <span className="text-sm font-semibold text-neutral-600">Total Tagihan:</span>
+                <span className="text-sm font-semibold text-neutral-600">Total Pembayaran:</span>
                 <span className="text-xl font-extrabold text-[#000000]">
                   {selectedPlan?.price}
                 </span>

@@ -74,8 +74,9 @@ export const authConfig: NextAuthConfig = {
               provider: 'google',
               role: 'client',
             });
-            // Redirect new Google users to onboarding
-            return '/onboarding';
+            // Return true ensures the user is logged in successfully.
+            // Returning a string would abort the login process.
+            return true;
           } else if (existingUser.provider !== 'google') {
             existingUser.provider = 'google';
             existingUser.image = user.image;
@@ -98,23 +99,33 @@ export const authConfig: NextAuthConfig = {
           token.hasPassword = session.hasPassword;
         }
       }
+      
       if (user) {
         token.id = user.id;
-        token.email = user.email;
-        token.image = user.image;
         token.provider = account?.provider ?? 'credentials';
-        token.name = user.name;
-        // Fetch role from DB
+      }
+
+      // ALWAYS sync token with DB to ensure we have the most up-to-date name, email, and role
+      if (token.email || user?.email) {
+        const targetEmail = token.email || user?.email;
         try {
           await connectDB();
-          const dbUser = await User.findOne({ email: user.email });
-          token.role = dbUser?.role ?? 'client';
-          token.hasPassword = !!dbUser?.password;
-        } catch {
-          token.role = 'client';
-          token.hasPassword = false;
+          const dbUser = await User.findOne({ email: targetEmail });
+          if (dbUser) {
+            token.id = dbUser._id.toString(); // Use MongoDB ID
+            token.name = dbUser.name;
+            token.email = dbUser.email;
+            token.role = dbUser.role;
+            token.hasPassword = !!dbUser.password;
+            token.image = dbUser.image || token.image;
+          }
+        } catch (error) {
+          console.error('Error syncing token with DB:', error);
+          if (!token.role) token.role = 'client';
+          if (typeof token.hasPassword === 'undefined') token.hasPassword = false;
         }
       }
+
       return token;
     },
 
@@ -127,6 +138,9 @@ export const authConfig: NextAuthConfig = {
         session.user.image = token.image as string;
         if (token.name) {
           session.user.name = token.name as string;
+        }
+        if (token.email) {
+          session.user.email = token.email as string;
         }
       }
       return session;

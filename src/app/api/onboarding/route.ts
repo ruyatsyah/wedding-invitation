@@ -6,11 +6,20 @@ import { Project } from '@/models/Project';
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    const userId = (session?.user as any)?.id as string | undefined;
-
-    if (!session || !session.user || !userId) {
+    
+    if (!session || !session.user || !session.user.email) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
+
+    await connectMongo();
+
+    const importUser = (await import('@/models/User')).default;
+    const dbUser = await importUser.findOne({ email: session.user.email });
+    if (!dbUser) {
+      return NextResponse.json({ success: false, error: 'User tidak ditemukan' }, { status: 404 });
+    }
+
+    const userId = dbUser._id;
 
     const body = await req.json();
     const { coupleName, customUrl, plan } = body;

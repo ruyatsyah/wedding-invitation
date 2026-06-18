@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { User } from 'lucide-react';
 
 const NAV_LINKS = [
   { name: 'Beranda',    id: 'beranda' },
@@ -19,6 +21,7 @@ const Header = () => {
   const pathname = usePathname();
   const isLandingPage = pathname === '/landing';
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   const handleNavClick = (id: string) => {
     setMenuOpen(false);
@@ -73,12 +76,22 @@ const Header = () => {
 
       {/* Right Buttons */}
       <div className="flex-1 flex justify-end items-center gap-3">
-        <Link
-          href="/login"
-          className="bg-[#000000] hover:bg-[#171717] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all shadow-sm hidden sm:block"
-        >
-          Login
-        </Link>
+        {session ? (
+          <Link
+            href={session.user?.role === 'admin' ? '/admin' : '/client'}
+            className="bg-[#000000] hover:bg-[#171717] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all shadow-sm hidden sm:flex items-center gap-2"
+          >
+            <User className="w-4 h-4" />
+            Dashboard
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="bg-[#000000] hover:bg-[#171717] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all shadow-sm hidden sm:block"
+          >
+            Login
+          </Link>
+        )}
 
         {/* Mobile hamburger */}
         <button
@@ -116,13 +129,24 @@ const Header = () => {
                 </Link>
               )
             )}
-            <Link
-              href="/login"
-              className="mt-2 bg-[#000000] text-white text-sm font-semibold px-4 py-3 rounded-lg transition-all text-center"
-              onClick={() => setMenuOpen(false)}
-            >
-              Login
-            </Link>
+            {session ? (
+              <Link
+                href={session.user?.role === 'admin' ? '/admin' : '/client'}
+                className="mt-2 bg-[#000000] text-white text-sm font-semibold px-4 py-3 rounded-lg transition-all text-center flex items-center justify-center gap-2"
+                onClick={() => setMenuOpen(false)}
+              >
+                <User className="w-4 h-4" />
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="mt-2 bg-[#000000] text-white text-sm font-semibold px-4 py-3 rounded-lg transition-all text-center"
+                onClick={() => setMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
           </nav>
         </div>
       )}
