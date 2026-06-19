@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tag title otomatis diubah oleh sistem, namun diberi default -->
+    <title>Undangan Pernikahan - Pria & Wanita</title>
+    <!-- Google Fonts untuk tampilan elegan -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Musik Latar (Audio Element) -->
+    <audio id="bg-music" loop preload="auto"></audio>
+
+    <!-- Tombol Kontrol Musik (Floating) -->
+    <div id="music-control" class="music-control-btn hidden" onclick="toggleMusic()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon-music">
+            <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.063.922-2.063 2.063v4.875c0 1.141.922 2.062 2.063 2.062h1.932l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06zM18.57 17.47a1 1 0 11-1.414-1.414 4.5 4.5 0 000-6.364 1 1 0 111.414-1.414 6.5 6.5 0 010 9.192z" />
+            <path d="M21.4 20.3a1 1 0 11-1.414-1.414 8.5 8.5 0 000-12.02 1 1 0 111.414-1.414 10.5 10.5 0 010 14.848z" />
+        </svg>
+    </div>
+
+    <!-- 1. Halaman Sampul / Cover (Full Screen Overlay) -->
+    <div id="cover-page" class="cover-page">
+        <div class="cover-content animate-fade-in">
+            <p class="cover-sub">WEDDING INVITATION</p>
+            <!-- Nama panggilan pasangan di halaman sampul -->
+            <h1 class="couple-name-cover" data-field="COUPLE_NAME">{{ NAMA_PASANGAN }}</h1>
+            <p class="cover-date-text-placeholder">{{ ACARA_TANGGAL }}</p>
+            
+            <div class="guest-box">
+                <p>Kepada Yth. Bapak/Ibu/Saudara/i:</p>
+                <h3 id="guest-name">Nama Tamu Undangan</h3>
+            </div>
+            
+            <button class="btn-open-undangan" onclick="bukaUndangan()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:18px; margin-right:8px;">
+                    <path d="M19.5 22.5a3 3 0 003-3v-8.174l-6.879 4.022 6.879 4.022V19.5a1 1 0 01-1 1h-15a1 1 0 01-1-1v-4.13l6.879-4.022L2.25 11.326V19.5a3 3 0 003 3h14.25z" />
+                    <path d="M22.5 9.442V9a3 3 0 00-3-3H4.5a3 3 0 00-3 3v.442l9.808 5.73a1.25 1.25 0 001.384 0L22.5 9.442z" />
+                </svg>
+                Buka Undangan
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Wrapper (Akan muncul/bisa di-scroll setelah buka undangan) -->
+    <div id="main-content" class="main-content section-hide">
+        
+        <!-- 2. Hero Section -->
+        <header class="hero-section">
+            <div class="hero-bg-ornament"></div>
+            <div class="container reveal">
+                <p class="hero-intro">Selamat Datang di Undangan Pernikahan</p>
+                <!-- Nama panggilan pasangan di bagian hero utama -->
+                <h1 class="couple-title" data-field="COUPLE_NAME">{{ NAMA_PASANGAN }}</h1>
+                <p class="event-date-text tanggal-acara" data-field="EVENT_DATE">{{ ACARA_TANGGAL }}</p>
+            </div>
+        </header>
+
+        <!-- 3. Quotes Section -->
+        <section class="quote-section container reveal">
+            <div class="quote-card">
+                <p class="quote-text" data-field="QUOTE_TEXT">"Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang."</p>
+                <p class="quote-source" data-field="QUOTE_SOURCE">QS. Ar-Rum: 21</p>
+            </div>
+        </section>
+
+        <!-- 4. Mempelai Section -->
+        <section class="mempelai-section container">
+            <div class="section-title reveal">
+                <h2>Mempelai Pernikahan</h2>
+                <p>Dengan memohon rahmat Allah SWT, kami bermaksud mengundang Anda untuk menghadiri pernikahan kami.</p>
+            </div>
+
+            <div class="mempelai-grid">
+                <!-- Mempelai Pria (Elemen pertama WAJIB Pria) -->
+                <div class="mempelai-card reveal">
+                    <div class="img-frame">
+                        <img class="mempelai-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500&auto=format&fit=crop" alt="Mempelai Pria" data-field="GROOM_PHOTO">
+                    </div>
+                    <h3 data-field="GROOM_NAME">{{ PENGANTIN_PRIA_NAMA_LENGKAP }}</h3>
+                    <p class="parent-info" data-field="GROOM_PARENTS">Putra dari Bpk. Pria & Ibu Pria</p>
+                    <a class="instagram-link" href="#" data-field="GROOM_INSTAGRAM">@mempelai_pria</a>
+                </div>
+
+                <div class="divider-ampersand reveal">&</div>
+
+                <!-- Mempelai Wanita (Elemen kedua WAJIB Wanita) -->
+                <div class="mempelai-card reveal">
+                    <div class="img-frame">
+                        <img class="mempelai-img" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&auto=format&fit=crop" alt="Mempelai Wanita" data-field="BRIDE_PHOTO">
+                    </div>
+                    <h3 data-field="BRIDE_NAME">{{ PENGANTIN_WANITA_NAMA_LENGKAP }}</h3>
+                    <p class="parent-info" data-field="BRIDE_PARENTS">Putri dari Bpk. Wanita & Ibu Wanita</p>
+                    <a class="instagram-link" href="#" data-field="BRIDE_INSTAGRAM">@mempelai_wanita</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Countdown Section -->
+        <section class="countdown-section container reveal">
+            <h3>Menghitung Hari Menuju Acara</h3>
+            <div id="countdown-timer" class="countdown-grid" data-countdown="{{ ACARA_COUNTDOWN_ISO }}">
+                <div class="countdown-item"><span id="days">00</span><p>Hari</p></div>
+                <div class="countdown-item"><span id="hours">00</span><p>Jam</p></div>
+                <div class="countdown-item"><span id="minutes">00</span><p>Menit</p></div>
+                <div class="countdown-item"><span id="seconds">00</span><p>Detik</p></div>
+            </div>
+        </section>
+
+        <!-- 6. Acara / Event Info Section -->
+        <section class="event-section container reveal">
+            <div class="section-title">
+                <h2>Waktu & Tempat Acara</h2>
+            </div>
+            
+            <div class="event-details-card">
+                <div class="event-date-badge">
+                    <span class="day-name">Minggu</span>
+                    <span class="day-num">25</span>
+                    <span class="month-year">Desember 2026</span>
+                </div>
+                
+                <div class="event-info-list">
+                    <div class="info-item">
+                        <strong>Waktu:</strong>
+                        <p class="event-time" data-field="EVENT_TIME">{{ ACARA_WAKTU }}</p>
+                    </div>
+                    <div class="info-item">
+                        <strong>Tempat / Gedung:</strong>
+                        <p class="venue-name" data-field="VENUE">{{ ACARA_LOKASI }}</p>
+                        <p class="venue-address">Jl. Utama Pernikahan No. 123, Kota Bahagia</p>
+                    </div>
+                </div>
+
+                <a class="btn-maps" href="#" data-field="MAPS_URL">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width:16px; margin-right:6px;">
+                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clip-rule="evenodd" />
+                    </svg>
+                    Buka Google Maps
+                </a>
+            </div>
+        </section>
+
+        <!-- 7. Kisah Cinta (Love Story) Section -->
+        <section class="story-section container reveal">
+            <div class="section-title">
+                <h2>Kisah Cinta Kami</h2>
+            </div>
+            <!-- Wadah kosong ber-ID khusus untuk injeksi data otomatis -->
+            <div id="love-stories-container">
+                <!-- Struktur default sebagai placeholder visual jika dilihat mandiri -->
+                <div class="love-story-item">
+                    <h4 class="story-title">Pertama Bertemu</h4>
+                    <span class="story-date">10 Januari 2024</span>
+                    <p class="story-text">Kami bertemu secara tidak sengaja di sebuah acara literasi kampus...</p>
+                </div>
+                <div class="love-story-item">
+                    <h4 class="story-title">Komitmen</h4>
+                    <span class="story-date">15 Mei 2025</span>
+                    <p class="story-text">Setelah sekian lama berteman, kami memutuskan untuk melangkah ke jenjang yang lebih serius...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Galeri Foto Section -->
+        <section class="gallery-section container reveal">
+            <div class="section-title">
+                <h2>Galeri Kebahagiaan</h2>
+            </div>
+            <div class="gallery-grid">
+                <div class="main-photo-wrapper">
+                    <img id="featured-photo" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=800&auto=format&fit=crop" alt="Featured Photo">
+                </div>
+                <div class="thumbnail-grid">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=400&auto=format&fit=crop" alt="Thumbnail 1">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=400&auto=format&fit=crop" alt="Thumbnail 2">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=400&auto=format&fit=crop" alt="Thumbnail 3">
+                    <img class="thumbnail" src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=400&auto=format&fit=crop" alt="Thumbnail 4">
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. Video / Pre-wedding Section -->
+        <section class="video-section container reveal">
+            <div class="section-title">
+                <h2>Video Pre-Wedding / Live Streaming</h2>
+            </div>
+            <div class="video-container">
+                <!-- Sistem akan otomatis menyuntikkan ID YouTube ke src iframe ini -->
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <!-- 10. Filter Instagram Section (Opsional / Pelengkap) -->
+        <section class="filter-section container reveal text-center" style="text-align: center; margin-bottom: 50px;">
+            <p>Gunakan Filter Instagram Story Spesial Pernikahan Kami:</p>
+            <a class="ig-story-link btn-secondary" href="#" data-field="IG_STORY_URL">Buka Filter IG</a>
+        </section>
+
+        <!-- 11. Kado Digital Section -->
+        <section class="gift-section container reveal">
+            <div class="section-title">
+                <h2>Kado Digital</h2>
+                <p>Doa restu Anda merupakan karunia terindah bagi kami. Namun jika Anda ingin memberikan tanda kasih, Anda dapat menyalurkannya melalui dompet/rekening digital di bawah ini:</p>
+            </div>
+            <!-- Wadah kosong ber-ID khusus untuk injeksi kartu bank otomatis -->
+            <div id="digital-envelopes-container">
+                <!-- Contoh visual bawaan -->
+                <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #eee; max-width: 350px; margin: 0 auto;">
+                    <strong style="color: #b89765; font-size: 1.2rem; display: block; margin-bottom: 10px;">BANK BCA</strong>
+                    <p style="font-size: 1.1rem; font-weight: 600; margin: 5px 0;">1234567890</p>
+                    <p style="font-size: 0.9rem; color: #777;">a.n. Mempelai</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 12. RSVP Form Section -->
+        <section id="rsvp" class="rsvp-section container reveal">
+            <div class="rsvp-card">
+                <h2>Konfirmasi Kehadiran (RSVP)</h2>
+                <form id="rsvp-form" onsubmit="event.preventDefault(); alert('Terima kasih atas konfirmasinya!');">
+                    <div class="form-group">
+                        <label for="rsvp-name">Nama Lengkap</label>
+                        <input type="text" id="rsvp-name" required placeholder="Masukkan nama Anda">
+                    </div>
+                    <div class="form-group">
+                        <label for="rsvp-status">Apakah Anda akan Hadir?</label>
+                        <select id="rsvp-status" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="hadir">Ya, Saya Akan Hadir</option>
+                            <option value="tidak_hadir">Maaf, Saya Tidak Bisa Hadir</option>
+                            <option value="ragu">Masih Ragu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rsvp-count">Jumlah Pengunjung</label>
+                        <select id="rsvp-count">
+                            <option value="1">1 Orang</option>
+                            <option value="2">2 Orang</option>
+                            <option value="3">3 Orang</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Kirim Konfirmasi</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 13. Buku Tamu / Guestbook Section -->
+        <section id="guestbook" class="guestbook-section container reveal">
+            <div class="guestbook-card">
+                <h2>Ucapan & Doa Restu</h2>
+                <form id="gb-form" onsubmit="event.preventDefault(); alert('Ucapan berhasil dikirim!');">
+                    <div class="form-group">
+                        <input type="text" id="gb-name" required placeholder="Nama Anda">
+                    </div>
+                    <div class="form-group">
+                        <textarea id="gb-message" rows="4" required placeholder="Tuliskan ucapan dan doa terbaik Anda di sini..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Kirim Ucapan</button>
+                </form>
+
+                <div class="guestbook-list" style="margin-top: 30px;">
+                    <div class="gb-item" style="border-bottom: 1px solid #eee; padding: 12px 0;">
+                        <strong style="color: #b89765;">Budi & Keluarga</strong>
+                        <p style="margin: 4px 0 0; font-size: 0.95rem;">Selamat menempuh hidup baru! Semoga samawa selalu hingga akhir hayat.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 14. Footer -->
+        <footer class="wedding-footer">
+            <div class="container reveal">
+                <!-- Nama pasangan di bagian footer -->
+                <h3 data-field="COUPLE_NAME">{{ NAMA_PASANGAN }}</h3>
+                <p>Terima Kasih Atas Doa Restu Anda</p>
+                <div class="footer-credit">
+                    <p>&copy; 2026 Elegant Wedding Invitation. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

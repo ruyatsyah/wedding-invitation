@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pernikahan - Nisa & Diki</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #8FD9FB; /* Baby Blue aesthetic */
+            --primary-dark: #6bbce0;
+            --text-dark: #333333;
+            --text-light: #777777;
+            --bg-light: #fdfdfd;
+            --bg-card: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Prevent scroll before opening */
+        body.locked { overflow: hidden; }
+
+        h1, h2, h3, .font-aesthetic { font-family: 'Playfair Display', serif; }
+        .font-latin { font-family: 'Great Vibes', cursive; }
+
+        /* --- ANIMASI SCROLL REVEAL (MUNCUL PERLAHAN) --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- COVER PEMBUKA --- */
+        #cover {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000&auto=format&fit=crop') center/cover;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        #cover.open { transform: translateY(-100vh); }
+        #cover .guest-name { margin: 20px 0; padding: 15px 30px; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-primary {
+            background-color: var(--primary); color: white; padding: 12px 25px; border: none; border-radius: 30px;
+            font-family: 'Poppins', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(143, 217, 251, 0.4); transition: all 0.3s ease;
+        }
+        .btn-primary:hover { background-color: var(--primary-dark); transform: scale(1.05); }
+
+        /* --- LAYOUT UTAMA --- */
+        section { padding: 80px 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .container { max-width: 800px; width: 100%; }
+
+        /* --- HERO (BERANDA) --- */
+        #home {
+            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.9)), url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1000&auto=format&fit=crop') center/cover;
+            background-attachment: fixed; /* Efek Parallax */
+        }
+        #home h1 { font-size: 3.5rem; color: var(--primary-dark); margin: 10px 0; }
+        #home h2 { font-size: 2.5rem; margin-top: 20px; }
+
+        /* --- PASANGAN (COUPLE) --- */
+        .couple-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; margin-top: 30px; }
+        .couple-card { flex: 1; min-width: 250px; }
+        .couple-img { width: 180px; height: 180px; object-fit: cover; border-radius: 50%; border: 5px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .couple-card h3 { font-size: 2rem; color: var(--primary-dark); }
+
+        /* --- ACARA & COUNTDOWN --- */
+        .event-cards { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 30px; }
+        .card { background: var(--bg-card); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); flex: 1; min-width: 280px; border-top: 4px solid var(--primary); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
+        .countdown { display: flex; justify-content: center; gap: 15px; margin: 30px 0; }
+        .cd-box { background: var(--primary); color: white; padding: 15px; border-radius: 10px; min-width: 70px; box-shadow: 0 5px 15px rgba(143,217,251,0.4); }
+        .cd-box span { display: block; font-size: 1.5rem; font-weight: 600; }
+        .cd-box small { font-size: 0.8rem; }
+
+        /* --- GALERI --- */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 30px; }
+        .gallery-grid img { width: 100%; height: 250px; object-fit: cover; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .gallery-grid img:hover { transform: scale(1.05); }
+
+        /* --- BOTTOM NAVIGATION (MENU BAWAH) --- */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+            padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: flex; gap: 25px; z-index: 1000;
+            transition: bottom 0.5s ease;
+            opacity: 0; pointer-events: none; /* Disembunyikan sebelum dibuka */
+        }
+        body:not(.locked) .bottom-nav { opacity: 1; pointer-events: all; }
+        .bottom-nav a { color: var(--text-light); text-decoration: none; font-size: 1.2rem; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
+        .bottom-nav a span { font-size: 0.6rem; margin-top: 3px; font-weight: 500; }
+        .bottom-nav a:hover, .bottom-nav a.active { color: var(--primary-dark); }
+
+        /* --- FLOATING MUSIC --- */
+        .music-btn {
+            position: fixed; top: 20px; right: 20px;
+            width: 45px; height: 45px; background: var(--primary); color: white;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            animation: spin 4s linear infinite;
+            opacity: 0; transition: opacity 1s ease;
+        }
+        body:not(.locked) .music-btn { opacity: 1; }
+        .music-btn.paused { animation-play-state: paused; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            #home h1 { font-size: 2.8rem; }
+            section { padding: 60px 15px; }
+            .bottom-nav { width: 90%; justify-content: space-between; padding: 10px 25px; }
+        }
+    </style>
+</head>
+<body class="locked">
+
+    <!-- AUDIO PLAYER -->
+    <!-- Ganti src dengan link lagu romantis format mp3 -->
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- TOMBOL MUSIK -->
+    <div class="music-btn paused" id="musicToggle" onclick="toggleMusic()">
+        <i class="fas fa-compact-disc"></i>
+    </div>
+
+    <!-- MENU BAWAH -->
+    <div class="bottom-nav">
+        <a href="#home" class="active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="#couple"><i class="fas fa-heart"></i><span>Couple</span></a>
+        <a href="#event"><i class="fas fa-calendar-alt"></i><span>Event</span></a>
+        <a href="#gallery"><i class="fas fa-images"></i><span>Gallery</span></a>
+    </div>
+
+    <!-- COVER SECTION -->
+    <div id="cover">
+        <p class="reveal">THE WEDDING OF</p>
+        <h1 class="font-latin reveal" style="font-size: 4rem; color: var(--primary); margin-bottom: 20px;">Nisa & Diki</h1>
+        
+        <div class="guest-name reveal">
+            <p style="font-size: 0.9rem; margin-bottom: 5px;">Kepada Yth. Bapak/Ibu/Saudara/i:</p>
+            <h2 style="font-size: 1.5rem;">Ruyatsyah dan Partner</h2>
+        </div>
+
+        <button class="btn-primary reveal" onclick="openInvitation()">
+            <i class="fas fa-envelope-open-text"></i> Buka Undangan
+        </button>
+    </div>
+
+    <!-- MAIN KONTEN -->
+    <div id="main-content">
+        
+        <!-- SECTION: HOME -->
+        <section id="home">
+            <div class="container">
+                <p class="reveal">Maha Suci Allah yang telah menciptakan makhluk-Nya berpasang-pasangan.</p>
+                <h1 class="font-latin reveal">Nisa</h1>
+                <h2 class="reveal" style="color: var(--primary);">&</h2>
+                <h1 class="font-latin reveal">Diki</h1>
+                <p class="reveal" style="font-weight: 600; letter-spacing: 2px; margin-top: 20px;">28 . 12 . 2025</p>
+
+                <!-- Countdown -->
+                <div class="countdown reveal">
+                    <div class="cd-box"><span id="days">00</span><small>Hari</small></div>
+                    <div class="cd-box"><span id="hours">00</span><small>Jam</small></div>
+                    <div class="cd-box"><span id="minutes">00</span><small>Menit</small></div>
+                    <div class="cd-box"><span id="seconds">00</span><small>Detik</small></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: COUPLE -->
+        <section id="couple" style="background-color: white;">
+            <div class="container">
+                <h2 class="font-aesthetic reveal" style="font-size: 2.5rem; margin-bottom: 20px;">Mempelai</h2>
+                <p class="reveal text-light">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami:</p>
+                
+                <div class="couple-container">
+                    <div class="couple-card reveal">
+                        <img src="https://images.unsplash.com/photo-1595844730298-b860fac0625b?q=80&w=400&auto=format&fit=crop" class="couple-img" alt="Nisa">
+                        <h3 class="font-latin">Khoirunnisa Lubis</h3>
+                        <p style="margin-top: 10px;">Putri dari Bapak Fulan<br>& Ibu Fulanah</p>
+                    </div>
+                    
+                    <div class="couple-card reveal">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=400&auto=format&fit=crop" class="couple-img" alt="Diki">
+                        <h3 class="font-latin">Diki Juwandi</h3>
+                        <p style="margin-top: 10px;">Putra dari Bapak Fulan<br>& Ibu Fulanah</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: EVENT -->
+        <section id="event">
+            <div class="container">
+                <h2 class="font-aesthetic reveal" style="font-size: 2.5rem;">Waktu & Tempat</h2>
+                
+                <div class="event-cards">
+                    <div class="card reveal">
+                        <i class="fas fa-ring"></i>
+                        <h3 class="font-aesthetic">Akad Nikah</h3>
+                        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+                        <p><strong>Minggu, 28 Desember 2025</strong></p>
+                        <p>08.00 WIB - Selesai</p>
+                    </div>
+                    
+                    <div class="card reveal">
+                        <i class="fas fa-glass-cheers"></i>
+                        <h3 class="font-aesthetic">Resepsi</h3>
+                        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+                        <p><strong>Minggu, 28 Desember 2025</strong></p>
+                        <p>11.00 WIB - Selesai</p>
+                    </div>
+                </div>
+
+                <div class="card reveal" style="margin-top: 20px; width: 100%;">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3 class="font-aesthetic">Lokasi Acara</h3>
+                    <p style="margin: 15px 0;"><strong>Rumah Mempelai Wanita</strong><br>Perumahan Protanmas Samolo Indah, Jl. Raya Bandung No.16, Cianjur, Jawa Barat</p>
+                    <a href="https://maps.google.com" target="_blank" class="btn-primary" style="text-decoration: none; display: inline-block;">
+                        <i class="fas fa-map"></i> Buka Google Maps
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: GALLERY -->
+        <section id="gallery" style="background-color: white;">
+            <div class="container">
+                <h2 class="font-aesthetic reveal" style="font-size: 2.5rem; margin-bottom: 20px;">Galeri Kami</h2>
+                <div class="gallery-grid">
+                    <img class="reveal" src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=600&auto=format&fit=crop" alt="Foto 1">
+                    <img class="reveal" src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=600&auto=format&fit=crop" alt="Foto 2">
+                    <img class="reveal" src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=600&auto=format&fit=crop" alt="Foto 3">
+                    <img class="reveal" src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=600&auto=format&fit=crop" alt="Foto 4">
+                </div>
+            </div>
+        </section>
+
+        <footer style="background: var(--text-dark); color: white; padding: 40px 20px; text-align: center; margin-bottom: 60px;">
+            <h2 class="font-latin reveal" style="font-size: 2.5rem; margin-bottom: 10px;">Nisa & Diki</h2>
+            <p class="reveal" style="color: #bbb;">Terima kasih atas doa dan restu yang diberikan.</p>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT UNTUK INTERAKSI DAN ANIMASI -->
+    <script>
+        // 1. Fungsi Buka Undangan
+        const music = document.getElementById("bg-music");
+        const musicBtn = document.getElementById("musicToggle");
+
+        function openInvitation() {
+            document.getElementById('cover').classList.add('open');
+            document.body.classList.remove('locked');
+            
+            // Putar Musik
+            music.play();
+            musicBtn.classList.remove('paused');
+            
+            // Panggil animasi awal
+            setTimeout(revealElement, 500);
+        }
+
+        // 2. Fungsi Toggle Musik (Play/Pause)
+        function toggleMusic() {
+            if (music.paused) {
+                music.play();
+                musicBtn.classList.remove('paused');
+            } else {
+                music.pause();
+                musicBtn.classList.add('paused');
+            }
+        }
+
+        // 3. Scroll Reveal Animation (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Animasi Cover saat baru load
+        document.querySelectorAll('#cover .reveal').forEach(el => {
+            setTimeout(() => el.classList.add('active'), 300);
+        });
+
+        // 4. Countdown Timer Logika
+        const targetDate = new Date("Dec 28, 2025 08:00:00").getTime();
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                return;
+            }
+
+            document.getElementById("days").innerText = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            document.getElementById("hours").innerText = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            document.getElementById("minutes").innerText = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+            document.getElementById("seconds").innerText = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+        }, 1000);
+
+        // 5. Active Link Navigasi Bawah saat di-scroll
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".bottom-nav a");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

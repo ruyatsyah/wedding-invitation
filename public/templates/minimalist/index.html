@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undangan Pernikahan - {{NAMA_PASANGAN}}</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #FAFAFA;
+      --text: #1A1A1A;
+      --accent: #D4AF37; /* Subtle Gold */
+      --gray: #757575;
+      --font-serif: 'Playfair Display', serif;
+      --font-sans: 'Inter', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Scroll Animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section {
+      padding: 100px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* Hero Section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      /* Dynamic Background injected via JS data-bg */
+      background-color: #eee;
+    }
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(26, 26, 26, 0.4);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      color: #FFF;
+      text-align: center;
+      padding: 40px;
+    }
+    .hero .pre-title {
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: 4rem;
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 30px;
+    }
+    .hero .date {
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    /* Section Titles */
+    h2.title {
+      font-family: var(--font-serif);
+      font-size: 2.5rem;
+      font-weight: 400;
+      margin-bottom: 40px;
+      color: var(--text);
+    }
+
+    /* Couple Section */
+    .couple-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+    @media(min-width: 768px) {
+      .couple-grid { flex-direction: row; justify-content: space-around; }
+    }
+    .couple-card img {
+      width: 250px;
+      height: 350px;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .couple-card h3 {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .couple-card p {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    .couple-card a.ig {
+      display: inline-block;
+      margin-top: 15px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--text);
+      padding-bottom: 2px;
+    }
+
+    /* Quote */
+    .quote-box {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-style: italic;
+      color: var(--gray);
+      margin: 40px 0;
+    }
+
+    /* Events */
+    .event-card {
+      background: #FFF;
+      padding: 40px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .event-card h3 {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    .event-card p {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 25px;
+      background: var(--text);
+      color: #FFF;
+      text-decoration: none;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+    .btn:hover { background: var(--gray); }
+
+    /* Digital Envelopes */
+    #digital-envelopes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+    .envelope-card {
+      background: #FFF;
+      padding: 30px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      border: 1px solid #eaeaea;
+    }
+    .copy-btn {
+      margin-top: 15px;
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: #e0e0e0; }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .gallery-grid img.featured {
+      grid-column: 1 / -1;
+      height: 400px;
+    }
+
+    /* Music Button */
+    #music-toggle {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: var(--text);
+      color: #fff;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 999;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    #music-toggle:hover { transform: scale(1.1); }
+    #music-toggle.playing { animation: pulse 2s infinite; }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(26,26,26, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(26,26,26, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(26,26,26, 0); }
+    }
+
+    footer {
+      padding: 50px 20px;
+      text-align: center;
+      background: var(--text);
+      color: #FFF;
+      font-family: var(--font-serif);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Audio Player -->
+  <audio id="bg-audio" loop>
+    <source src="{{MUSIK_URL}}" type="audio/mpeg">
+  </audio>
+  <button id="music-toggle" onclick="togglePlay()">🎵</button>
+
+  <!-- Hero Section -->
+  <header class="hero" data-bg="{{FOTO_1}}">
+    <div class="hero-overlay"></div>
+    <div class="hero-content fade-up">
+      <div class="pre-title">Pernikahan</div>
+      <h1 class="couple-name-cover">{{NAMA_PASANGAN}}</h1>
+      <div class="date tanggal-acara">{{ACARA_TANGGAL}}</div>
+    </div>
+  </header>
+
+  <!-- Quote Section -->
+  <section class="fade-up">
+    <div class="quote-box">"{{KUTIPAN}}"</div>
+    <p style="letter-spacing:2px; text-transform:uppercase; font-size:0.8rem;">{{KUTIPAN_SUMBER}}</p>
+  </section>
+
+  <!-- Couple Section -->
+  <section class="fade-up">
+    <h2 class="title">Sang Mempelai</h2>
+    <div class="couple-grid">
+      <div class="couple-card mempelai-card">
+        <img src="{{PENGANTIN_PRIA_FOTO}}" alt="Mempelai Pria">
+        <h3>{{PENGANTIN_PRIA_NAMA_LENGKAP}}</h3>
+        <p class="parent-info">Putra dari<br>Bpk. {{PENGANTIN_PRIA_AYAH}} & Ibu {{PENGANTIN_PRIA_IBU}}</p>
+        <a href="{{PENGANTIN_PRIA_IG}}" target="_blank" class="ig instagram-link">@{{PENGANTIN_PRIA_IG_USERNAME}}</a>
+      </div>
+      <div class="couple-card mempelai-card">
+        <img src="{{PENGANTIN_WANITA_FOTO}}" alt="Mempelai Wanita">
+        <h3>{{PENGANTIN_WANITA_NAMA_LENGKAP}}</h3>
+        <p class="parent-info">Putri dari<br>Bpk. {{PENGANTIN_WANITA_AYAH}} & Ibu {{PENGANTIN_WANITA_IBU}}</p>
+        <a href="{{PENGANTIN_WANITA_IG}}" target="_blank" class="ig instagram-link">@{{PENGANTIN_WANITA_IG_USERNAME}}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Event Section -->
+  <section class="fade-up">
+    <h2 class="title">Informasi Acara</h2>
+    
+    <div class="event-card">
+      <h3>Resepsi Pernikahan</h3>
+      <p style="font-weight:600;" class="tanggal-acara">{{ACARA_TANGGAL}}</p>
+      <p class="event-time">{{ACARA_WAKTU}}</p>
+      <div style="margin-top:20px;">
+        <p class="venue-name" style="font-weight:600;">{{ACARA_LOKASI}}</p>
+        <p class="venue-address" style="color:var(--gray); font-size:0.95rem;">{{ACARA_ALAMAT}}</p>
+      </div>
+      <a href="{{ACARA_MAPS_LINK}}" class="btn" target="_blank">Lihat Peta (Google Maps)</a>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section class="fade-up">
+    <h2 class="title">Galeri Kebahagiaan</h2>
+    <div class="gallery-grid">
+      <img src="{{FOTO_1}}" id="featured-photo" class="featured" alt="Gallery">
+      <img src="{{FOTO_2}}" class="thumbnail" alt="Gallery">
+      <img src="{{FOTO_3}}" class="thumbnail" alt="Gallery">
+      <img src="{{FOTO_4}}" class="thumbnail" alt="Gallery">
+      <img src="{{FOTO_5}}" class="thumbnail" alt="Gallery">
+    </div>
+  </section>
+
+  <!-- Digital Envelope Section -->
+  <section class="fade-up">
+    <h2 class="title">Kado Digital</h2>
+    <p style="color:var(--gray); margin-bottom:30px;">Merupakan suatu kehormatan bagi kami jika Anda berkenan hadir. Namun jika Anda ingin memberikan tanda kasih, dapat melalui:</p>
+    <div id="digital-envelopes-container">
+      <!-- Injected by JS -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <h3 style="font-size:2rem; margin-bottom:10px;" class="couple-title">{{NAMA_PASANGAN}}</h3>
+    <p style="font-size:0.8rem; letter-spacing:2px; font-family:var(--font-sans); opacity:0.7;">TERIMA KASIH</p>
+  </footer>
+
+  <!-- ── Scripts ────────────────────────────────────────────────────────── -->
+  <script>
+    // 1. Scroll Fade-Up Animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // 2. Music Player
+    const audio = document.getElementById('bg-audio');
+    const musicBtn = document.getElementById('music-toggle');
+    let isPlaying = false;
+
+    // Coba autoplay
+    window.addEventListener('click', () => {
+      if(!isPlaying && audio.src && !audio.src.includes('{{')) {
+        audio.play().then(() => {
+          isPlaying = true;
+          musicBtn.innerHTML = '⏸️';
+          musicBtn.classList.add('playing');
+        }).catch(e => console.log('Autoplay prevented'));
+      }
+    }, {once:true});
+
+    function togglePlay() {
+      if(isPlaying) {
+        audio.pause();
+        musicBtn.innerHTML = '▶️';
+        musicBtn.classList.remove('playing');
+      } else {
+        audio.play();
+        musicBtn.innerHTML = '⏸️';
+        musicBtn.classList.add('playing');
+      }
+      isPlaying = !isPlaying;
+    }
+
+    // 3. Render Digital Envelopes with Copy Function
+    function renderEnvelopes(data) {
+      const container = document.getElementById('digital-envelopes-container');
+      if (!container || !data || !data.DIGITAL_ENVELOPES || data.DIGITAL_ENVELOPES.length === 0) return;
+      
+      const LOGO_MAP = {
+        'bca': '/bank-logos/bca.png', 'bni': '/bank-logos/bni.png',
+        'bri': '/bank-logos/bri.png', 'bsi': '/bank-logos/bsi.png',
+        'mandiri': '/bank-logos/mandiri.png', 'dana': '/bank-logos/dana.png',
+        'gopay': '/bank-logos/gopay.png', 'ovo': '/bank-logos/ovo.png',
+        'shopeepay': '/bank-logos/shoppepay.png', 'jenius': '/bank-logos/Jenius-logo.png'
+      };
+
+      let html = '';
+      data.DIGITAL_ENVELOPES.forEach(env => {
+        const logo = LOGO_MAP[(env.bankName || '').toLowerCase().trim()];
+        const header = logo 
+          ? \`<img src="\${logo}" alt="\${env.bankName}" style="height:25px; object-fit:contain; margin-bottom:15px;">\`
+          : \`<h4 style="margin-bottom:15px; font-family:var(--font-sans);">\${env.bankName}</h4>\`;
+        
+        html += \`
+          <div class="envelope-card">
+            \${header}
+            <p style="font-size:1.5rem; font-family:monospace; letter-spacing:2px; color:var(--text); margin-bottom:5px;">\${env.bankAccount}</p>
+            <p style="font-size:0.9rem; color:var(--gray);">a.n. \${env.bankHolder}</p>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText('\${env.bankAccount}').then(()=>alert('Rekening berhasil disalin!'))">
+              📋 Salin Rekening
+            </button>
+          </div>
+        \`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Initialize from window data (Production)
+    if (window.__INVITATION_DATA__) {
+      renderEnvelopes(window.__INVITATION_DATA__);
+    }
+  </script>
+
+  <!-- 
+    SELF-DEMO SCRIPT
+    Untuk keperluan preview statis langsung dari file HTML
+  -->
+  <script>
+    (function(){
+      if (window.__INVITATION_DATA__ && window.__INVITATION_DATA__.GROOM_NAME) return;
+      
+      const DEMO = {
+        NAMA_PASANGAN: 'Rangga & Cinta',
+        PENGANTIN_PRIA_NAMA_LENGKAP: 'Rangga Dwiputra',
+        PENGANTIN_PRIA_FOTO: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+        PENGANTIN_PRIA_AYAH: 'Budi', PENGANTIN_PRIA_IBU: 'Ani',
+        PENGANTIN_PRIA_IG: 'https://instagram.com/rangga', PENGANTIN_PRIA_IG_USERNAME: 'rangga',
+        PENGANTIN_WANITA_NAMA_LENGKAP: 'Cinta Laura',
+        PENGANTIN_WANITA_FOTO: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        PENGANTIN_WANITA_AYAH: 'Joko', PENGANTIN_WANITA_IBU: 'Sri',
+        PENGANTIN_WANITA_IG: 'https://instagram.com/cinta', PENGANTIN_WANITA_IG_USERNAME: 'cinta',
+        ACARA_TANGGAL: 'Sabtu, 14 Februari 2026',
+        ACARA_WAKTU: '09:00 WIB - Selesai',
+        ACARA_LOKASI: 'Grand Minimalist Ballroom',
+        ACARA_ALAMAT: 'Jl. Sudirman No. 1, Jakarta',
+        ACARA_MAPS_LINK: '#',
+        KUTIPAN: 'Simplicity is the ultimate sophistication.',
+        KUTIPAN_SUMBER: 'Leonardo da Vinci',
+        FOTO_1: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+        FOTO_2: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
+        FOTO_3: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80',
+        FOTO_4: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80',
+        FOTO_5: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=800&q=80',
+        DIGITAL_ENVELOPES: [
+          { bankName: 'BCA', bankAccount: '123456789', bankHolder: 'Rangga' }
+        ]
+      };
+
+      // Replace DOM Text
+      const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+      let n;
+      while (n = walk.nextNode()) {
+        if (/\{\{[^}]+\}\}/.test(n.nodeValue)) {
+          let t = n.nodeValue;
+          Object.keys(DEMO).forEach(k => {
+            if(typeof DEMO[k]==='string') t = t.replace(new RegExp('\\{\\{\\s*'+k+'\\s*\\}\\}','g'), DEMO[k]);
+          });
+          n.nodeValue = t.replace(/\{\{[^}]*\}\}/g, '');
+        }
+      }
+      
+      // Replace Attributes
+      document.querySelectorAll('[src], [href], [data-bg]').forEach(el => {
+        ['src', 'href', 'data-bg'].forEach(attr => {
+          let v = el.getAttribute(attr);
+          if (v && /\{\{/.test(v)) {
+            Object.keys(DEMO).forEach(k => {
+              if(typeof DEMO[k]==='string') v = v.replace(new RegExp('\\{\\{\\s*'+k+'\\s*\\}\\}','g'), DEMO[k]);
+            });
+            el.setAttribute(attr, v.replace(/\{\{[^}]*\}\}/g, ''));
+          }
+        });
+      });
+
+      // Apply bg
+      document.querySelectorAll('[data-bg]').forEach(el => {
+        let bg = el.getAttribute('data-bg');
+        if(bg) {
+          el.style.background = `linear-gradient(rgba(26,26,26,0.5),rgba(26,26,26,0.5)), url('${bg}') center/cover`;
+        }
+      });
+
+      renderEnvelopes(DEMO);
+      
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1A1A1A;color:#fff;text-align:center;font-size:11px;padding:8px;z-index:9999;';
+      banner.textContent = 'MODE DEMO: Tema Interaktif Minimalis';
+      document.body.appendChild(banner);
+    })();
+  </script>
+</body>
+</html>
