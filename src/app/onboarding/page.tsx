@@ -37,6 +37,7 @@ function OnboardingFlow() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const initialPlan = searchParams.get('plan') || '';
+  const upgradeFrom = searchParams.get('upgradeFrom') || '';
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
@@ -71,7 +72,27 @@ function OnboardingFlow() {
         const res = await fetch('/api/packages');
         const data = await res.json();
         if (data.success) {
-          setPlans(data.data);
+          let loadedPlans = data.data as Plan[];
+
+          if (upgradeFrom === 'silver') {
+            const goldPlan = loadedPlans.find(p => p.name.toLowerCase().includes('gold'));
+            const silverPlan = loadedPlans.find(p => p.name.toLowerCase().includes('silver'));
+
+            if (goldPlan && silverPlan) {
+              const goldPrice = parseNumericPrice(goldPlan.price);
+              const silverPrice = parseNumericPrice(silverPlan.price);
+              const upgradePrice = (goldPrice - silverPrice) + 10000;
+              
+              const newGoldPlan = {
+                ...goldPlan,
+                name: `${goldPlan.name} (Upgrade)`,
+                price: `Rp ${upgradePrice.toLocaleString('id-ID')}`
+              };
+              loadedPlans = [newGoldPlan];
+            }
+          }
+
+          setPlans(loadedPlans);
         }
       } catch (err) {
         console.error('Failed to fetch packages:', err);
@@ -122,6 +143,7 @@ function OnboardingFlow() {
         customUrl,
         plan: selectedPlan?.name?.toLowerCase() || selectedPlanId,
         planId: selectedPlanId,
+        paidPrice: selectedPlan?.price ? parseNumericPrice(selectedPlan.price) : undefined,
       };
       if (paymentMethod) payload.paymentMethod = paymentMethod;
 
@@ -191,6 +213,7 @@ function OnboardingFlow() {
               customUrl: tempCustomUrl,
               plan: selectedPlan?.name?.toLowerCase() || selectedPlanId,
               planId: selectedPlanId,
+              paidPrice: selectedPlan?.price ? parseNumericPrice(selectedPlan.price) : undefined,
             };
 
             await fetch('/api/onboarding', {
@@ -289,7 +312,7 @@ function OnboardingFlow() {
                         <p className={`text-sm mb-3 ${plan.popular ? 'text-neutral-300' : 'text-neutral-400'}`}>
                           {plan.tagline}
                         </p>
-                      )}
+                       )}
                       <div className={`text-xl font-bold ${plan.popular ? 'text-neutral-300' : 'text-neutral-500'}`}>
                         {plan.price}
                       </div>
@@ -317,6 +340,14 @@ function OnboardingFlow() {
                 ))}
               </div>
             )}
+            <div className="mt-10 text-center">
+              <Link
+                href={session ? "/client/undangan" : "/"}
+                className="text-sm font-semibold text-neutral-500 hover:text-[#000000] transition-colors inline-block"
+              >
+                ← Kembali
+              </Link>
+            </div>
           </div>
         )}
 

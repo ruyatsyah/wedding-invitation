@@ -39,9 +39,9 @@ export default function ClientProfilePage() {
   let userTier = 'BRONZE';
   if ((user as any)?.role === 'admin') {
     userTier = 'GOLD';
-  } else if (projects.some((p: any) => p.plan?.toLowerCase() === 'gold')) {
+  } else if (projects.some((p: any) => p.plan?.toLowerCase().includes('gold'))) {
     userTier = 'GOLD';
-  } else if (projects.some((p: any) => p.plan?.toLowerCase() === 'silver')) {
+  } else if (projects.some((p: any) => p.plan?.toLowerCase().includes('silver'))) {
     userTier = 'SILVER';
   }
 

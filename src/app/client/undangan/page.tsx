@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Search, Gem, Globe, Settings2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 interface Project {
   _id: string;
@@ -23,6 +24,8 @@ interface Project {
 
 export default function UndanganSayaPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
@@ -39,6 +42,15 @@ export default function UndanganSayaPage() {
     p.customUrl.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  let userTier = 'BRONZE';
+  if ((user as any)?.role === 'admin') {
+    userTier = 'GOLD';
+  } else if (projects.some((p: any) => p.plan?.toLowerCase().includes('gold'))) {
+    userTier = 'GOLD';
+  } else if (projects.some((p: any) => p.plan?.toLowerCase().includes('silver'))) {
+    userTier = 'SILVER';
+  }
+
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
       
@@ -54,15 +66,17 @@ export default function UndanganSayaPage() {
       </div>
 
       {/* Upgrade Banner */}
-      <div className="bg-[#F0EBE6] rounded-xl border border-[#E3D9D0] p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <span className="font-bold text-[#6D5443] text-sm">
-          Kamu masih pakai akun gratisan!
-        </span>
-        <button className="bg-[#8F6B52] hover:bg-[#7D5D47] text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 text-sm transition-colors shadow-sm">
-          <Gem className="w-4 h-4" />
-          Upgrade Akun
-        </button>
-      </div>
+      {!isLoading && userTier !== 'GOLD' && (
+        <div className="bg-[#F0EBE6] rounded-xl border border-[#E3D9D0] p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="font-bold text-[#6D5443] text-sm">
+            {userTier === 'SILVER' ? 'Kamu pakai akun Silver!' : 'Kamu masih pakai akun gratisan!'}
+          </span>
+          <Link href={userTier === 'SILVER' ? "/onboarding?upgradeFrom=silver" : "/onboarding"} className="bg-[#8F6B52] hover:bg-[#7D5D47] text-white px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 text-sm transition-colors shadow-sm">
+            <Gem className="w-4 h-4" />
+            {userTier === 'SILVER' ? 'Upgrade ke Gold' : 'Upgrade Akun'}
+          </Link>
+        </div>
+      )}
 
       {/* Invitations List */}
       <div className="space-y-4">

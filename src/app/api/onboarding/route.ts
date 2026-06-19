@@ -44,8 +44,20 @@ export async function POST(req: Request) {
 
     // Determine price snapshot based on plan
     let priceSnapshot = 0;
-    if (plan === 'silver') priceSnapshot = 49000;
-    if (plan === 'gold') priceSnapshot = 99000;
+    const Package = (await import('@/models/Package')).default;
+    
+    if (body.paidPrice !== undefined) {
+      priceSnapshot = Number(body.paidPrice);
+    } else if (body.planId) {
+      const pkg = await Package.findById(body.planId);
+      if (pkg && pkg.price) {
+        priceSnapshot = parseInt(pkg.price.replace(/[^0-9]/g, ''), 10) || 0;
+      }
+    } else {
+      // Fallback if no planId provided
+      if (plan.includes('silver')) priceSnapshot = 49000;
+      if (plan.includes('gold')) priceSnapshot = 99000;
+    }
 
     // Create the project (pending theme selection)
     const newProject = await Project.create({

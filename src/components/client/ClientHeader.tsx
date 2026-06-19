@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Search, Bell, User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings, ChevronDown, Gem } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 
 interface ClientHeaderProps {
@@ -13,11 +14,30 @@ interface ClientHeaderProps {
 export default function ClientHeader({ onMenuClick }: ClientHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const user = session?.user;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await fetch('/api/projects');
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      return data.data;
+    },
+  });
+
+  let userTier = 'BRONZE';
+  if ((user as any)?.role === 'admin') {
+    userTier = 'GOLD';
+  } else if (projects.some((p: any) => p.plan?.toLowerCase().includes('gold'))) {
+    userTier = 'GOLD';
+  } else if (projects.some((p: any) => p.plan?.toLowerCase().includes('silver'))) {
+    userTier = 'SILVER';
+  }
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -48,7 +68,23 @@ export default function ClientHeader({ onMenuClick }: ClientHeaderProps) {
             </svg>
           </button>
         )}
-        <h2 className="text-base md:text-lg font-semibold text-[#000000] truncate max-w-[120px] sm:max-w-none">{pageTitle}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-base md:text-lg font-semibold text-[#000000] truncate max-w-[120px] sm:max-w-none">{pageTitle}</h2>
+          {isLoading ? (
+            <span className="inline-flex w-[60px] h-[22px] rounded-full bg-neutral-200 animate-pulse"></span>
+          ) : (
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${
+              userTier === 'GOLD' 
+                ? 'bg-amber-100 text-amber-700 border-amber-200' 
+                : userTier === 'SILVER' 
+                  ? 'bg-slate-100 text-slate-700 border-slate-200' 
+                  : 'bg-[#8F6B52]/10 text-[#8F6B52] border-[#8F6B52]/20'
+            }`}>
+              <Gem className="w-2.5 h-2.5" />
+              {userTier}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-3 md:gap-4">
@@ -70,29 +106,38 @@ export default function ClientHeader({ onMenuClick }: ClientHeaderProps) {
 
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 pl-3 border-l border-neutral-200 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center flex-shrink-0">
-              {user?.image ? (
-                <Image
-                  src={user.image}
-                  alt={user.name ?? 'User'}
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <User className="w-4 h-4 text-neutral-500" />
-              )}
+          {status === 'loading' ? (
+            <div className="flex items-center gap-2 pl-3 border-l border-neutral-200">
+              <div className="w-8 h-8 rounded-full bg-neutral-200 animate-pulse flex-shrink-0" />
+              <div className="text-left hidden sm:block">
+                <div className="w-20 h-4 bg-neutral-200 rounded animate-pulse" />
+              </div>
             </div>
-            <div className="text-left hidden sm:block">
-              <p className="text-sm font-semibold text-neutral-900 leading-tight max-w-[100px] truncate">{user?.name ?? 'Client'}</p>
-            </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-neutral-400 transition-transform hidden sm:block ${dropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
+          ) : (
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 pl-3 border-l border-neutral-200 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-neutral-200 flex items-center justify-center flex-shrink-0">
+                {user?.image ? (
+                  <Image
+                    src={user.image}
+                    alt={user.name ?? 'User'}
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-neutral-500" />
+                )}
+              </div>
+              <div className="text-left hidden sm:block">
+                <p className="text-sm font-semibold text-neutral-900 leading-tight max-w-[100px] truncate">{user?.name ?? 'Client'}</p>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-neutral-400 transition-transform hidden sm:block ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+          )}
 
           {/* Dropdown Menu */}
           {dropdownOpen && (
